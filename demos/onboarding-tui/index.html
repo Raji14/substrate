@@ -324,7 +324,7 @@
     .track-desc { font-size: 11px; color: var(--text-muted); }
     .track-card.selected .track-desc { color: rgba(255, 255, 255, 0.9); }
 
-    /* Diagnostics Badge */
+    /* Preflight Diagnostics Badge */
     .preflight-badge {
       width: 100%;
       max-width: 800px;
@@ -501,7 +501,38 @@
     .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 6px; }
     .done-prompt { font-size: 12px; color: var(--text-primary); font-style: italic; }
 
-    /* Pre-existing Cluster Info Box */
+    /* Interactive Cluster Selection List */
+    .cluster-select-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .cluster-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+    }
+    .cluster-card:hover {
+      background: #1c222d;
+      border-color: var(--accent-cyan);
+    }
+    .cluster-card.selected {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.35);
+    }
+    .cluster-info-title { font-size: 12px; font-weight: 700; color: var(--text-white); }
+    .cluster-info-sub { font-size: 11px; color: var(--text-muted); }
+    .cluster-card.selected .cluster-info-sub { color: rgba(255, 255, 255, 0.9); }
+
+    /* Cluster Verification & Control Plane Probe Box */
     .cluster-info-box {
       background: #11151c;
       border: 1px solid var(--border-subtle);
@@ -510,10 +541,10 @@
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
-    .cluster-info-title { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px; }
-    .cluster-info-line { font-size: 11px; color: var(--text-primary); }
+    .cluster-info-header { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 2px; }
+    .cluster-info-line { font-size: 11px; color: var(--text-primary); line-height: 1.5; }
 
     /* Private GA Agreement Box */
     .agreement-box {
@@ -805,34 +836,79 @@
           </div>
         </div>
 
-        <!-- STEP 2: Connect your cluster (Pre-existing requirement) -->
+        <!-- STEP 2: Connect your cluster (Interactive Cluster Selection & Control Plane Probe) -->
         <div class="step-screen" id="screen-1">
           <div class="step-counter">Step 2 of 9</div>
-          <div class="step-heading">Verify Pre-configured Kubernetes Cluster</div>
-          <div class="step-description">Substrate runs on any pre-existing Kubernetes cluster — ensuring infrastructure portability across GKE, EKS, AKS, OpenShift, or on-prem with zero cloud lock-in.</div>
+          <div class="step-heading">Select Cluster & Verify Substrate Control Plane</div>
+          <div class="step-description">Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and check if Substrate control plane is already installed.</div>
 
           <div class="command-box">
             <div class="command-pill">▼ Show the real command</div>
-            <div class="command-text">kubectl cluster-info && kubectl get nodes -o wide</div>
+            <div class="command-text">kubectl config get-contexts && kubectl get ns substrate-system</div>
           </div>
 
-          <div class="cluster-info-box">
-            <div class="cluster-info-title">🌐 PRE-CONFIGURED KUBERNETES CLUSTER (PORTABLE INFRASTRUCTURE):</div>
-            <div class="cluster-info-line"><strong>Context:</strong> gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)</div>
-            <div class="cluster-info-line"><strong>Kubernetes Ver:</strong> v1.31.1-gke (Compatible with any standard K8s v1.28+)</div>
-            <div class="cluster-info-line"><strong>Node Fleet:</strong> 12 ready nodes (96 cores, hardware nested-virt enabled)</div>
-            <div class="cluster-info-line" style="color: var(--text-muted);"><strong>Portability:</strong> Zero cloud vendor lock-in (Deployable on GKE, EKS, AKS, On-Prem)</div>
+          <!-- Interactive Cluster Selector (Press 1-4) -->
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-white); margin-bottom: 8px; display: flex; justify-content: space-between;">
+            <span>Select target cluster from kubeconfig:</span>
+            <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1</kbd> - <kbd>4</kbd></span>
+          </div>
+
+          <div class="cluster-select-list">
+            <div class="cluster-card selected" id="cluster-card-0" onclick="selectCluster(0)">
+              <span class="track-key-badge">1</span>
+              <span class="track-icon">🌐</span>
+              <div class="cluster-info">
+                <div class="cluster-info-title">gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)</div>
+                <div class="cluster-info-sub">Google Kubernetes Engine (GKE Standard) in us-central1 • 12 nodes (96 vCPUs) • KVM Enabled</div>
+              </div>
+            </div>
+
+            <div class="cluster-card" id="cluster-card-1" onclick="selectCluster(1)">
+              <span class="track-key-badge">2</span>
+              <span class="track-icon">☁️</span>
+              <div class="cluster-info">
+                <div class="cluster-info-title">aws-eks-production-us-east-1</div>
+                <div class="cluster-info-sub">Amazon Elastic Kubernetes Service (EKS) in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves</div>
+              </div>
+            </div>
+
+            <div class="cluster-card" id="cluster-card-2" onclick="selectCluster(2)">
+              <span class="track-key-badge">3</span>
+              <span class="track-icon">🔷</span>
+              <div class="cluster-info">
+                <div class="cluster-info-title">azure-aks-agent-fleet-eastus</div>
+                <div class="cluster-info-sub">Microsoft Azure Kubernetes Service (AKS) in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated</div>
+              </div>
+            </div>
+
+            <div class="cluster-card" id="cluster-card-3" onclick="selectCluster(3)">
+              <span class="track-key-badge">4</span>
+              <span class="track-icon">🧪</span>
+              <div class="cluster-info">
+                <div class="cluster-info-title">kind-substrate-sandbox (Local Workstation)</div>
+                <div class="cluster-info-sub">Local Kind Sandbox on Docker Desktop • 3 nodes (24 vCPUs) • Lightweight dev testbed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cluster Verification & Control Plane Status Box -->
+          <div class="cluster-info-box" id="cluster-status-box">
+            <div class="cluster-info-header">🌐 CLUSTER TYPE & CONTROL PLANE VERIFICATION:</div>
+            <div class="cluster-info-line" id="cluster-line-provider"><strong>• Provider Type :</strong> Google Kubernetes Engine (GKE v1.31.1) <span style="color: var(--accent-green);">[Verified ✓]</span></div>
+            <div class="cluster-info-line" id="cluster-line-capacity"><strong>• Node Capacity :</strong> 12 ready nodes (96 vCPUs, hardware virtualization / KVM ready)</div>
+            <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>• Substrate Probe :</strong> Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)</div>
           </div>
 
           <div class="execution-card">
-            <div class="checklist-title">Verifying pre-configured cluster...</div>
+            <div class="checklist-title">Verifying selected cluster & control plane...</div>
             <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Connecting to active kubeconfig cluster: [demo-cluster]</div>
-              <div class="check-line"><span class="check-icon">✓</span> Verified Kubernetes API server compatibility (v1.31.1-gke / Portable)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Validating node capacity (12 ready nodes, hardware virtualization enabled)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Cluster API Reachability: Connected to active cluster</div>
+              <div class="check-line"><span class="check-icon">✓</span> Cluster Provider Verified: Kubernetes v1.28+ compatible</div>
+              <div class="check-line"><span class="check-icon">✓</span> Node Fleet Capacity: Nested virtualization / Sandboxing enabled</div>
+              <div class="check-line"><span class="check-icon">✓</span> Control Plane Status: Checked [substrate-system] (Clean ready state)</div>
             </div>
             <div class="done-status">Done</div>
-            <div class="done-prompt">Pre-configured cluster verified! Now let's complete the Private GA agreement.</div>
+            <div class="done-prompt">Cluster verified & ready! Now let's complete the Private GA agreement.</div>
           </div>
 
           <div class="action-row">
@@ -1079,6 +1155,30 @@
     const totalSteps = 9;
     let autopilotInterval = null;
     let selectedTrackIdx = 0;
+    let selectedClusterIdx = 0;
+
+    const clustersData = [
+      {
+        provider: "Google Kubernetes Engine (GKE v1.31.1)",
+        capacity: "12 ready nodes (96 vCPUs, hardware virtualization / KVM ready)",
+        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+      },
+      {
+        provider: "Amazon Elastic Kubernetes Service (EKS v1.30.4)",
+        capacity: "8 ready nodes (64 vCPUs, Nitro Enclaves enabled)",
+        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+      },
+      {
+        provider: "Azure Kubernetes Service (AKS v1.30.3)",
+        capacity: "6 ready nodes (48 vCPUs, Hyper-V isolation ready)",
+        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+      },
+      {
+        provider: "Kind Local Sandbox (Kubernetes v1.31.0)",
+        capacity: "3 ready nodes (24 vCPUs, Docker sandbox container)",
+        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+      }
+    ];
 
     // Typewriter Description Streamer
     const INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA).";
@@ -1127,6 +1227,24 @@
           }
         }
       }
+    }
+
+    function selectCluster(idx) {
+      selectedClusterIdx = idx;
+      for (let i = 0; i < 4; i++) {
+        const card = document.getElementById(`cluster-card-${i}`);
+        if (card) {
+          if (i === idx) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        }
+      }
+      const data = clustersData[idx];
+      document.getElementById('cluster-line-provider').innerHTML = `<strong>• Provider Type :</strong> ${data.provider} <span style="color: var(--accent-green);">[Verified ✓]</span>`;
+      document.getElementById('cluster-line-capacity').innerHTML = `<strong>• Node Capacity :</strong> ${data.capacity}`;
+      document.getElementById('cluster-line-probe').innerHTML = `<strong>• Substrate Probe :</strong> ${data.probe}`;
     }
 
     function goToStep(idx) {
@@ -1219,25 +1337,25 @@
       const welcomeView = document.getElementById('view-welcome');
       const isWelcome = welcomeView.classList.contains('active');
 
-      if (e.key === '1') {
-        if (isWelcome) {
-          selectTrack(0);
+      if (isWelcome) {
+        if (e.key === '1') selectTrack(0);
+        else if (e.key === '2') selectTrack(1);
+        else if (e.key === 'Enter') startWizardFromWelcome();
+      } else {
+        if (currentStep === 1) {
+          // In Step 2 (Connect your cluster)
+          if (e.key === '1') selectCluster(0);
+          else if (e.key === '2') selectCluster(1);
+          else if (e.key === '3') selectCluster(2);
+          else if (e.key === '4') selectCluster(3);
         }
-      } else if (e.key === '2') {
-        if (isWelcome) {
-          selectTrack(1);
-        }
-      } else if (e.key === '0') {
-        showWelcomeScreen();
-      } else if (e.key === 'Enter') {
-        if (isWelcome) {
-          startWizardFromWelcome();
-        } else if (currentStep < totalSteps - 1) {
-          goToStep(currentStep + 1);
-        }
-      } else if (e.key === 'b' || e.key === 'Backspace') {
-        const wizardView = document.getElementById('view-wizard');
-        if (wizardView.classList.contains('active')) {
+        if (e.key === '0') {
+          showWelcomeScreen();
+        } else if (e.key === 'Enter') {
+          if (currentStep < totalSteps - 1) {
+            goToStep(currentStep + 1);
+          }
+        } else if (e.key === 'b' || e.key === 'Backspace') {
           if (currentStep === 0) {
             showWelcomeScreen();
           } else {

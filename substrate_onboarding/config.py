@@ -1,11 +1,13 @@
 """Configuration schemas, options, and state models for Agent Substrate Onboarding.
 
 Addresses:
-1. Splash Title: "Agent Substrate" ASCII logo without duplicate subtitle.
-2. Two Installation Choices:
-   - [1] Quickstart: Automatic cluster detection & default configuration (Recommended)
-   - [2] Advanced: Custom installation with kubectl
-3. Pre-existing Cluster Requirement & Private GA Gated Agreement.
+1. Splash Title: "Agent Substrate" with Google 4-color gradient.
+2. Two Installation Choices: Quickstart and Advanced.
+3. Interactive Cluster Selection & Control Plane Verification:
+   - Select from list of kubeconfig clusters (GKE, EKS, AKS, Kind)
+   - Verify cluster type & Kubernetes version
+   - Probe for existing Substrate Control Plane in [substrate-system]
+4. Private GA Gated Agreement & Contractual Terms.
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ from typing import Dict, List, Optional
 class OnboardingStep(str, Enum):
     WELCOME = "welcome"                          # Step 0: Welcome & Setup Track Selection
     CHECK_SETUP = "check_setup"                  # Step 1: Check your environment
-    CONNECT_CLUSTER = "connect_cluster"          # Step 2: Connect pre-existing cluster
+    CONNECT_CLUSTER = "connect_cluster"          # Step 2: Select cluster & verify control plane
     PRIVATE_GA_AGREEMENT = "private_ga"          # Step 3: Private GA gated access & agreement
     TURN_ON_SUBSTRATE = "turn_on_sub"            # Step 4: Turn on Substrate Control Plane
     INSTALL_CLI = "install_cli"                  # Step 5: Install the CLI
@@ -49,6 +51,10 @@ class OptionItem:
     icon: str = "⚡"
     tip: str = ""
     shortcut_key: str = "1"
+    provider: str = "Kubernetes"
+    version: str = "v1.31"
+    nodes: int = 12
+    control_plane_status: str = "Not Installed"
 
 
 # Two Streamlined Setup Tracks for Welcome Screen
@@ -71,22 +77,60 @@ SETUP_TRACKS: List[OptionItem] = [
     ),
 ]
 
-CLUSTER_OPTIONS: List[OptionItem] = [
+# Available Clusters from Kubeconfig
+AVAILABLE_CLUSTERS: List[OptionItem] = [
     OptionItem(
-        id="cluster_demo_gke",
-        title="gke_enterprise_us-central1_prod-cluster (Active Context) (Recommended)",
-        description="GKE v1.31.1-gke.1520000 in us-central1 (Nodes: 12 ready, CPU: 96 cores)",
+        id="cluster_gke_prod",
+        title="gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)",
+        description="Google Kubernetes Engine (GKE Standard) in us-central1 • 12 nodes (96 vCPUs) • KVM Enabled",
         icon="🌐",
-        tip="Active kubeconfig context verified.",
+        tip="Active context. Recommended for production agent workloads.",
+        shortcut_key="1",
+        provider="Google Kubernetes Engine (GKE)",
+        version="v1.31.1-gke.1520000",
+        nodes=12,
+        control_plane_status="Not Installed (Clean cluster ready for Substrate)",
+    ),
+    OptionItem(
+        id="cluster_aws_eks",
+        title="aws-eks-production-us-east-1",
+        description="Amazon Elastic Kubernetes Service (EKS) in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves",
+        icon="☁️",
+        tip="Multi-cloud enterprise cluster.",
+        shortcut_key="2",
+        provider="Amazon Elastic Kubernetes Service (EKS)",
+        version="v1.30.4-eks",
+        nodes=8,
+        control_plane_status="Not Installed (Clean cluster ready for Substrate)",
+    ),
+    OptionItem(
+        id="cluster_azure_aks",
+        title="azure-aks-agent-fleet-eastus",
+        description="Microsoft Azure Kubernetes Service (AKS) in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated",
+        icon="🔷",
+        tip="Enterprise Azure cluster.",
+        shortcut_key="3",
+        provider="Azure Kubernetes Service (AKS)",
+        version="v1.30.3-aks",
+        nodes=6,
+        control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
     OptionItem(
         id="cluster_local_kind",
-        title="kind-substrate-sandbox (Local Context)",
-        description="Kubernetes v1.31.0 local developer cluster (Nodes: 3 ready)",
+        title="kind-substrate-sandbox (Local Workstation)",
+        description="Local Kind Sandbox on Docker Desktop • 3 nodes (24 vCPUs) • Lightweight dev testbed",
         icon="🧪",
-        tip="Local sandbox context.",
+        tip="Local development sandbox.",
+        shortcut_key="4",
+        provider="Kind (Local Kubernetes)",
+        version="v1.31.0",
+        nodes=3,
+        control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
 ]
+
+CLUSTER_OPTIONS = AVAILABLE_CLUSTERS
+TRACK_OPTIONS = SETUP_TRACKS
 
 NODEPOOL_OPTIONS: List[OptionItem] = [
     OptionItem(
@@ -116,7 +160,6 @@ DEPLOY_WP_OPTIONS: List[OptionItem] = [
     ),
 ]
 
-TRACK_OPTIONS = SETUP_TRACKS
 DATAPLANE_OPTIONS = NODEPOOL_OPTIONS
 SANDBOX_OPTIONS = AUTOSCALING_OPTIONS
 EDITOR_OPTIONS = DEPLOY_WP_OPTIONS
@@ -135,6 +178,7 @@ class StepMetadata:
     next_action_label: str
     benchmark_text: Optional[str] = None
     is_agreement_step: bool = False
+    is_cluster_step: bool = False
 
 
 STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
@@ -151,7 +195,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Substrate Control Plane: Ready for install",
         ],
         done_message="Ready to begin setup! Press [Enter] to start.",
-        next_action_label="Get Started (Enter) →",
+        next_action_label="Get Started [Enter ↵] →",
     ),
     OnboardingStep.CHECK_SETUP: StepMetadata(
         step_num=1,
@@ -171,17 +215,19 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
     OnboardingStep.CONNECT_CLUSTER: StepMetadata(
         step_num=2,
         title="Connect your cluster",
-        heading="Verify Pre-configured Kubernetes Cluster",
-        description="Substrate runs on any pre-existing Kubernetes cluster — ensuring infrastructure portability across GKE, EKS, AKS, OpenShift, or on-prem with zero cloud lock-in.",
-        real_command="kubectl cluster-info && kubectl get nodes -o wide",
-        checklist_title="Verifying pre-configured cluster...",
+        heading="Select Cluster & Verify Substrate Control Plane",
+        description="Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and check if Substrate control plane is already installed.",
+        real_command="kubectl config get-contexts && kubectl get ns substrate-system",
+        checklist_title="Verifying selected cluster & control plane...",
         checklist_items=[
-            "Connecting to active kubeconfig cluster: [demo-cluster]",
-            "Verified Kubernetes API server compatibility (v1.31.1-gke / Portable)",
-            "Validating node capacity (12 ready nodes, hardware virtualization enabled)",
+            "Cluster API Reachability: Connected to [gke_enterprise_us-central1_prod-cluster]",
+            "Cluster Provider Verified: Google Kubernetes Engine (GKE v1.31.1)",
+            "Node Fleet Capacity: 12 ready nodes (96 vCPUs, hardware nested-virt enabled)",
+            "Control Plane Status: Checked [substrate-system] — Clean cluster ready for install",
         ],
-        done_message="Pre-configured cluster verified! Now let's complete the Private GA agreement.",
+        done_message="Cluster verified & clean! Now let's complete the Private GA agreement.",
         next_action_label="Private GA Agreement [Enter ↵] →",
+        is_cluster_step=True,
     ),
     OnboardingStep.PRIVATE_GA_AGREEMENT: StepMetadata(
         step_num=3,
@@ -314,7 +360,10 @@ class CheckResult:
 class UserSetupState:
     current_step: OnboardingStep = OnboardingStep.WELCOME
     selected_track: str = "track_quickstart"
-    selected_cluster: str = "demo-cluster"
+    selected_cluster: str = "cluster_gke_prod"
+    cluster_provider: str = "Google Kubernetes Engine (GKE)"
+    cluster_version: str = "v1.31.1-gke.1520000"
+    control_plane_detected: bool = False
     customer_org: str = "Acme Corp"
     customer_email: str = "rajithal@enterprise.com"
     ga_token: str = "ga-sub-8f92a-live-contract"

@@ -222,6 +222,37 @@ Screen {
     margin: 1 0;
 }
 
+.section-subtitle-label {
+    color: #ffffff;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
+#cluster-selection-list {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1;
+}
+
+.cluster-option-row {
+    width: 100%;
+    height: auto;
+    background: #161b22;
+    border: solid #30363d;
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+#cluster-verification-box {
+    width: 100%;
+    height: auto;
+    background: #11151c;
+    border: solid #30363d;
+    padding: 1 2;
+    margin: 1 0;
+}
+
 /* Execution Checklist Card */
 #execution-checklist-card {
     width: 100%;
