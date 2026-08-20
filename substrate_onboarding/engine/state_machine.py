@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with WorkerPool CCC, Autoscaling & Deployment."""
+"""State Machine for Onboarding Workflow with Region details and Conditional GKE Agreement in Step 2."""
 
 from __future__ import annotations
 
@@ -12,25 +12,23 @@ class OnboardingStateMachine:
     Sequence:
       0. Welcome & Setup Track (WELCOME)
       1. Check your setup (CHECK_SETUP)
-      2. Connect pre-existing cluster (CONNECT_CLUSTER)
-      3. Private GA Agreement & Gated Access (PRIVATE_GA_AGREEMENT)
-      4. Turn on Substrate (TURN_ON_SUBSTRATE)
-      5. Compatible Node Pool (COMPATIBLE_NODEPOOL)
-      6. Configure Autoscaling (CONFIG_AUTOSCALING)
-      7. Deploy WorkerPool (DEPLOY_WORKERPOOL)
-      8. Install the CLI (INSTALL_CLI)
-      9. First actor (FIRST_ACTOR)
-      10. Send a request (SEND_REQUEST)
-      11. Pause & resume (PAUSE_RESUME)
-      12. Scale it up & Live Launchpad (SCALE_UP)
-      13. Complete (COMPLETE)
+      2. Connect cluster & Region & GKE Agreement (CONNECT_CLUSTER)
+      3. Turn on Substrate (TURN_ON_SUBSTRATE)
+      4. Compatible Node Pool (COMPATIBLE_NODEPOOL)
+      5. Configure Autoscaling (CONFIG_AUTOSCALING)
+      6. Deploy WorkerPool (DEPLOY_WORKERPOOL)
+      7. Install the CLI (INSTALL_CLI)
+      8. First actor (FIRST_ACTOR)
+      9. Send a request (SEND_REQUEST)
+      10. Pause & resume (PAUSE_RESUME)
+      11. Scale it up & Live Launchpad (SCALE_UP)
+      12. Complete (COMPLETE)
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
         OnboardingStep.WELCOME,
         OnboardingStep.CHECK_SETUP,
         OnboardingStep.CONNECT_CLUSTER,
-        OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
         OnboardingStep.COMPATIBLE_NODEPOOL,
         OnboardingStep.CONFIG_AUTOSCALING,
@@ -113,5 +111,5 @@ class OnboardingStateMachine:
             return 0
 
     def total_steps(self) -> int:
-        """Total number of interactive steps (12 steps following Welcome)."""
-        return 12
+        """Total number of interactive steps (11 steps following Welcome)."""
+        return 11

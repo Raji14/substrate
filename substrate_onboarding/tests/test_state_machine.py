@@ -1,4 +1,4 @@
-"""Unit tests for OnboardingStateMachine with Pre-existing Cluster, Private GA Agreement, and WorkerPool CCC."""
+"""Unit tests for OnboardingStateMachine with Region and GKE Private GA Agreement in Step 2."""
 
 import pytest
 from substrate_onboarding.config import OnboardingStep, UserSetupState
@@ -21,7 +21,6 @@ def test_state_machine_sequential_transitions():
     expected_steps = [
         OnboardingStep.CHECK_SETUP,
         OnboardingStep.CONNECT_CLUSTER,
-        OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
         OnboardingStep.COMPATIBLE_NODEPOOL,
         OnboardingStep.CONFIG_AUTOSCALING,

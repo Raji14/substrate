@@ -1,15 +1,22 @@
 """Configuration schemas, options, and state models for Agent Substrate Onboarding.
 
-Addresses:
+Features:
 1. Splash Title: "Agent Substrate" with Google 4-color gradient.
 2. Two Installation Choices: Quickstart and Advanced.
-3. Side-by-side Cluster Selection & Verification.
-4. Private GA Gated Agreement & Contractual Terms.
-5. Post-Installation WorkerPool Configuration:
-   - Compatible Node Pool setup (Scan cluster node pools, CCC vs gcloud vs different cluster, YAML re-apply note)
-   - WorkerPool Autoscaling (HPA OneHPA min=10 max=100, CapacityBuffer=3 standby, instant injection, YAML note)
-   - Confirm & deploy default Substrate WorkerPool
-6. Fast Developer Loop: CLI Install, First Actor, Send Request, Pause/Resume, Scale Up.
+3. Step 2: Connect Your Cluster:
+   - Includes Region information (e.g. us-central1, us-east-1, eastus, local).
+   - Side-by-side Cluster Selection & Substrate Probe Verification.
+   - Conditional GKE Private GA Agreement: Acknowledgment is displayed only when a GKE cluster is selected, and omitted for non-GKE clusters.
+4. Post-Installation WorkerPool Configuration:
+   - Step 4: Compatible Node Pool setup (CCC / Nested-Virt with YAML re-apply note)
+   - Step 5: WorkerPool Autoscaling (OneHPA min=10 max=100 & CapacityBuffer=3 standby with YAML note)
+   - Step 6: Confirm & Deploy Substrate WorkerPool
+5. Fast Developer Loop:
+   - Step 7: Install the CLI (atectl)
+   - Step 8: First actor
+   - Step 9: Send a request
+   - Step 10: Pause & resume (0% CPU suspend)
+   - Step 11: Scale it up & Live Launchpad
 """
 
 from __future__ import annotations
@@ -21,29 +28,30 @@ from typing import Dict, List, Optional
 class OnboardingStep(str, Enum):
     WELCOME = "welcome"                          # Step 0: Welcome & Setup Track Selection
     CHECK_SETUP = "check_setup"                  # Step 1: Check your environment
-    CONNECT_CLUSTER = "connect_cluster"          # Step 2: Select cluster & verify control plane
-    PRIVATE_GA_AGREEMENT = "private_ga"          # Step 3: Private GA gated access & agreement
-    TURN_ON_SUBSTRATE = "turn_on_sub"            # Step 4: Turn on Substrate Control Plane
-    COMPATIBLE_NODEPOOL = "compatible_nodepool"  # Step 5: Compatible Node Pool (CCC / Nested-Virt)
-    CONFIG_AUTOSCALING = "config_autoscaling"    # Step 6: WorkerPool Autoscaling (HPA & CapacityBuffer)
-    DEPLOY_WORKERPOOL = "deploy_workerpool"      # Step 7: Confirm & Deploy Substrate WorkerPool
-    INSTALL_CLI = "install_cli"                  # Step 8: Install the CLI
-    FIRST_ACTOR = "first_actor"                  # Step 9: First actor
-    SEND_REQUEST = "send_request"                # Step 10: Send a request
-    PAUSE_RESUME = "pause_resume"                # Step 11: Pause & resume
-    SCALE_UP = "scale_up"                        # Step 12: Scale it up & Live Launchpad
+    CONNECT_CLUSTER = "connect_cluster"          # Step 2: Select cluster, Region, & Probe (with GKE GA agreement)
+    TURN_ON_SUBSTRATE = "turn_on_sub"            # Step 3: Turn on Substrate Control Plane
+    COMPATIBLE_NODEPOOL = "compatible_nodepool"  # Step 4: Compatible Node Pool (CCC / Nested-Virt)
+    CONFIG_AUTOSCALING = "config_autoscaling"    # Step 5: WorkerPool Autoscaling (HPA & CapacityBuffer)
+    DEPLOY_WORKERPOOL = "deploy_workerpool"      # Step 6: Confirm & Deploy Substrate WorkerPool
+    INSTALL_CLI = "install_cli"                  # Step 7: Install the CLI
+    FIRST_ACTOR = "first_actor"                  # Step 8: First actor
+    SEND_REQUEST = "send_request"                # Step 9: Send a request
+    PAUSE_RESUME = "pause_resume"                # Step 10: Pause & resume
+    SCALE_UP = "scale_up"                        # Step 11: Scale it up & Live Launchpad
     COMPLETE = "complete"
 
     # Backward compatibility aliases
+    PRIVATE_GA_AGREEMENT = "connect_cluster"
     CLUSTER = "connect_cluster"
     CREATE_CLUSTER = "connect_cluster"
     CONTROL_PLANE = "turn_on_sub"
     NODE_POOL = "compatible_nodepool"
     AUTOSCALING = "config_autoscaling"
+    DEPLOY_WP = "deploy_workerpool"
     LAUNCHPAD = "scale_up"
     DOCTOR = "check_setup"
     QUESTIONNAIRE = "connect_cluster"
-    AUTH = "private_ga"
+    AUTH = "connect_cluster"
     SUMMARY = "scale_up"
 
 
@@ -56,8 +64,10 @@ class OptionItem:
     tip: str = ""
     shortcut_key: str = "1"
     provider: str = "Kubernetes"
+    region: str = "us-central1"
     version: str = "v1.31"
     nodes: int = 12
+    is_gke: bool = False
     control_plane_status: str = "Not Installed"
 
 
@@ -81,59 +91,67 @@ SETUP_TRACKS: List[OptionItem] = [
     ),
 ]
 
-# Available Clusters from Kubeconfig
+# Available Clusters from Kubeconfig (with Region Details)
 AVAILABLE_CLUSTERS: List[OptionItem] = [
     OptionItem(
         id="cluster_gke_prod",
         title="gke_enterprise_us-central1_prod",
-        description="GKE Standard in us-central1 • 12 nodes (96 vCPUs) • KVM Ready",
+        description="GKE Standard • Region: us-central1 (Iowa) • 12 nodes • KVM Ready",
         icon="🌐",
-        tip="Active context. Recommended for production agent workloads.",
+        tip="Active context. GKE Private GA Gated Terms apply.",
         shortcut_key="1",
         provider="Google Kubernetes Engine (GKE)",
+        region="us-central1 (Iowa)",
         version="v1.31.1-gke.1520000",
         nodes=12,
+        is_gke=True,
         control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
     OptionItem(
         id="cluster_aws_eks",
         title="aws-eks-production-us-east-1",
-        description="AWS EKS in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves",
+        description="AWS EKS • Region: us-east-1 (N. Virginia) • 8 nodes • Nitro Enclaves",
         icon="☁️",
         tip="Multi-cloud enterprise cluster.",
         shortcut_key="2",
         provider="Amazon Elastic Kubernetes Service (EKS)",
+        region="us-east-1 (N. Virginia)",
         version="v1.30.4-eks",
         nodes=8,
+        is_gke=False,
         control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
     OptionItem(
         id="cluster_azure_aks",
         title="azure-aks-agent-fleet-eastus",
-        description="Azure AKS in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated",
+        description="Azure AKS • Region: eastus (Virginia) • 6 nodes • Hyper-V Isolated",
         icon="🔷",
         tip="Enterprise Azure cluster.",
         shortcut_key="3",
         provider="Azure Kubernetes Service (AKS)",
+        region="eastus (Virginia)",
         version="v1.30.3-aks",
         nodes=6,
+        is_gke=False,
         control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
     OptionItem(
         id="cluster_local_kind",
         title="kind-substrate-sandbox",
-        description="Local Kind Sandbox • 3 nodes (24 vCPUs) • Dev testbed",
+        description="Local Kind Sandbox • Region: local (localhost) • 3 nodes",
         icon="🧪",
         tip="Local development sandbox.",
         shortcut_key="4",
         provider="Kind (Local Kubernetes)",
+        region="local (localhost)",
         version="v1.31.0",
         nodes=3,
+        is_gke=False,
         control_plane_status="Not Installed (Clean cluster ready for Substrate)",
     ),
 ]
 
-# Step 5: Compatible Node Pool Options (Scanning & Nested-Virt)
+# Step 4: Compatible Node Pool Options (Scanning & Nested-Virt)
 NODEPOOL_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="ccc_auto",
@@ -161,7 +179,7 @@ NODEPOOL_OPTIONS: List[OptionItem] = [
     ),
 ]
 
-# Step 6: WorkerPool Autoscaling Options (HPA & CapacityBuffer)
+# Step 5: WorkerPool Autoscaling Options (HPA & CapacityBuffer)
 AUTOSCALING_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="auto_hpa_buffer",
@@ -189,7 +207,7 @@ AUTOSCALING_OPTIONS: List[OptionItem] = [
     ),
 ]
 
-# Step 7: Confirm & Deploy Substrate WorkerPool
+# Step 6: Confirm & Deploy Substrate WorkerPool
 DEPLOY_WP_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="deploy_yes_default",
@@ -228,7 +246,6 @@ class StepMetadata:
     done_message: str
     next_action_label: str
     benchmark_text: Optional[str] = None
-    is_agreement_step: bool = False
     is_cluster_step: bool = False
     is_option_step: bool = False
     yaml_notice: Optional[str] = None
@@ -269,37 +286,21 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         step_num=2,
         title="Connect your cluster",
         heading="Select Cluster & Verify Substrate Control Plane",
-        description="Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and probe for existing Substrate components in real-time.",
+        description="Choose a cluster from your active kubeconfig. We'll verify its provider type, region, version, and probe for existing Substrate components in real-time.",
         real_command="kubectl config get-contexts && kubectl get ns substrate-system",
         checklist_title="Verifying selected cluster & control plane...",
         checklist_items=[
-            "Cluster API Reachability: Connected to [gke_enterprise_us-central1_prod]",
-            "Cluster Provider Verified: Google Kubernetes Engine (GKE v1.31.1)",
-            "Node Fleet Capacity: 12 ready nodes (96 vCPUs, hardware nested-virt enabled)",
+            "Cluster API Reachability: Connected to active context",
+            "Cluster Provider & Region: Verified in active kubeconfig",
+            "Node Fleet Capacity: Ready nodes verified with hardware nested-virt support",
             "Control Plane Status: Checked [substrate-system] — Clean cluster ready for install",
         ],
-        done_message="Cluster verified & clean! Now let's complete the Private GA agreement.",
-        next_action_label="Private GA Agreement [Enter ↵] →",
+        done_message="Cluster verified & ready! Next, let's turn on Substrate.",
+        next_action_label="Turn on Substrate [Enter ↵] →",
         is_cluster_step=True,
     ),
-    OnboardingStep.PRIVATE_GA_AGREEMENT: StepMetadata(
-        step_num=3,
-        title="Private GA Agreement",
-        heading="Private GA Access & Contractual Agreement",
-        description="Because this is a Private General Availability release, customers must acknowledge that production support and SLAs require an explicit agreement with Google.",
-        real_command='atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"',
-        checklist_title="Registering Private GA customer...",
-        checklist_items=[
-            "Customer credentials & organization verified (Acme Corp)",
-            "Private GA License Token registered: [ga-sub-8f92a-live-contract]",
-            "Acknowledgment recorded: Production support requires an explicit agreement with Google",
-        ],
-        done_message="Private GA agreement acknowledged! Now let's turn on Substrate.",
-        next_action_label="Turn on Substrate [Enter ↵] →",
-        is_agreement_step=True,
-    ),
     OnboardingStep.TURN_ON_SUBSTRATE: StepMetadata(
-        step_num=4,
+        step_num=3,
         title="Turn on Substrate",
         heading="Turn on Substrate Control Plane",
         description="Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].",
@@ -315,7 +316,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         next_action_label="Set up WorkerPool [Enter ↵] →",
     ),
     OnboardingStep.COMPATIBLE_NODEPOOL: StepMetadata(
-        step_num=5,
+        step_num=4,
         title="Compatible Node Pool",
         heading="Set up Compatible WorkerPool Node Fleet",
         description="Scanning cluster node pools for hardware nested virtualization (KVM/microVM). If no compatible pool is found, configure one via Custom Compute Class (CCC).",
@@ -333,7 +334,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         yaml_notice="💡 Tip: You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. manifests/workerpool-ccc.yaml).",
     ),
     OnboardingStep.CONFIG_AUTOSCALING: StepMetadata(
-        step_num=6,
+        step_num=5,
         title="Configure Autoscaling",
         heading="Configure WorkerPool Autoscaling (HPA & CapacityBuffer)",
         description="Configure horizontal pod autoscaling and standby capacity buffers so your agent fleet can absorb sudden traffic surges with instant (<100ms) cold starts.",
@@ -350,7 +351,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         yaml_notice="💡 Tip: You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. manifests/workerpool-autoscaling.yaml).",
     ),
     OnboardingStep.DEPLOY_WORKERPOOL: StepMetadata(
-        step_num=7,
+        step_num=6,
         title="Deploy WorkerPool",
         heading="Confirm & Deploy Substrate WorkerPool",
         description="Deploy the default Substrate WorkerPool into namespace [substrate-system] with pre-warmed agent sandboxes and microVM isolation.",
@@ -367,7 +368,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         is_option_step=True,
     ),
     OnboardingStep.INSTALL_CLI: StepMetadata(
-        step_num=8,
+        step_num=7,
         title="Install the CLI",
         heading="Install the atectl CLI",
         description="The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
@@ -382,7 +383,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         next_action_label="Deploy first actor [Enter ↵] →",
     ),
     OnboardingStep.FIRST_ACTOR: StepMetadata(
-        step_num=9,
+        step_num=8,
         title="First actor",
         heading="Deploy your first actor",
         description="Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
@@ -397,7 +398,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         next_action_label="Send a request [Enter ↵] →",
     ),
     OnboardingStep.SEND_REQUEST: StepMetadata(
-        step_num=10,
+        step_num=9,
         title="Send a request",
         heading="Send a request to your actor",
         description="Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
@@ -413,7 +414,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         benchmark_text="Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     ),
     OnboardingStep.PAUSE_RESUME: StepMetadata(
-        step_num=11,
+        step_num=10,
         title="Pause & resume",
         heading="Pause & resume (0% idle CPU)",
         description="When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
@@ -429,7 +430,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         benchmark_text="Cold Start (890ms)  ➔  Suspend (38ms, 0% CPU)  ➔  Warm Resume (115ms)",
     ),
     OnboardingStep.SCALE_UP: StepMetadata(
-        step_num=12,
+        step_num=11,
         title="Scale it up",
         heading="Scale worker fleet & Day-2 Operations",
         description="Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
@@ -470,7 +471,9 @@ class UserSetupState:
     selected_autoscaling_option: str = "auto_hpa_buffer"
     selected_deploy_wp_option: str = "deploy_yes_default"
     cluster_provider: str = "Google Kubernetes Engine (GKE)"
+    cluster_region: str = "us-central1 (Iowa)"
     cluster_version: str = "v1.31.1-gke.1520000"
+    is_gke: bool = True
     control_plane_detected: bool = False
     customer_org: str = "Acme Corp"
     customer_email: str = "rajithal@enterprise.com"

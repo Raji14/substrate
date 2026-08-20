@@ -2,12 +2,9 @@
 
 Features:
 - "Agent Substrate" Google 4-color gradient splash title
-- 2 Streamlined installation choices (Quickstart & Advanced)
-- Step 2: Side-by-side cluster selection list (Left) and verification probe (Right)
-- Step 5: Compatible Node Pool (CCC / Nested-Virt scanning) with YAML re-apply note
-- Step 6: WorkerPool Autoscaling (OneHPA min=10 max=100 & CapacityBuffer=3 standby)
-- Step 7: Confirm & Deploy Substrate WorkerPool (10 warm replicas)
-- Step 8-12: CLI Install, First Actor, Send Request, Pause/Resume, Scale Up
+- Step 2: Side-by-side cluster selection with Region details & Conditional GKE Private GA agreement
+- Post-Installation WorkerPool Configuration: Compatible Node Pool CCC, Autoscaling HPA/CapacityBuffer, Deploy WorkerPool
+- Fast Developer Loop: CLI Install, First Actor, Send Request, Pause/Resume, Scale Up (11 interactive steps)
 """
 
 import os
@@ -60,7 +57,7 @@ LOGO_LINES = [
     "    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
     "   / \\  / ___| ____| \\ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
     "  / _ \\| |  _|  _| |  \\| | | |   \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
-    " / ___ \\ |_| | |___| |\\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
+    " / ___ \\ |_| | |___| |\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
     "/_/   \\_\\____|_____|_| \\_| |_|   |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
@@ -87,34 +84,17 @@ STEPS_DATA = [
         "num": 2,
         "title": "Connect your cluster",
         "heading": "Select Cluster & Verify Substrate Control Plane",
-        "desc": "Choose a cluster from your kubeconfig. We'll verify its provider type and probe for existing Substrate components in real-time.",
+        "desc": "Choose a cluster from your kubeconfig. We'll verify its provider type, region, and probe for existing Substrate components in real-time.",
         "cmd": "",
         "chk_title": "",
         "chk_items": [],
         "done": "",
         "prompt": "",
-        "btn": "Private GA Agreement [Enter ↵] →",
+        "btn": "Turn on Substrate [Enter ↵] →",
         "custom_box": "cluster_side_by_side",
     },
     {
         "num": 3,
-        "title": "Private GA Agreement",
-        "heading": "Private GA Access & Contractual Agreement",
-        "desc": "Because this is a Private General Availability release, customers must acknowledge that production support requires an agreement with Google.",
-        "cmd": 'atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"',
-        "chk_title": "Registering Private GA customer...",
-        "chk_items": [
-            "Customer credentials & organization verified (Acme Corp)",
-            "Private GA License Token registered: [ga-sub-8f92a-live-contract]",
-            "Acknowledgment recorded: Production support requires an agreement with Google",
-        ],
-        "done": "Done",
-        "prompt": "Private GA agreement acknowledged! Now let's turn on Substrate.",
-        "btn": "Turn on Substrate [Enter ↵] →",
-        "custom_box": "agreement",
-    },
-    {
-        "num": 4,
         "title": "Turn on Substrate",
         "heading": "Turn on Substrate Control Plane",
         "desc": "Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].",
@@ -131,7 +111,7 @@ STEPS_DATA = [
         "btn": "Set up WorkerPool [Enter ↵] →",
     },
     {
-        "num": 5,
+        "num": 4,
         "title": "Compatible Node Pool",
         "heading": "Set up Compatible WorkerPool Node Fleet",
         "desc": "Scanning cluster node pools for hardware nested virtualization. If no compatible pool is found, configure one via Custom Compute Class (CCC).",
@@ -150,7 +130,7 @@ STEPS_DATA = [
         "yaml_notice": "💡 Tip: You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. manifests/workerpool-ccc.yaml).",
     },
     {
-        "num": 6,
+        "num": 5,
         "title": "Configure Autoscaling",
         "heading": "Configure WorkerPool Autoscaling (HPA & CapacityBuffer)",
         "desc": "Configure horizontal pod autoscaling and standby capacity buffers for instant (<100ms) cold starts.",
@@ -168,7 +148,7 @@ STEPS_DATA = [
         "yaml_notice": "💡 Tip: You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. manifests/workerpool-autoscaling.yaml).",
     },
     {
-        "num": 7,
+        "num": 6,
         "title": "Deploy WorkerPool",
         "heading": "Confirm & Deploy Substrate WorkerPool",
         "desc": "Deploy the default Substrate WorkerPool into namespace [substrate-system] with pre-warmed agent sandboxes.",
@@ -186,7 +166,7 @@ STEPS_DATA = [
         "custom_box": "deploy_wp",
     },
     {
-        "num": 8,
+        "num": 7,
         "title": "Install the CLI",
         "heading": "Install the atectl CLI",
         "desc": "The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
@@ -202,7 +182,7 @@ STEPS_DATA = [
         "btn": "Deploy first actor [Enter ↵] →",
     },
     {
-        "num": 9,
+        "num": 8,
         "title": "First actor",
         "heading": "Deploy your first actor",
         "desc": "Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
@@ -218,7 +198,7 @@ STEPS_DATA = [
         "btn": "Send a request [Enter ↵] →",
     },
     {
-        "num": 10,
+        "num": 9,
         "title": "Send a request",
         "heading": "Send a request to your actor",
         "desc": "Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
@@ -235,7 +215,7 @@ STEPS_DATA = [
         "benchmark": "Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     },
     {
-        "num": 11,
+        "num": 10,
         "title": "Pause & resume",
         "heading": "Pause & resume (0% idle CPU)",
         "desc": "When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
@@ -252,7 +232,7 @@ STEPS_DATA = [
         "benchmark": "Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)",
     },
     {
-        "num": 12,
+        "num": 11,
         "title": "Scale it up",
         "heading": "Scale worker fleet & Day-2 Operations",
         "desc": "Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
@@ -313,7 +293,7 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.text((wx + 120, fy + 16), "*   Platform Fleet   : Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", fill=GOOGLE_BLUE, font=font_xs)
     draw.text((wx + 120, fy + 32), "*   Agent Workloads  : No-YAML container templates, turn hooks & request parking", fill=GOOGLE_GREEN, font=font_xs)
     draw.text((wx + 120, fy + 48), "*   Instant Resume   : Suspend idle actors to 0% CPU; restore state in <200ms", fill=GOOGLE_YELLOW, font=font_xs)
-    draw.text((wx + 120, fy + 64), "*   Private GA Gated : Customer registration & explicit Google support terms acknowledgment", fill=GOOGLE_RED, font=font_xs)
+    draw.text((wx + 120, fy + 64), "*   Gated Access     : Automatic detection & terms acknowledgment on Google Cloud GKE", fill=GOOGLE_RED, font=font_xs)
 
     ty = fy + 100
     draw.text((wx + 100, ty), "Choose your installation path (Press [1] or [2]):", fill=TEXT_WHITE, font=font_sm)
@@ -334,7 +314,7 @@ def render_welcome_screen(typewriter_progress=1.0):
 
     dy = toy + 8
     draw.rounded_rectangle([wx + 100, dy, wx + ww - 100, dy + 26], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
-    diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Private GA: Gated"
+    diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * GKE Private GA: Supported"
     draw.text((wx + 130, dy + 7), diag_str, fill=ACCENT_GREEN, font=font_xs)
 
     by = dy + 34
@@ -368,12 +348,12 @@ def render_step_frame(step_idx=0):
     draw.text((wx + 16, wy + 66), "Getting set up", fill=TEXT_MUTED, font=font_xs)
 
     draw.line([wx + 16, wy + 86, wx + sw - 16, wy + 86], fill=(33, 38, 45), width=3)
-    fill_w = int(((step_idx + 1) / 12.0) * (sw - 32))
+    fill_w = int(((step_idx + 1) / 11.0) * (sw - 32))
     draw.line([wx + 16, wy + 86, wx + 16 + fill_w, wy + 86], fill=ACCENT_CYAN, width=3)
 
-    draw.text((wx + 16, wy + 96), f"{step_idx} of 12 steps", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 16, wy + 96), f"{step_idx} of 11 steps", fill=TEXT_MUTED, font=font_xs)
 
-    # 12 Steps List in Sidebar
+    # 11 Steps List in Sidebar
     sy = wy + 116
     for i, s in enumerate(STEPS_DATA):
         num = i + 1
@@ -386,28 +366,28 @@ def render_step_frame(step_idx=0):
         else:
             draw.text((wx + 16, sy), str(num), fill=TEXT_DIM, font=font_xs)
             draw.text((wx + 30, sy), s["title"][:22], fill=TEXT_DIM, font=font_xs)
-        sy += 20
+        sy += 22
 
     # Right Content Area
     cx = wx + sw + 30
     cy = wy + 42
     cw = ww - sw - 60
 
-    draw.text((cx, cy), f"Step {data['num']} of 12", fill=TEXT_MUTED, font=font_xs)
+    draw.text((cx, cy), f"Step {data['num']} of 11", fill=TEXT_MUTED, font=font_xs)
     draw.text((cx, cy + 16), data["heading"], fill=TEXT_WHITE, font=font_md)
     draw.text((cx, cy + 38), data["desc"], fill=TEXT_PRIMARY, font=font_xs)
 
-    # STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR & VERIFICATION PROBE
+    # STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR WITH REGION & CONDITIONAL GKE GA AGREEMENT
     if data.get("custom_box") == "cluster_side_by_side":
         cy_step2 = cy + 64
         half_w = (cw - 16) // 2
 
         draw.text((cx, cy_step2), "Target Cluster (Press [1-4]):", fill=TEXT_WHITE, font=font_xs)
         clusters_info = [
-            ("[1] * gke_enterprise_us-central1_prod", "GKE Standard • 12 nodes (96 vCPUs) • KVM", True),
-            ("[2] # aws-eks-production-us-east-1", "AWS EKS • 8 nodes (64 vCPUs) • Nitro", False),
-            ("[3] # azure-aks-agent-fleet-eastus", "Azure AKS • 6 nodes (48 vCPUs) • Hyper-V", False),
-            ("[4] # kind-substrate-sandbox", "Local Sandbox • 3 nodes (24 vCPUs)", False),
+            ("[1] * gke_enterprise_us-central1_prod", "GKE • Region: us-central1 (Iowa) • 12 nodes", True),
+            ("[2] # aws-eks-production-us-east-1", "EKS • Region: us-east-1 (N. Virginia) • 8 nodes", False),
+            ("[3] # azure-aks-agent-fleet-eastus", "AKS • Region: eastus (Virginia) • 6 nodes", False),
+            ("[4] # kind-substrate-sandbox", "Kind • Region: local (localhost) • 3 nodes", False),
         ]
         list_y = cy_step2 + 18
         for c_title, c_desc, c_sel in clusters_info:
@@ -422,23 +402,30 @@ def render_step_frame(step_idx=0):
         draw.text((rx, cy_step2), "Verification & Probe Status:", fill=TEXT_WHITE, font=font_xs)
 
         box_y = cy_step2 + 18
-        draw.rounded_rectangle([rx, box_y, rx + half_w, box_y + 86], radius=6, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
+        draw.rounded_rectangle([rx, box_y, rx + half_w, box_y + 88], radius=6, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
         draw.text((rx + 12, box_y + 8), "🌐 CLUSTER VERIFICATION:", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((rx + 12, box_y + 26), "• Provider: Google Kubernetes Engine (GKE v1.31) [✓]", fill=TEXT_WHITE, font=font_xs)
-        draw.text((rx + 12, box_y + 44), "• Capacity: 12 ready nodes (KVM microVM ready)", fill=ACCENT_GREEN, font=font_xs)
-        draw.text((rx + 12, box_y + 64), "• Substrate: [substrate-system] ➔ Clean Ready", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((rx + 12, box_y + 24), "• Provider: Google Kubernetes Engine (GKE v1.31) [✓]", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 12, box_y + 40), "• Region  : us-central1 (Iowa)", fill=GOOGLE_BLUE, font=font_xs)
+        draw.text((rx + 12, box_y + 56), "• Capacity: 12 ready nodes (Hardware microVM ready)", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((rx + 12, box_y + 72), "• Substrate: [substrate-system] ➔ Clean Ready", fill=ACCENT_YELLOW, font=font_xs)
 
-        chk_y = box_y + 94
-        draw.rounded_rectangle([rx, chk_y, rx + half_w, chk_y + 88], radius=6, fill=BG_CMD, outline=BORDER_DARK, width=1)
+        # Conditional GKE Agreement Box
+        gke_y = box_y + 96
+        draw.rounded_rectangle([rx, gke_y, rx + half_w, gke_y + 56], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+        draw.text((rx + 10, gke_y + 6), "[!] PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((rx + 10, gke_y + 22), "Customer: Acme Corp │ Token: ga-sub-8f92a [Verified ✓]", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 10, gke_y + 38), "[✓] Production support requires an agreement with Google.", fill=ACCENT_CYAN, font=font_xs)
+
+        chk_y = gke_y + 64
+        draw.rounded_rectangle([rx, chk_y, rx + half_w, chk_y + 68], radius=6, fill=BG_CMD, outline=BORDER_DARK, width=1)
         draw.text((rx + 12, chk_y + 8), "⚡ PROBE CHECKLIST:", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((rx + 12, chk_y + 26), "  ✓ API Reachability: Connected to active context", fill=TEXT_WHITE, font=font_xs)
-        draw.text((rx + 12, chk_y + 44), "  ✓ Compatibility: Kubernetes v1.28+ verified", fill=TEXT_WHITE, font=font_xs)
-        draw.text((rx + 12, chk_y + 64), "  ✓ Clean cluster ready for Substrate install", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((rx + 12, chk_y + 24), "  ✓ API Reachability: Connected to active context", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 12, chk_y + 44), "  ✓ Clean cluster ready for Substrate install", fill=ACCENT_GREEN, font=font_xs)
 
-        by = list_y + 8
+        by = chk_y + 78
 
     elif data.get("custom_box") in ["nodepool_ccc", "autoscaling_hpa", "deploy_wp"]:
-        # Option Selection Step (Steps 5, 6, 7)
+        # Option Selection Step (Steps 4, 5, 6)
         ey = cy + 62
         draw.text((cx, ey), "Choose configuration option (Press [1-3]):", fill=TEXT_WHITE, font=font_xs)
         ey += 18
@@ -474,7 +461,6 @@ def render_step_frame(step_idx=0):
             draw.text((cx + 10, ey + 6), data["yaml_notice"], fill=ACCENT_YELLOW, font=font_xs)
             ey += 32
 
-        # Checklist
         card_h = 130
         draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=6, fill=BG_CARD, outline=BORDER_DARK, width=1)
         draw.text((cx + 16, ey + 10), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
@@ -488,7 +474,7 @@ def render_step_frame(step_idx=0):
         by = ey + card_h + 10
 
     else:
-        # Other Steps (1, 3, 4, 8, 9, 10, 11, 12)
+        # Other Steps (1, 3, 7, 8, 9, 10, 11)
         cby = cy + 62
         draw.rounded_rectangle([cx, cby, cx + cw, cby + 52], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
         draw.rounded_rectangle([cx + 12, cby + 6, cx + 180, cby + 22], radius=4, fill=ACCENT_BLUE)
@@ -496,14 +482,7 @@ def render_step_frame(step_idx=0):
         draw.text((cx + 14, cby + 30), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
 
         ey = cby + 60
-        if data.get("custom_box") == "agreement":
-            draw.rounded_rectangle([cx, ey, cx + cw, ey + 64], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
-            draw.text((cx + 14, ey + 8), "[!] PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:", fill=ACCENT_YELLOW, font=font_xs)
-            draw.text((cx + 14, ey + 24), "Customer: Acme Corp (rajithal@enterprise.com) │ Token: ga-sub-8f92a-live-contract [✓]", fill=TEXT_WHITE, font=font_xs)
-            draw.text((cx + 14, ey + 42), "[✓] I acknowledge that production support requires an explicit agreement with Google Cloud.", fill=ACCENT_CYAN, font=font_xs)
-            ey += 72
-
-        card_h = 160 if "benchmark" in data or data["num"] == 12 else 200
+        card_h = 160 if "benchmark" in data or data["num"] == 11 else 200
         draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
         draw.text((cx + 20, ey + 10), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
 
@@ -513,7 +492,7 @@ def render_step_frame(step_idx=0):
             draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_xs)
             iy += 20
 
-        draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN if data["num"] < 12 else ACCENT_CYAN, font=font_base)
+        draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN if data["num"] < 11 else ACCENT_CYAN, font=font_base)
         draw.text((cx + 20, iy + 22), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
 
         vy = ey + card_h + 8
@@ -521,7 +500,7 @@ def render_step_frame(step_idx=0):
             draw.rounded_rectangle([cx, vy, cx + cw, vy + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
             draw.text((cx + 14, vy + 9), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
             by = vy + 42
-        elif data["num"] == 12:
+        elif data["num"] == 11:
             draw.rounded_rectangle([cx, vy, cx + cw, vy + 38], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
             draw.text((cx + 14, vy + 5), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
             draw.text((cx + 14, vy + 20), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
@@ -549,8 +528,8 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
         w_img = render_welcome_screen(typewriter_progress=progress)
         writer.append_data(np.array(w_img))
 
-    durations = [2.0, 2.8, 2.2, 2.0, 2.5, 2.5, 2.2, 2.0, 2.2, 2.5, 2.5, 3.0]
-    for i in range(12):
+    durations = [2.0, 3.2, 2.2, 2.5, 2.5, 2.2, 2.0, 2.2, 2.5, 2.5, 3.0]
+    for i in range(11):
         num_frames = int(durations[i] * FPS)
         frame_img = render_step_frame(i)
         frame_np = np.array(frame_img)
@@ -569,7 +548,7 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     w_img.save(os.path.join(out_dir, "step0_welcome.png"))
     print("  ✓ Saved step0_welcome.png")
 
-    for i in range(12):
+    for i in range(11):
         fname = f"step{i+1}_{STEPS_DATA[i]['title'].lower().replace(' ', '_').replace('&', 'and')}.png"
         img = render_step_frame(i)
         img.save(os.path.join(out_dir, fname))

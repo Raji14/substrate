@@ -1,4 +1,4 @@
-"""Generic interactive StepScreen with side-by-side cluster selection, Node Pool CCC, Autoscaling, and WorkerPool deployment."""
+"""Generic interactive StepScreen with side-by-side cluster selection, Region info, conditional GKE Private GA agreement, and WorkerPool setup."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class GenericStepScreen(Screen[None]):
-    """Generic high-fidelity step screen rendering 2-column layout with options, probe checklists, and YAML notices."""
+    """Generic high-fidelity step screen rendering 2-column layout with options, probe checklists, region info, and YAML notices."""
 
     selected_option_idx: reactive[int] = reactive(0)
 
@@ -62,14 +62,14 @@ class GenericStepScreen(Screen[None]):
             with Vertical(id="content-area"):
                 with Vertical(id="content-panel"):
                     # Step Number & Title
-                    yield Label(f"Step {self.meta.step_num} of 12", classes="step-indicator-label")
+                    yield Label(f"Step {self.meta.step_num} of 11", classes="step-indicator-label")
                     yield Label(self.meta.heading, classes="wizard-step-title")
                     yield Label(self.meta.description, classes="wizard-step-description")
 
-                    # Step 2: Side-by-side Cluster Selection (Left) and Verification Status (Right)
+                    # Step 2: Side-by-side Cluster Selection with Region & Conditional GKE Private GA Agreement
                     if self.step_key == OnboardingStep.CONNECT_CLUSTER:
                         with Horizontal(id="cluster-side-by-side-layout"):
-                            # Left Column: Cluster List
+                            # Left Column: Cluster List (with Region info)
                             with Vertical(id="cluster-picker-column"):
                                 yield Label("Select target cluster (Press [1-4]):", classes="column-header-label")
                                 for idx in range(len(self.clusters)):
@@ -79,14 +79,15 @@ class GenericStepScreen(Screen[None]):
                                         classes="compact-cluster-card",
                                     )
 
-                            # Right Column: Cluster Type & Control Plane Verification
+                            # Right Column: Cluster Type, Region & Substrate Probe Verification
                             with Vertical(id="cluster-inspection-column"):
                                 yield Label("Cluster Type & Substrate Probe:", classes="column-header-label")
                                 yield Static(self._render_cluster_verification_box(), id="cluster-verification-box")
+                                yield Static(self._render_gke_agreement_box(), id="cluster-gke-agreement-box")
                                 yield Static(self._render_compact_checklist(), id="cluster-compact-checklist")
 
                     elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
-                        # Step 5: Compatible Node Pool (CCC Selection)
+                        # Step 4: Compatible Node Pool (CCC Selection)
                         yield Label("Choose node pool configuration (Press [1-3]):", classes="column-header-label")
                         with Vertical(id="nodepool-options-list"):
                             for idx in range(len(self.nodepool_opts)):
@@ -100,7 +101,7 @@ class GenericStepScreen(Screen[None]):
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
                     elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
-                        # Step 6: WorkerPool Autoscaling (HPA & CapacityBuffer)
+                        # Step 5: WorkerPool Autoscaling (HPA & CapacityBuffer)
                         yield Label("Choose autoscaling configuration (Press [1-3]):", classes="column-header-label")
                         with Vertical(id="autoscaling-options-list"):
                             for idx in range(len(self.autoscaling_opts)):
@@ -114,7 +115,7 @@ class GenericStepScreen(Screen[None]):
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
                     elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
-                        # Step 7: Confirm & Deploy WorkerPool
+                        # Step 6: Confirm & Deploy WorkerPool
                         yield Label("Deploy default Substrate WorkerPool (Press [1-2]):", classes="column-header-label")
                         with Vertical(id="deploy-wp-options-list"):
                             for idx in range(len(self.deploy_wp_opts)):
@@ -128,10 +129,6 @@ class GenericStepScreen(Screen[None]):
                     else:
                         # Other steps: Sleek command callout
                         yield Static(self._render_command_callout(), id="command-callout-card")
-
-                        # Specialized Interactive Box (Private GA Agreement)
-                        if self.step_key == OnboardingStep.PRIVATE_GA_AGREEMENT:
-                            yield Static(self._render_agreement_box(), id="agreement-card")
 
                         # Live Execution Checklist Card
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
@@ -203,11 +200,11 @@ class GenericStepScreen(Screen[None]):
         if is_selected:
             t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
             t.append(f" {cluster.icon} {cluster.title[:38]}\n", style="bold #70d6ff on #1565c0")
-            t.append(f"        {cluster.description[:52]}", style="#e3e3e3 on #1565c0")
+            t.append(f"        Region: {cluster.region} • {cluster.nodes} nodes", style="#e3e3e3 on #1565c0")
         else:
             t.append(f" ○ {keycap}", style="#80868b")
             t.append(f" {cluster.icon} {cluster.title[:38]}\n", style="bold #e3e3e3")
-            t.append(f"        {cluster.description[:52]}", style="#80868b")
+            t.append(f"        Region: {cluster.region} • {cluster.nodes} nodes", style="#80868b")
 
         return t
 
@@ -235,8 +232,18 @@ class GenericStepScreen(Screen[None]):
         t = Text()
         t.append("🌐 CLUSTER VERIFICATION:\n", style="bold #70d6ff")
         t.append(f"  Provider : {cluster.provider}\n", style="bold #ffffff")
+        t.append(f"  Region   : {cluster.region}\n", style="bold #8ab4f8")
         t.append(f"  Nodes    : {cluster.nodes} ready (KVM / microVM enabled)\n", style="#81c995")
         t.append(f"  Probe    : [substrate-system] ➔ {cluster.control_plane_status}", style="bold #fdd663")
+        return t
+
+    def _render_gke_agreement_box(self) -> Text:
+        cluster = self.clusters[self.selected_option_idx if self.selected_option_idx < len(self.clusters) else 0]
+        t = Text()
+        if cluster.is_gke:
+            t.append("📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):\n", style="bold #fdd663")
+            t.append("  • Org: Acme Corp  │  Token: ga-sub-8f92a [Verified ✓]\n", style="#e3e3e3")
+            t.append("  [✓] I acknowledge production support requires an explicit agreement with Google.", style="bold #70d6ff")
         return t
 
     def _render_compact_checklist(self) -> Text:
@@ -252,16 +259,6 @@ class GenericStepScreen(Screen[None]):
             else:
                 t.append("  ○ ", style="#5f6368")
                 t.append(f"{item}\n", style="#5f6368")
-        return t
-
-    def _render_agreement_box(self) -> Text:
-        t = Text()
-        t.append("📝 PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:\n\n", style="bold #fdd663")
-        t.append("  •  Customer Org  :  Acme Corporation\n\n", style="bold #ffffff")
-        t.append("  •  Contact Email :  rajithal@enterprise.com\n\n", style="#e3e3e3")
-        t.append("  •  GA Token      :  ga-sub-8f92a-live-contract  [Verified ✓]\n\n", style="bold #81c995")
-        t.append("  [✓] I acknowledge that Agent Substrate is provided under Private GA terms.\n", style="bold #70d6ff")
-        t.append("      Production support and enterprise SLAs require an explicit agreement with Google Cloud.", style="italic #80868b")
         return t
 
     def _render_checklist_box(self) -> Text:
@@ -353,6 +350,11 @@ class GenericStepScreen(Screen[None]):
             try:
                 ver_box = self.query_one("#cluster-verification-box", Static)
                 ver_box.update(self._render_cluster_verification_box())
+            except Exception:
+                pass
+            try:
+                gke_box = self.query_one("#cluster-gke-agreement-box", Static)
+                gke_box.update(self._render_gke_agreement_box())
             except Exception:
                 pass
         elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:

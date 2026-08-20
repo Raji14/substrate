@@ -35,7 +35,6 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "welcome": WelcomeScreen,
         "check_setup": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "connect_cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
-        "private_ga": lambda: GenericStepScreen(OnboardingStep.PRIVATE_GA_AGREEMENT, name="private_ga"),
         "turn_on_sub": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
         "compatible_nodepool": lambda: GenericStepScreen(OnboardingStep.COMPATIBLE_NODEPOOL, name="compatible_nodepool"),
         "config_autoscaling": lambda: GenericStepScreen(OnboardingStep.CONFIG_AUTOSCALING, name="config_autoscaling"),
@@ -46,6 +45,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "pause_resume": lambda: GenericStepScreen(OnboardingStep.PAUSE_RESUME, name="pause_resume"),
         "scale_up": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
         # Backward compatibility aliases
+        "private_ga": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "create_cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "control_plane": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
@@ -55,7 +55,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "launchpad": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
         "doctor": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "questionnaire": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
-        "auth": lambda: GenericStepScreen(OnboardingStep.PRIVATE_GA_AGREEMENT, name="private_ga"),
+        "auth": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "summary": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
     }
 

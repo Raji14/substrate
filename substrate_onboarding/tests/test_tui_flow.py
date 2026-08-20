@@ -1,4 +1,4 @@
-"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 12 steps."""
+"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 11 steps."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
@@ -23,57 +23,52 @@ async def test_tui_full_flow():
         assert app.state_machine.current_step == OnboardingStep.CHECK_SETUP
         assert isinstance(app.screen, GenericStepScreen)
 
-        # Step 2: Connect pre-existing cluster (portability)
+        # Step 2: Connect pre-existing cluster (portability & GKE agreement)
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.CONNECT_CLUSTER
 
-        # Step 3: Private GA Agreement (gated access & terms)
-        await pilot.press("enter")
-        await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.PRIVATE_GA_AGREEMENT
-
-        # Step 4: Turn on Substrate
+        # Step 3: Turn on Substrate
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
 
-        # Step 5: Compatible Node Pool (CCC / Nested-Virt)
+        # Step 4: Compatible Node Pool (CCC / Nested-Virt)
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.COMPATIBLE_NODEPOOL
 
-        # Step 6: Configure Autoscaling (HPA & CapacityBuffer)
+        # Step 5: Configure Autoscaling (HPA & CapacityBuffer)
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.CONFIG_AUTOSCALING
 
-        # Step 7: Deploy WorkerPool
+        # Step 6: Deploy WorkerPool
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.DEPLOY_WORKERPOOL
 
-        # Step 8: Install the CLI
+        # Step 7: Install the CLI
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.INSTALL_CLI
 
-        # Step 9: First actor
+        # Step 8: First actor
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.FIRST_ACTOR
 
-        # Step 10: Send a request
+        # Step 9: Send a request
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SEND_REQUEST
 
-        # Step 11: Pause & resume
+        # Step 10: Pause & resume
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.PAUSE_RESUME
 
-        # Step 12: Scale it up
+        # Step 11: Scale it up
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SCALE_UP
