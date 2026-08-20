@@ -196,29 +196,20 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
-    # Top Badge Pills
-    by_top = wy + 48
-    draw.rounded_rectangle([wx + 340, by_top, wx + 470, by_top + 20], radius=10, fill=(15, 30, 45), outline=ACCENT_CYAN, width=1)
-    draw.text((wx + 350, by_top + 4), "⚡ AGENT RUNTIME", fill=ACCENT_CYAN, font=font_xs)
+    ly = wy + 48
+    vibrant_colors = [
+        (0, 240, 255),   # Bright Electric Cyan
+        (255, 59, 105),  # Bright Crimson
+        (255, 208, 0),   # Bright Gold
+        (0, 255, 136),   # Bright Emerald Green
+        (56, 182, 255),  # Bright Sky Blue
+    ]
+    for i, line in enumerate(LOGO_LINES):
+        draw.text((wx + 180, ly), line, fill=vibrant_colors[i % len(vibrant_colors)], font=font_xs)
+        ly += 14
 
-    draw.rounded_rectangle([wx + 480, by_top, wx + 615, by_top + 20], radius=10, fill=(15, 25, 40), outline=GOOGLE_BLUE, width=1)
-    draw.text((wx + 490, by_top + 4), "GOOGLE CLOUD GKE", fill=GOOGLE_BLUE, font=font_xs)
-
-    draw.rounded_rectangle([wx + 625, by_top, wx + 720, by_top + 20], radius=10, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
-    draw.text((wx + 638, by_top + 4), "PRIVATE GA", fill=ACCENT_GREEN, font=font_xs)
-
-    # Large Polished Title: AGENT SUBSTRATE
-    ty_main = by_top + 28
-    draw.text((wx + 350, ty_main), "AGENT", fill=TEXT_WHITE, font=font_lg)
-    draw.text((wx + 435, ty_main), "SUBSTRATE", fill=ACCENT_CYAN, font=font_lg)
-    draw.rounded_rectangle([wx + 605, ty_main + 2, wx + 695, ty_main + 22], radius=4, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-    draw.text((wx + 612, ty_main + 5), "v0.2.1-ga", fill=ACCENT_CYAN, font=font_xs)
-
-    # Glowing Cyan Divider Line
-    draw.line([wx + 280, ty_main + 32, wx + 840, ty_main + 32], fill=ACCENT_CYAN, width=2)
-
-    tag_y = ty_main + 40
-    draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
+    tag_y = ly + 8
+    draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=(0, 240, 255), font=font_sm)
 
     tw_y = tag_y + 24
     chars_to_show = int(len(INTRO_TEXT) * typewriter_progress)

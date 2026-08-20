@@ -110,18 +110,17 @@ class WelcomeScreen(Screen[None]):
 
     def _render_hero_logo(self) -> Text:
         t = Text()
-        # Badges Row
-        t.append(" ⚡ AGENT RUNTIME ", style="bold #70d6ff on #0f1e2d")
-        t.append("  ")
-        t.append(" GOOGLE CLOUD GKE ", style="bold #8ab4f8 on #0f1928")
-        t.append("  ")
-        t.append(" PRIVATE GA \n\n", style="bold #81c995 on #142319")
-
-        # Bold, Ultra-Legible Hero Title
-        t.append("  A G E N T   ", style="bold #ffffff")
-        t.append("S U B S T R A T E  ", style="bold #70d6ff")
-        t.append("[ v0.2.1-ga ]\n", style="bold #80868b")
-        t.append("  ────────────────────────────────────────────────────────────\n", style="#70d6ff")
+        # Bright, vivid saturated colors for the 5 ASCII logo lines
+        line_styles = [
+            "bold #00f0ff",  # Vivid Electric Cyan
+            "bold #ff3b69",  # Vivid Crimson Red
+            "bold #ffd000",  # Vivid Bright Gold
+            "bold #00ff88",  # Vivid Emerald Neon Green
+            "bold #38b6ff",  # Vivid Sky Blue
+        ]
+        for y, line in enumerate(LOGO_LINES):
+            style_color = line_styles[y % len(line_styles)]
+            t.append(line + "\n", style=style_color)
         return t
 
     def _render_typewriter(self) -> Text:
