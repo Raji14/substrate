@@ -190,7 +190,7 @@
       font-family: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
       font-size: 11.5px;
       line-height: 1.15;
-      white-space: pre;
+      white-space: pre !important;
       text-align: center;
       margin: 4px auto 8px auto;
       font-weight: 900;
@@ -202,6 +202,13 @@
       padding: 8px 18px 4px 18px;
       border-radius: 8px;
       position: relative;
+    }
+
+    .ascii-logo span,
+    .ascii-line-1, .ascii-line-2, .ascii-line-3, .ascii-line-4, .ascii-line-5 {
+      white-space: pre !important;
+      font-family: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
+      display: block;
     }
 
     /* 3D Extruded Deep Shading & Neon Ambient Highlights */
