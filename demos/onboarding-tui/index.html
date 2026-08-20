@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ Agent Substrate — GKE Agent Sandbox Onboarding Simulator</title>
+  <style>
+    /* Google Material 3 (Material You) Dark Theme Tokens */
+    :root {
+      --m3-surface: #131314;
+      --m3-surface-dim: #111213;
+      --m3-surface-container-low: #1a1b1e;
+      --m3-surface-container: #1e1f20;
+      --m3-surface-container-high: #28292a;
+      --m3-surface-container-highest: #333538;
+      
+      --m3-primary: #a8c7fa;
+      --m3-on-primary: #003062;
+      --m3-primary-container: #0842a0;
+      --m3-on-primary-container: #d3e3fd;
+
+      --google-blue: #8ab4f8;
+      --google-red: #f28b82;
+      --google-yellow: #fdd663;
+      --google-green: #81c995;
+
+      --m3-outline: #444746;
+      --m3-outline-focus: #8ab4f8;
+      --m3-on-surface: #e3e3e3;
+      --m3-on-surface-variant: #9aa0a6;
+
+      --terminal-bg: var(--m3-surface);
+      --panel-bg: var(--m3-surface-container);
+      --card-bg: var(--m3-surface-container-high);
+      --border-color: var(--m3-outline);
+      --border-focus: var(--m3-outline-focus);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #1c1d22 0%, var(--m3-surface-dim) 100%);
+      color: var(--m3-on-surface);
+      font-family: 'Google Sans', 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Menlo', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* Control Toolbar */
+    .toolbar {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      background: rgba(30, 31, 32, 0.9);
+      backdrop-filter: blur(16px);
+      padding: 12px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+
+    .toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--m3-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .badge {
+      background: rgba(168, 199, 250, 0.15);
+      color: var(--m3-primary);
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(168, 199, 250, 0.3);
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: var(--card-bg);
+      color: var(--m3-on-surface);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-width: max-content;
+      transition: all 0.15s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--m3-surface-container-highest);
+      border-color: var(--m3-primary);
+      color: var(--m3-primary);
+    }
+
+    .ctrl-btn.active {
+      background: var(--m3-primary-container);
+      color: var(--m3-on-primary-container);
+      border-color: var(--m3-primary);
+    }
+
+    /* Main Terminal Window */
+    .terminal-window {
+      width: 100%;
+      max-width: 960px;
+      height: 650px;
+      background: var(--terminal-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(168, 199, 250, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Terminal Titlebar */
+    .titlebar {
+      height: 40px;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .mac-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.red { background: #ff5f56; border: 1px solid #e0443e; cursor: pointer; }
+    .dot.yellow { background: #ffbd2e; border: 1px solid #dea123; }
+    .dot.green { background: #27c93f; border: 1px solid #1aab29; }
+
+    .title-text {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--m3-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* Stepper Bar */
+    .stepper-bar {
+      height: 36px;
+      background: var(--m3-surface-container-low);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 11px;
+    }
+
+    .step-item {
+      color: var(--m3-on-surface-variant);
+      padding: 4px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-item.active {
+      background: var(--m3-primary);
+      color: var(--m3-on-primary);
+      font-weight: bold;
+    }
+
+    .step-divider {
+      color: var(--m3-outline);
+      margin: 0 4px;
+    }
+
+    /* Terminal Body Screen Area */
+    .screen-viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .screen-card {
+      width: 100%;
+      max-width: 820px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Google 4-Color Gradient ASCII Logo */
+    .ascii-logo {
+      font-size: 13px;
+      line-height: 1.18;
+      white-space: pre;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #8ab4f8 0%, #f28b82 30%, #fdd663 60%, #81c995 85%, #a8c7fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ascii-subtitle {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2.5px;
+      color: var(--google-blue);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .welcome-typewriter {
+      font-size: 13px;
+      color: var(--m3-on-surface);
+      line-height: 1.6;
+      text-align: center;
+      margin: 12px 0 20px 0;
+      min-height: 44px;
+    }
+
+    .welcome-features-card {
+      background: rgba(30, 31, 32, 0.7);
+      border: 1px solid var(--google-blue);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 16px auto;
+      max-width: 680px;
+      position: relative;
+      text-align: left;
+    }
+
+    .welcome-features-badge {
+      position: absolute;
+      top: -12px;
+      left: 18px;
+      background: var(--m3-primary-container);
+      color: #ffffff;
+      border: 1px solid var(--m3-primary);
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .welcome-feature-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 8px 0;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .welcome-feature-row:not(:last-child) {
+      border-bottom: 1px solid rgba(68, 71, 70, 0.4);
+    }
+
+    .welcome-feature-label {
+      font-weight: bold;
+      min-width: 170px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .welcome-feature-desc {
+      color: #ffffff;
+    }
+
+    .cta-pulsing {
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--m3-primary);
+      margin-top: 14px;
+      animation: pulse 1.2s infinite ease-in-out;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.99); }
+    }
+
+    /* Screen Headers */
+    .screen-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--m3-primary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .screen-subtitle {
+      font-size: 12px;
+      color: var(--m3-on-surface-variant);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Option Cards */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .option-row {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .option-row:hover {
+      background: var(--m3-surface-container-highest);
+      border-color: var(--google-blue);
+    }
+
+    .option-row.active {
+      background: var(--m3-primary-container);
+      border: 1.5px solid var(--m3-primary);
+      box-shadow: 0 0 16px rgba(168, 199, 250, 0.2);
+    }
+
+    .option-row .indicator {
+      width: 28px;
+      font-weight: bold;
+      color: var(--m3-primary);
+    }
+
+    .option-row .icon {
+      font-size: 16px;
+      margin-right: 14px;
+    }
+
+    .option-row .title {
+      font-weight: bold;
+      color: #fff;
+      margin-right: 10px;
+    }
+
+    .option-row .desc {
+      color: var(--m3-on-surface-variant);
+      font-size: 11px;
+    }
+
+    .option-row.active .desc {
+      color: var(--m3-on-primary-container);
+    }
+
+    /* Doctor Screen Rows */
+    .doctor-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .doc-row {
+      background: var(--card-bg);
+      border-left: 3px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .doc-row.running {
+      border-left-color: var(--m3-primary);
+    }
+
+    .doc-row.ok {
+      border-left-color: var(--google-green);
+    }
+
+    .doc-row.warning {
+      border-left-color: var(--google-yellow);
+    }
+
+    .doc-row.failed {
+      border-left-color: var(--google-red);
+    }
+
+    .doc-main-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      line-height: 1.4;
+    }
+
+    .doc-badge {
+      font-weight: bold;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .doc-badge.ok { color: var(--google-green); background: rgba(129, 201, 149, 0.12); }
+    .doc-badge.warning { color: var(--google-yellow); background: rgba(253, 214, 99, 0.12); }
+    .doc-badge.running { color: var(--m3-primary); }
+    .doc-badge.pending { color: var(--m3-on-surface-variant); }
+
+    .doc-remedy {
+      background: rgba(253, 214, 99, 0.05);
+      border: 1px solid rgba(253, 214, 99, 0.35);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .doc-remedy-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+      color: var(--google-yellow);
+    }
+
+    .doc-remedy-desc {
+      color: var(--m3-on-surface-variant);
+      font-size: 11px;
+    }
+
+    .doc-remedy-action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--m3-surface);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 6px;
+      flex-wrap: wrap;
+    }
+
+    .doc-remedy-code {
+      font-family: 'Roboto Mono', monospace;
+      color: var(--google-blue);
+      font-size: 11px;
+      word-break: break-all;
+    }
+
+    .doc-remedy-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-remedy {
+      background: var(--m3-surface-container-highest);
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-remedy:hover {
+      background: var(--m3-primary);
+      color: #003062;
+      border-color: var(--m3-primary);
+    }
+
+    .btn-remedy.btn-doc {
+      color: var(--google-blue);
+      border-color: rgba(138, 180, 248, 0.4);
+    }
+
+    .btn-remedy.btn-doc:hover {
+      background: rgba(138, 180, 248, 0.2);
+      color: #fff;
+    }
+
+    .btn-remedy.copied {
+      background: var(--google-green);
+      color: #003314;
+      border-color: var(--google-green);
+    }
+
+    /* Input & Auth */
+    .input-box-wrapper {
+      margin: 14px 0 6px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .terminal-input {
+      flex: 1;
+      background: var(--m3-surface);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .terminal-input:focus {
+      border-color: var(--m3-primary);
+      box-shadow: 0 0 10px rgba(168, 199, 250, 0.2);
+    }
+
+    .error-banner {
+      background: #371b1d;
+      border: 1px solid var(--google-red);
+      color: var(--google-red);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .error-banner.visible {
+      display: block;
+    }
+
+    /* Action Buttons in Screen */
+    .screen-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-action {
+      background: var(--m3-primary-container);
+      color: var(--m3-on-primary-container);
+      border: 1px solid var(--m3-primary);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-width: max-content;
+      transition: all 0.15s;
+    }
+
+    .btn-action:hover {
+      background: #0b57d0;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(168, 199, 250, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--m3-on-surface);
+      border: 1px solid var(--border-color);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-width: max-content;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--m3-surface-container-highest);
+      color: var(--m3-primary);
+      border-color: var(--m3-primary);
+    }
+
+    /* Summary Card */
+    .summary-box {
+      background: var(--m3-surface);
+      border: 1.5px solid var(--m3-primary);
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary-key {
+      color: var(--m3-on-surface-variant);
+    }
+
+    .summary-val {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    /* Progress Bar */
+    .compilation-box {
+      margin: 8px 0;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--m3-surface-container-highest);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #8ab4f8, #f28b82, #fdd663, #81c995);
+      transition: width 0.1s linear;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--google-blue);
+      font-style: italic;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .celebration-box {
+      background: rgba(129, 201, 149, 0.08);
+      border: 1px solid var(--google-green);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Bottom Bar */
+    .bottom-bar {
+      height: 38px;
+      background: var(--panel-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      font-size: 11px;
+    }
+
+    .bottom-tip {
+      color: var(--m3-primary);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bottom-hints {
+      color: var(--m3-on-surface-variant);
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      display: none;
+    }
+
+    .modal-dialog {
+      width: 90%;
+      max-width: 580px;
+      background: var(--panel-bg);
+      border: 2px solid var(--m3-primary);
+      border-radius: 14px;
+      padding: 22px 26px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--m3-primary);
+      text-align: center;
+    }
+
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .modal-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--m3-surface-container-highest);
+    }
+
+    .modal-table td.cmd {
+      color: var(--m3-primary);
+      font-weight: bold;
+      width: 80px;
+    }
+
+    .modal-table td.key {
+      color: var(--google-blue);
+      font-weight: bold;
+      width: 120px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Simulation Control Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-title">
+      <span>⚡ AGENT SUBSTRATE & GKE SANDBOX</span>
+      <span class="badge">GOOGLE MATERIAL 3</span>
+    </div>
+    <div class="controls-group">
+      <button class="ctrl-btn" id="btn-watch-video" onclick="showVideoModal()">
+        <span>🎥</span> <span>Watch Demo Video</span>
+      </button>
+      <button class="ctrl-btn" id="btn-autopilot" onclick="toggleAutopilot()">
+        <span id="autopilot-icon">▶</span> <span id="autopilot-text">Play Autopilot</span>
+      </button>
+      <button class="ctrl-btn" onclick="restartSimulation()">⟳ Reset</button>
+      <button class="ctrl-btn" onclick="showHelpModal()">⌨ Shortcuts (/help)</button>
+    </div>
+  </div>
+
+  <!-- Terminal Frame -->
+  <div class="terminal-window" tabindex="0" id="terminal-root">
+    
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <div class="mac-dots">
+        <span class="dot red" onclick="triggerExitConfirm()" title="Exit (Ctrl+C)"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <div class="title-text">
+        <span>⚡ Agent Substrate Onboarding — GKE Workload Multiplexing</span>
+      </div>
+    </div>
+
+    <!-- Stepper Navigation with Option A 4-Phase PRFAQ Icons -->
+    <div class="stepper-bar">
+      <div>
+        <span class="step-item active" id="step-nav-1">🩺 1. Pre-Flight</span>
+        <span class="step-divider">›</span>
+        <span class="step-item" id="step-nav-2">🛠️ 2. Platform Setup</span>
+        <span class="step-divider">›</span>
+        <span class="step-item" id="step-nav-3">🤖 3. Agent Deployment</span>
+        <span class="step-divider">›</span>
+        <span class="step-item" id="step-nav-4">🛸 4. Launchpad</span>
+      </div>
+      <div style="color: var(--m3-on-surface-variant);" id="keyboard-legend">
+        [↑/↓] Navigate  [Enter] Select  [/help] Help
+      </div>
+    </div>
+
+    <!-- Active Viewport -->
+    <div class="screen-viewport" id="viewport">
+      <!-- Screen 0: Welcome -->
+      <div class="screen-card" id="screen-welcome">
+        <div class="ascii-logo">
+   ____  _   _ ____  ____ _____ ____     _  _____ _____ 
+  / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|
+  \___ \| | | |  _ \\___ \ | | | |_) | / _ \ | | |  _|  
+   ___) | |_| | |_) |___) || | |  _ < / ___ \| | | |___ 
+  |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|
+        </div>
+        <div class="ascii-subtitle">⚡ A G E N T   S U B S T R A T E ⚡</div>
+        <div class="welcome-typewriter" id="typewriter-box">
+          <!-- Typewriter content streamed here -->
+        </div>
+
+        <!-- Core Capabilities Feature Card -->
+        <div class="welcome-features-card">
+          <div class="welcome-features-badge">⚡ CORE SUBSTRATE CAPABILITIES</div>
+          <div class="welcome-feature-row">
+            <div class="welcome-feature-label" style="color: var(--m3-primary);">🛠️ Platform Fleet :</div>
+            <div class="welcome-feature-desc">Warm worker pools on GKE with MicroVM & Spot capacity buffers</div>
+          </div>
+          <div class="welcome-feature-row">
+            <div class="welcome-feature-label" style="color: var(--google-green);">🤖 Agent Workloads :</div>
+            <div class="welcome-feature-desc">No-YAML container templates, turn hooks & request parking</div>
+          </div>
+          <div class="welcome-feature-row">
+            <div class="welcome-feature-label" style="color: var(--google-yellow);">⚡ Instant Resume :</div>
+            <div class="welcome-feature-desc">Suspend idle actors to 0% CPU; restore state in &lt;200ms</div>
+          </div>
+        </div>
+
+        <div class="cta-pulsing" onclick="goToStep(1)">
+          ▶ Press [ENTER] to start Pre-Flight Diagnostics...
+        </div>
+      </div>
+
+      <!-- Screen 1: Doctor Pre-Flight Diagnostics (Step 1) -->
+      <div class="screen-card" id="screen-doctor" style="display: none;">
+        <div class="screen-title">🩺 STEP 1: PRE-FLIGHT ENVIRONMENT & GKE DIAGNOSTICS</div>
+        <div class="screen-subtitle">Checking your local tools, connected GKE cluster, and cloud storage before starting...</div>
+
+        <div class="doctor-rows" id="doctor-rows-container">
+          <!-- Doctor diagnostic probes rendered here -->
+        </div>
+
+        <div class="screen-actions">
+          <button class="btn-secondary" onclick="goToStep(0)">← Back (b)</button>
+          <button class="btn-secondary" onclick="runDoctorChecks()">Re-run Checks (r)</button>
+          <button class="btn-action" onclick="goToStep(2)">Proceed to Platform Setup [Enter] →</button>
+        </div>
+      </div>
+
+      <!-- Screen 2: Questionnaire Wizard (Step 2) -->
+      <div class="screen-card" id="screen-wizard" style="display: none;">
+        <div class="screen-title" id="wizard-title">🛠️ STEP 2: PLATFORM SETUP & WORKERPOOL TOPOLOGY</div>
+        <div class="screen-subtitle" id="wizard-subtitle">Phase 2.1: Select your role and multiplexing target for GKE worker pools:</div>
+
+        <div class="options-list" id="wizard-options-container">
+          <!-- Dynamic Options rendered here -->
+        </div>
+
+        <div class="screen-actions">
+          <button class="btn-secondary" onclick="wizardPrevSubstep()">← Back (b)</button>
+          <button class="btn-secondary" onclick="wizardSkip()">Skip to Defaults (/skip)</button>
+          <button class="btn-action" onclick="wizardNextSubstep()">Next Step [Enter] →</button>
+        </div>
+      </div>
+
+      <!-- Screen 3: Auth & Integrations (Step 3) -->
+      <div class="screen-card" id="screen-auth" style="display: none;">
+        <div class="screen-title">🤖 STEP 3: AGENT DEPLOYMENT & CREDENTIAL LINKAGE</div>
+        <div class="screen-subtitle">Link your workspace credentials (LLM API keys, Google IAP OAuth) for Actor runtime dispatch:</div>
+
+        <div class="input-box-wrapper">
+          <label style="font-size: 11px; color: var(--m3-on-surface-variant);">LLM API Key / Token:</label>
+          <div class="input-row">
+            <input type="password" id="api-key-input" class="terminal-input" placeholder="sk-ant-... or sk-... or sb-..." value="sb-live-89f4a9b2c01e5d3" />
+            <button class="btn-secondary" id="btn-toggle-mask" onclick="togglePasswordMask()">👁 Show</button>
+          </div>
+          <div class="error-banner" id="auth-error-banner"></div>
+        </div>
+
+        <!-- Google IAP Card -->
+        <div class="welcome-features-card" style="margin: 12px 0;">
+          <div class="welcome-features-badge">🌐 ENTERPRISE AUTHENTICATION (GOOGLE CLOUD IAP)</div>
+          <div style="font-size: 12px; color: #ffffff; padding: 4px 0;">
+            Agent Substrate integrates with Google Identity-Aware Proxy (Port 8443)
+          </div>
+          <div style="font-size: 11px; color: var(--m3-on-primary-container);">
+            for zero-trust workforce single-sign-on and role-based actor access.
+          </div>
+        </div>
+
+        <div style="font-size: 12px; margin-top: 8px; min-height: 24px;" id="oauth-status-text"></div>
+
+        <div class="screen-actions">
+          <button class="btn-secondary" onclick="goToStep(2)">← Back (b)</button>
+          <button class="btn-secondary" onclick="startOAuthFlow()">🌐 Authenticate via Google IAP (OAuth)</button>
+          <button class="btn-secondary" onclick="skipAuth()">Skip for Local Dev (/skip)</button>
+          <button class="btn-action" onclick="submitAuth()">Proceed to Launchpad [Enter] →</button>
+        </div>
+      </div>
+
+      <!-- Screen 4: Summary & Finalize (Step 4) -->
+      <div class="screen-card" id="screen-summary" style="display: none;">
+        <div class="screen-title">🛸 STEP 4: CLUSTER LAUNCHPAD & 3-PHASE OPERATIONS RUNBOOK</div>
+        <div class="screen-subtitle">Review your GKE Substrate profile before compiling manifests & starting worker pools:</div>
+
+        <div class="summary-box" id="summary-box-content">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="compilation-box">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-label" id="progress-label">Preparing workspace compiler...</div>
+        </div>
+
+        <div class="celebration-box" id="celebration-box" style="display: none;">
+          <div style="font-weight: bold; color: var(--google-green); margin-bottom: 6px;">🎉 SUBSTRATE CONFIGURED — READY FOR PLATFORM & AI WORKLOADS!</div>
+          
+          <div style="color: var(--m3-primary); font-weight: bold; margin-top: 8px;">🚀 Phase 1: Platform Setup (Platform Engineers)</div>
+          <div style="background: #131314; padding: 8px 12px; border-radius: 6px; font-family: monospace; color: var(--google-blue); margin: 6px 0; border: 1px solid var(--border-color); line-height: 1.4;">
+            curl -sSL ate.dev/install.sh | bash<br>
+            atectl create workerpools my-workerpool --isolation=microvm --workers=100 --autoscale
+          </div>
+          
+          <div style="color: var(--m3-primary); font-weight: bold; margin-top: 8px;">🤖 Phase 2: Agent Deployment (AI Engineers — No YAML Required)</div>
+          <div style="background: #131314; padding: 8px 12px; border-radius: 6px; font-family: monospace; color: var(--google-blue); margin: 6px 0; border: 1px solid var(--border-color); line-height: 1.4;">
+            atectl create template my-agent --image gcr.io/repo/my-agent:v1 --worker-pool=workload=agent
+          </div>
+          
+          <div style="color: var(--m3-primary); font-weight: bold; margin-top: 8px;">📊 Phase 3: Observability & Pre-caching</div>
+          <div style="color: #f2f2f2; margin-top: 4px;">• <code style="color: var(--google-blue);">atectl top workers</code> — Inspect latency degradations & host saturation</div>
+          <div style="color: #f2f2f2;">• <code style="color: var(--google-blue);">atectl precache image gcr.io/rl-lab/env-mujoco:v3.0 --workerpool=rl-pool</code> — Pre-warm Local SSDs</div>
+          <div style="color: #f2f2f2;">• <code style="color: var(--google-blue);">atectl precache status</code> — Verify 100% readiness across worker nodes</div>
+        </div>
+
+        <div class="screen-actions">
+          <button class="btn-secondary" onclick="goToStep(3)">← Modify Settings</button>
+          <button class="btn-action" onclick="finishSimulation()">Launch Agent Substrate 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <div class="bottom-bar">
+      <div class="bottom-tip" id="bottom-tip-text">
+        💡 Welcome to Agent Substrate. Press [Enter] to start your onboarding.
+      </div>
+      <div class="bottom-hints" id="bottom-hints-text">
+        [Enter] Proceed  [/help] Help  [Ctrl+C] Exit
+      </div>
+    </div>
+
+    <!-- Video Modal Player Overlay -->
+    <div class="modal-overlay" id="video-modal">
+      <div class="modal-dialog" style="max-width: 860px;">
+        <div class="modal-title">🎥 AGENT SUBSTRATE ONBOARDING DEMO RECORDING</div>
+        <div style="text-align: center; margin: 10px 0;">
+          <video id="demo-video-player" controls style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color);" src="onboarding_demo.mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: var(--m3-on-surface-variant);">Recorded in HD (H.264 / 30fps)</span>
+          <button class="btn-secondary" onclick="closeVideoModal()">Close (Esc)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal Overlay -->
+    <div class="modal-overlay" id="help-modal">
+      <div class="modal-dialog">
+        <div class="modal-title">⚡ KEYBOARD SHORTCUTS & SLASH COMMANDS</div>
+        <div style="font-size: 11px; font-weight: bold; color: var(--m3-primary);">Global Slash Commands:</div>
+        <table class="modal-table">
+          <tr><td class="cmd">/help</td><td style="color: var(--m3-on-surface-variant);">Aliases: /?, /h, F1</td><td>Show this interactive command overlay</td></tr>
+          <tr><td class="cmd">/skip</td><td style="color: var(--m3-on-surface-variant);">Aliases: /s, /next</td><td>Skip current question using recommended defaults</td></tr>
+          <tr><td class="cmd">/back</td><td style="color: var(--m3-on-surface-variant);">Aliases: /prev, /b</td><td>Return to previous onboarding screen</td></tr>
+          <tr><td class="cmd">/doctor</td><td style="color: var(--m3-on-surface-variant);">Aliases: /check</td><td>Run or inspect environment pre-flight diagnostics</td></tr>
+          <tr><td class="cmd">/exit</td><td style="color: var(--m3-on-surface-variant);">Aliases: /quit, /q</td><td>Pause onboarding and exit cleanly</td></tr>
+        </table>
+
+        <div style="font-size: 11px; font-weight: bold; color: var(--m3-primary); margin-top: 6px;">Keyboard Shortcuts:</div>
+        <table class="modal-table">
+          <tr><td class="key">[Up / Down]</td><td>Navigate items, options, and lists</td></tr>
+          <tr><td class="key">[Enter]</td><td>Confirm selection / Submit input / Proceed</td></tr>
+          <tr><td class="key">[Space]</td><td>Toggle selection or buttons</td></tr>
+          <tr><td class="key">[Ctrl+C / Ctrl+D]</td><td>Pause onboarding & prompt exit confirmation</td></tr>
+          <tr><td class="key">[Esc]</td><td>Close modal dialogs</td></tr>
+        </table>
+
+        <div style="text-align: right; margin-top: 8px;">
+          <button class="btn-secondary" onclick="closeHelpModal()">Close (Esc)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exit Confirmation Modal Overlay -->
+    <div class="modal-overlay" id="exit-modal">
+      <div class="modal-dialog" style="max-width: 440px;">
+        <div class="modal-title" style="color: var(--google-yellow);">⏸ ONBOARDING PAUSED</div>
+        <div style="font-size: 12px; text-align: center; color: #f2f2f2; line-height: 1.5;">Exit setup? (y/n)<br><span style="color: var(--m3-on-surface-variant);">Your selections will be preserved if you return.</span></div>
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
+          <button class="btn-secondary" onclick="confirmExit()">Yes, Exit (y)</button>
+          <button class="btn-action" onclick="closeExitModal()">No, Continue (n)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // State Data aligned with hack/install-ate.sh
+    const state = {
+      currentStep: 1,
+      subStep: 0,
+      selectedOptions: [0, 0, 0],
+      trackId: 'autonomous_swarm',
+      dataplaneId: 'envoy_redis',
+      sandboxId: 'gvisor',
+      editorId: 'cursor',
+      authMode: 'api_key',
+      apiKeyMasked: 'sb-l********5d3',
+      isMasked: true,
+      autopilot: false,
+      autopilotTimer: null
+    };
+
+    const WIZARD_SUBSTEPS = [
+      {
+        title: "Step 1 of 3: Persona & Architecture Target (Pierceable Abstraction)",
+        desc: "Select your role and multiplexing target for GKE worker pools & actor sessions:",
+        options: [
+          { id: 'autonomous_swarm', icon: '🛠️', title: 'Platform Engineer — Fleet WorkerPools', desc: 'Provision fungible, pre-warmed GKE worker pools with microVM/gVisor isolation & autoscaling', tip: "Runs 'atectl create workerpools' with capacity buffers, Custom Compute Classes (CCC), and Spot optimization." },
+          { id: 'interactive_sandbox', icon: '🤖', title: 'AI Engineer — No-YAML Agent Deployment', desc: 'Deploy ActorTemplates (OCI images) and multiplex sessions without touching Kubernetes YAML', tip: "Runs 'atectl create template' linking OCI images to worker pools with real-time actor suspend/resume." },
+          { id: 'platform_admin', icon: '⚡', title: 'Full-Stack Platform & Autonomous Swarms', desc: 'End-to-end setup: WorkerPool fleets, ActorTemplates, Envoy dataplane, and observability', tip: 'Full infrastructure and actor multiplexing lifecycle for 50+ concurrent autonomous agents per node.' },
+          { id: 'local_microvm', icon: '💻', title: 'Local Dev & Rapid MicroVM Prototyping', desc: 'Fast iteration on macOS/Linux using Docker, Colima, or Kind clusters (--setup-csi)', tip: 'Configures lightweight process cgroups, local port-forwards, and mock cloud storage.' }
+        ]
+      },
+      {
+        title: "Step 2 of 3: WorkerPool & Dataplane Topology (--isolation / --workers)",
+        desc: "Select the worker fleet isolation boundary and state store architecture:",
+        options: [
+          { id: 'envoy_redis', icon: '⚡', title: 'MicroVM WorkerPool + Envoy Dataplane (Recommended)', desc: '100 pre-warmed workers (Cloud Hypervisor), Envoy proxy, and Redis state store', tip: 'Applies --isolation=microvm --workers=100 --atenet-router=envoy --store-backend=redis for sub-50ms resume.' },
+          { id: 'agentgateway_redis', icon: '🛡️', title: 'gVisor WorkerPool + Agent Gateway Router', desc: 'Hardened userspace syscall sandboxing with dynamic TLS and stream multiplexing', tip: 'Applies --isolation=gvisor --atenet-router=agentgateway --store-backend=redis for stream-based routing.' },
+          { id: 'envoy_postgres', icon: '🐘', title: 'Enterprise Multi-Tenant Fleet + PostgreSQL', desc: 'Relational persistence for multi-tenant audit logs, RBAC, and durable actor state', tip: 'Applies --store-backend=postgres with automated mTLS credential bundle verification.' }
+        ]
+      },
+      {
+        title: "Step 3 of 3: Optimization & Image Pre-caching (--workerpool / precache)",
+        desc: "Select your image caching strategy and sandbox checkpointing storage:",
+        options: [
+          { id: 'gvisor', icon: '⚡', title: 'Local SSD Image Pre-caching (RL & Large Models)', desc: 'Pre-warm heavy environment images onto Local SSDs to eliminate image pull delays', tip: "Enables 'atectl precache image' for instant zero-delay rollouts across worker nodes." },
+          { id: 'microvm', icon: '🛡️', title: 'Cloud Hypervisor MicroVM (Hardware Virtualized)', desc: 'Hardware-virtualized microVM isolation with nested virtualization on N2/C3/C4 nodes', tip: 'Configures --isolation=microvm for sub-200ms cold boots and strict hardware boundaries.' },
+          { id: 'gcs_snapshots', icon: '🪣', title: 'GCS Snapshot Checkpointing (L2 Storage)', desc: 'Persistent GCS bucket for microVM memory/disk state suspend and resume', tip: 'Enables zero-downtime state persistence when workers suspend during LLM idle time.' }
+        ]
+      }
+    ];
+
+    const DOCTOR_PROBES = [
+      {
+        name: "Version Control (Git)",
+        status: "ok",
+        msg: "Git v2.55 (Identity: Rajitha Leonhard)",
+        desc: "Tracks your agent templates and code history so you can undo changes or collaborate.",
+        remedy: 'git config --global user.name "Your Name" && git config --global user.email "you@example.com"',
+        docUrl: "https://git-scm.com/doc"
+      },
+      {
+        name: "Python Environment",
+        status: "ok",
+        msg: "Python v3.13.7 (darwin) ready",
+        desc: "Runs the onboarding assistant, developer scripts, and local agent harnesses.",
+        remedy: "brew install python@3.12",
+        docUrl: "https://docs.python.org/3/"
+      },
+      {
+        name: "Agent Sandbox Engine (Docker / Colima)",
+        status: "warning",
+        msg: "Docker or Colima is not running. Start it to run agent sandboxes.",
+        desc: "Agent Substrate runs agents inside lightweight, secure sandboxes so code cannot harm your computer.",
+        remedy: "open -a Docker || colima start",
+        docUrl: "https://ate.dev/docs/sandboxes"
+      },
+      {
+        name: "Connected Cloud Cluster (GKE / Kubectl)",
+        status: "ok",
+        msg: "Connected to cluster context (gke-agent-cluster) — ready to deploy agents",
+        desc: "Your terminal is linked to your Google Cloud cluster where your agent worker fleet lives.",
+        remedy: "gcloud container clusters get-credentials my-cluster --region us-central1",
+        docUrl: "https://cloud.google.com/kubernetes-engine/docs"
+      },
+      {
+        name: "Substrate Helper Tools (atectl)",
+        status: "ok",
+        msg: "atectl CLI v0.17 ready — manage agents without writing Kubernetes YAML",
+        desc: "Helper commands to create worker pools, deploy agents, and monitor speed with simple commands.",
+        remedy: "curl -sSL ate.dev/install.sh | bash",
+        docUrl: "https://ate.dev/docs/cli"
+      },
+      {
+        name: "Cloud Connection & Memory Storage",
+        status: "ok",
+        msg: "Cloud connection healthy (4ms) — agent memory saves instantly",
+        desc: "Connects to cloud storage so agents resume quickly without losing state when waking up from idle.",
+        remedy: "ping -c 3 8.8.8.8",
+        docUrl: "https://ate.dev/docs/architecture"
+      }
+    ];
+
+    // Typewriter
+    const INTRO_TEXT = "Welcome to Agent Substrate on GKE — the high-density execution plane with a pierceable abstraction for Platform Engineers and AI Engineers.";
+    let typeIdx = 0;
+
+    function runTypewriter() {
+      const box = document.getElementById('typewriter-box');
+      box.innerHTML = '';
+      typeIdx = 0;
+      function step() {
+        if (typeIdx < INTRO_TEXT.length) {
+          box.innerHTML = INTRO_TEXT.substring(0, typeIdx + 1) + '<span style="color: var(--m3-primary); font-weight: bold;">▌</span>';
+          typeIdx++;
+          setTimeout(step, 18);
+        } else {
+          box.innerHTML = INTRO_TEXT;
+        }
+      }
+      step();
+    }
+
+    // Step Navigation
+    function goToStep(stepNum) {
+      state.currentStep = stepNum;
+      
+      const screenIds = ['screen-welcome', 'screen-doctor', 'screen-wizard', 'screen-auth', 'screen-summary'];
+      screenIds.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (idx === stepNum) ? 'flex' : 'none';
+      });
+
+      // Stepper nav has 4 items: step-nav-1 to step-nav-4
+      for (let i = 1; i <= 4; i++) {
+        const nav = document.getElementById(`step-nav-${i}`);
+        if (nav) {
+          const activeIndex = (stepNum === 0) ? 1 : stepNum;
+          if (i === activeIndex) {
+            nav.classList.add('active');
+          } else {
+            nav.classList.remove('active');
+          }
+        }
+      }
+
+      if (stepNum === 0) {
+        setTip("Welcome to Agent Substrate on GKE. Press [Enter] to start Pre-Flight Diagnostics.");
+        setHints("[Enter] Start  [/help] Help  [Ctrl+C] Exit");
+        runTypewriter();
+      } else if (stepNum === 1) {
+        setTip("Running GKE, Cloud Hypervisor, and Substrate pre-flight diagnostic probes...");
+        setHints("[r] Re-run  [Enter] Proceed to Platform Setup  [/skip] Bypass");
+        runDoctorChecks();
+      } else if (stepNum === 2) {
+        state.subStep = 0;
+        renderWizardOptions();
+      } else if (stepNum === 3) {
+        setTip("Enter LLM API credentials or authenticate via Google IAP. Type /skip for local offline mode.");
+        setHints("[Enter] Submit  [/skip] Bypass  [Ctrl+C] Exit");
+      } else if (stepNum === 4) {
+        renderSummaryCard();
+        runCompilationProgress();
+      }
+    }
+
+    function getScreenId(stepNum) {
+      switch (stepNum) {
+        case 0: return 'screen-welcome';
+        case 1: return 'screen-doctor';
+        case 2: return 'screen-wizard';
+        case 3: return 'screen-auth';
+        case 4: return 'screen-summary';
+      }
+    }
+
+    function setTip(text) {
+      document.getElementById('bottom-tip-text').innerHTML = `💡 ${text}`;
+    }
+
+    function setHints(text) {
+      document.getElementById('bottom-hints-text').innerText = text;
+    }
+
+    // Wizard Logic
+    function renderWizardOptions() {
+      const current = WIZARD_SUBSTEPS[state.subStep];
+      document.getElementById('wizard-subtitle').innerText = current.desc;
+      const container = document.getElementById('wizard-options-container');
+      container.innerHTML = '';
+
+      const selectedIdx = state.selectedOptions[state.subStep];
+
+      current.options.forEach((opt, idx) => {
+        const row = document.createElement('div');
+        row.className = `option-row ${idx === selectedIdx ? 'active' : ''}`;
+        row.onclick = () => {
+          state.selectedOptions[state.subStep] = idx;
+          renderWizardOptions();
+        };
+        row.onmouseenter = () => {
+          setTip(opt.tip);
+        };
+
+        row.innerHTML = `
+          <div class="indicator">${idx === selectedIdx ? '▶' : ''}</div>
+          <div class="icon">${opt.icon}</div>
+          <div class="title">${opt.title}</div>
+          <div class="desc">— ${opt.desc}</div>
+        `;
+        container.appendChild(row);
+      });
+
+      setTip(current.options[selectedIdx].tip);
+      setHints(`[↑/↓] Select (${selectedIdx + 1}/${current.options.length})  [Enter] Next  [/skip] Defaults`);
+    }
+
+    function wizardNextSubstep() {
+      if (state.subStep < WIZARD_SUBSTEPS.length - 1) {
+        state.subStep++;
+        renderWizardOptions();
+      } else {
+        // Save choices
+        state.trackId = WIZARD_SUBSTEPS[0].options[state.selectedOptions[0]].id;
+        state.dataplaneId = WIZARD_SUBSTEPS[1].options[state.selectedOptions[1]].id;
+        state.sandboxId = WIZARD_SUBSTEPS[2].options[state.selectedOptions[2]].id;
+        goToStep(3); // Advance to Step 3: Agent Deployment
+      }
+    }
+
+    function wizardPrevSubstep() {
+      if (state.subStep > 0) {
+        state.subStep--;
+        renderWizardOptions();
+      } else {
+        goToStep(1); // Return to Step 1: Pre-Flight Doctor
+      }
+    }
+
+    function wizardSkip() {
+      goToStep(3);
+    }
+
+    // Doctor Logic & Actionable Remedies
+    function copyRemedyText(text, btn) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      }
+      const orig = btn.innerHTML;
+      btn.innerHTML = "✓ Copied!";
+      btn.classList.add('copied');
+      setTip(`Copied to clipboard: <code>${text}</code>`);
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+
+    function runRemedyInline(idx, btn) {
+      const probe = DOCTOR_PROBES[idx];
+      const row = document.getElementById(`doc-row-${idx}`);
+      btn.innerHTML = "⠋ Running...";
+      btn.disabled = true;
+      setTip(`Running action inline: <code>${probe.remedy}</code>...`);
+      
+      setTimeout(() => {
+        probe.status = "ok";
+        probe.msg = "Docker engine active & sandboxes ready";
+        row.className = "doc-row ok";
+        row.innerHTML = `
+          <div class="doc-main-line">
+            <span><strong>✓</strong> Checking ${probe.name}... (${probe.msg})</span>
+            <span class="doc-badge ok">[OK]</span>
+          </div>
+        `;
+        setTip(`✓ Succeeded! ${probe.name} is now active and ready.`);
+      }, 1200);
+    }
+
+    function runDoctorChecks() {
+      const container = document.getElementById('doctor-rows-container');
+      container.innerHTML = '';
+
+      DOCTOR_PROBES.forEach((probe, idx) => {
+        const row = document.createElement('div');
+        row.className = 'doc-row running';
+        row.id = `doc-row-${idx}`;
+        row.innerHTML = `
+          <div class="doc-main-line">
+            <span>⠋ Checking ${probe.name}...</span>
+            <span class="doc-badge running">[RUNNING]</span>
+          </div>
+        `;
+        container.appendChild(row);
+
+        // Staggered resolution
+        setTimeout(() => {
+          row.className = `doc-row ${probe.status}`;
+          let icon = probe.status === 'ok' ? '✓' : (probe.status === 'warning' ? '▲' : '✖');
+          let badgeText = probe.status === 'ok' ? '[OK]' : (probe.status === 'warning' ? '[WARNING]' : '[FAILED]');
+          
+          let remedyHtml = '';
+          if (probe.status !== 'ok' && probe.remedy) {
+            remedyHtml = `
+              <div class="doc-remedy">
+                <div class="doc-remedy-header">💡 Action Required</div>
+                <div class="doc-remedy-desc">ℹ️ ${probe.desc}</div>
+                <div class="doc-remedy-action-bar">
+                  <span class="doc-remedy-code">${probe.remedy}</span>
+                  <div class="doc-remedy-btns">
+                    <button class="btn-remedy" onclick="copyRemedyText('${probe.remedy.replace(/'/g, "\\'")}', this)">📋 Copy</button>
+                    <button class="btn-remedy" onclick="runRemedyInline(${idx}, this)">⚡ Fix Inline</button>
+                    ${probe.docUrl ? `<a class="btn-remedy btn-doc" href="${probe.docUrl}" target="_blank">📖 Docs ↗</a>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          row.innerHTML = `
+            <div class="doc-main-line">
+              <span><strong>${icon}</strong> Checking ${probe.name}... (${probe.msg})</span>
+              <span class="doc-badge ${probe.status}">${badgeText}</span>
+            </div>
+            ${remedyHtml}
+          `;
+        }, (idx + 1) * 350);
+      });
+    }
+
+    // Auth Logic
+    function togglePasswordMask() {
+      const inp = document.getElementById('api-key-input');
+      const btn = document.getElementById('btn-toggle-mask');
+      state.isMasked = !state.isMasked;
+      inp.type = state.isMasked ? 'password' : 'text';
+      btn.innerText = state.isMasked ? '👁 Show' : '🔒 Hide';
+    }
+
+    function submitAuth() {
+      const inp = document.getElementById('api-key-input');
+      const val = inp.value.trim();
+      const errBanner = document.getElementById('auth-error-banner');
+
+      if (!val) {
+        errBanner.innerText = '⚠ API key cannot be empty. Enter key or click Skip for Local Testing.';
+        errBanner.classList.add('visible');
+        return;
+      }
+      if (val.length < 8) {
+        errBanner.innerText = '⚠ Key too short. Expected at least 8 characters.';
+        errBanner.classList.add('visible');
+        return;
+      }
+
+      errBanner.classList.remove('visible');
+      state.authMode = 'api_key';
+      state.apiKeyMasked = val.substring(0, 7) + '********' + val.substring(val.length - 3);
+      goToStep(4); // Advance to Step 4: Launchpad
+    }
+
+    function skipAuth() {
+      state.authMode = 'skipped';
+      state.apiKeyMasked = 'None (Offline Local Mode)';
+      goToStep(4); // Advance to Step 4: Launchpad
+    }
+
+    function startOAuthFlow() {
+      const status = document.getElementById('oauth-status-text');
+      const spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+      let frame = 0;
+      status.style.display = 'block';
+      status.innerHTML = `<span style="color: var(--google-blue);">${spinner[0]} Launching browser for Google IAP OAuth handshake...</span>`;
+
+      const timer = setInterval(() => {
+        frame++;
+        status.innerHTML = `<span style="color: var(--google-blue);">${spinner[frame % spinner.length]} Handshaking with Google IAP OAuth (Port 8443)...</span>`;
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(timer);
+        status.innerHTML = `<span style="color: var(--google-green); font-weight: bold;">✓ Google IAP OAuth Handshake Successful! (Principal: dev-lead@gcp.com)</span>`;
+        state.authMode = 'oauth';
+        setTimeout(() => {
+          goToStep(4); // Advance to Step 4: Launchpad
+        }, 800);
+      }, 1600);
+    }
+
+    // Summary & Compilation
+    function renderSummaryCard() {
+      const track = WIZARD_SUBSTEPS[0].options.find(o => o.id === state.trackId) || WIZARD_SUBSTEPS[0].options[0];
+      const dataplane = WIZARD_SUBSTEPS[1].options.find(o => o.id === state.dataplaneId) || WIZARD_SUBSTEPS[1].options[0];
+      const sandbox = WIZARD_SUBSTEPS[2].options.find(o => o.id === state.sandboxId) || WIZARD_SUBSTEPS[2].options[0];
+
+      const content = document.getElementById('summary-box-content');
+      content.innerHTML = `
+        <div class="summary-line"><span class="summary-key">Workload Topology:</span><span class="summary-val">${track.icon} ${track.title}</span></div>
+        <div class="summary-line"><span class="summary-key">Dataplane & Store:</span><span class="summary-val">${dataplane.icon} ${dataplane.title}</span></div>
+        <div class="summary-line"><span class="summary-key">Isolation Runtime:</span><span class="summary-val">${sandbox.icon} ${sandbox.title}</span></div>
+        <div class="summary-line"><span class="summary-key">Authentication Mode:</span><span class="summary-val">${state.authMode === 'api_key' ? 'API Key (' + state.apiKeyMasked + ')' : (state.authMode === 'oauth' ? 'Google IAP (Authenticated)' : 'Local Dev Mode')}</span></div>
+        <div class="summary-line"><span class="summary-key">GKE Cluster Target:</span><span class="summary-val" style="color: var(--google-blue);">gke-agent-cluster (us-central1-a)</span></div>
+        <div class="summary-line"><span class="summary-key">Pre-Flight Health:</span><span class="summary-val" style="color: var(--google-green);">5/6 Diagnostics Passed (Healthy)</span></div>
+      `;
+    }
+
+    function runCompilationProgress() {
+      const fill = document.getElementById('progress-fill');
+      const label = document.getElementById('progress-label');
+      const compBox = document.querySelector('.compilation-box');
+      const celebration = document.getElementById('celebration-box');
+      compBox.style.display = 'block';
+      celebration.style.display = 'none';
+
+      const stages = [
+        { pct: 20, text: 'Generating substrate.yaml & WorkerPool CRD manifests...' },
+        { pct: 45, text: 'Configuring Envoy dataplane, Valkey cache & GCS snapshot bucket...' },
+        { pct: 70, text: 'Testing data plane: Cold Boot (912ms) → Suspend (42ms) → Warm Resume (120ms)...' },
+        { pct: 90, text: 'Linking editor plugins, .cursorrules & atectl bridge...' },
+        { pct: 100, text: 'Workspace configured successfully! Worker pool ready for dispatch.' }
+      ];
+
+      let sIdx = 0;
+      function nextStage() {
+        if (sIdx < stages.length) {
+          const st = stages[sIdx];
+          fill.style.width = `${st.pct}%`;
+          label.innerText = `⚙ ${st.text}`;
+          sIdx++;
+          setTimeout(nextStage, 500);
+        } else {
+          compBox.style.display = 'none';
+          celebration.style.display = 'block';
+          setTip("Onboarding successfully finished! Press [Enter] or click Launch.");
+          setHints("[Enter] Launch Substrate  [/help] Help");
+        }
+      }
+      nextStage();
+    }
+
+    function finishSimulation() {
+      alert("🚀 Launching Agent Substrate GKE session!");
+    }
+
+    // Modal Handling
+    function showHelpModal() { document.getElementById('help-modal').style.display = 'flex'; }
+    function closeHelpModal() { document.getElementById('help-modal').style.display = 'none'; }
+    function showVideoModal() {
+      document.getElementById('video-modal').style.display = 'flex';
+      const p = document.getElementById('demo-video-player');
+      p.currentTime = 0;
+      p.play();
+    }
+    function closeVideoModal() {
+      document.getElementById('video-modal').style.display = 'none';
+      const p = document.getElementById('demo-video-player');
+      p.pause();
+    }
+    function triggerExitConfirm() { document.getElementById('exit-modal').style.display = 'flex'; }
+    function closeExitModal() { document.getElementById('exit-modal').style.display = 'none'; }
+    function confirmExit() { closeExitModal(); goToStep(1); }
+
+    // Autopilot
+    function toggleAutopilot() {
+      state.autopilot = !state.autopilot;
+      const btn = document.getElementById('btn-autopilot');
+      const icon = document.getElementById('autopilot-icon');
+      const text = document.getElementById('autopilot-text');
+
+      if (state.autopilot) {
+        btn.classList.add('active');
+        icon.innerText = '⏸';
+        text.innerText = 'Pause Autopilot';
+        startAutopilotLoop();
+      } else {
+        btn.classList.remove('active');
+        icon.innerText = '▶';
+        text.innerText = 'Play Autopilot';
+        if (state.autopilotTimer) clearTimeout(state.autopilotTimer);
+      }
+    }
+
+    function startAutopilotLoop() {
+      goToStep(1);
+      state.autopilotTimer = setTimeout(() => {
+        if (!state.autopilot) return;
+        goToStep(1); // Go to Step 1: Pre-Flight Doctor
+        state.autopilotTimer = setTimeout(() => {
+          if (!state.autopilot) return;
+          goToStep(2); // Go to Step 2: Platform Setup
+          state.autopilotTimer = setTimeout(() => {
+            if (!state.autopilot) return;
+            state.selectedOptions[0] = 0; // Fleet WorkerPools
+            renderWizardOptions();
+            state.autopilotTimer = setTimeout(() => {
+              if (!state.autopilot) return;
+              wizardNextSubstep();
+              state.autopilotTimer = setTimeout(() => {
+                if (!state.autopilot) return;
+                state.selectedOptions[1] = 0; // MicroVM WorkerPool + Envoy
+                renderWizardOptions();
+                state.autopilotTimer = setTimeout(() => {
+                  if (!state.autopilot) return;
+                  wizardNextSubstep();
+                  state.autopilotTimer = setTimeout(() => {
+                    if (!state.autopilot) return;
+                    wizardNextSubstep(); // to Step 3: Agent Deployment
+                    state.autopilotTimer = setTimeout(() => {
+                      if (!state.autopilot) return;
+                      startOAuthFlow();
+                    }, 1200);
+                  }, 1000);
+                }, 1000);
+              }, 1000);
+            }, 1000);
+          }, 1200);
+        }, 2200);
+      }, 2000);
+    }
+
+    function restartSimulation() {
+      if (state.autopilot) toggleAutopilot();
+      state.selectedOptions = [0, 0, 0];
+      goToStep(0);
+    }
+
+    // Keyboard Listeners
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('video-modal').style.display === 'flex') {
+        if (e.key === 'Escape' || e.key === 'q') closeVideoModal();
+        return;
+      }
+      if (document.getElementById('help-modal').style.display === 'flex') {
+        if (e.key === 'Escape' || e.key === 'q') closeHelpModal();
+        return;
+      }
+      if (document.getElementById('exit-modal').style.display === 'flex') {
+        if (e.key === 'y') confirmExit();
+        if (e.key === 'n' || e.key === 'Escape') closeExitModal();
+        return;
+      }
+
+      if (e.key === 'F1' || e.key === '/') {
+        e.preventDefault();
+        showHelpModal();
+        return;
+      }
+
+      if ((e.ctrlKey && e.key === 'c') || (e.ctrlKey && e.key === 'd')) {
+        e.preventDefault();
+        triggerExitConfirm();
+        return;
+      }
+
+      if (state.currentStep === 0) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          goToStep(1);
+        }
+      } else if (state.currentStep === 1) {
+        if (e.key === 'Enter' || e.key === ' ') goToStep(2);
+        if (e.key === 'r') runDoctorChecks();
+        if (e.key === 'b') goToStep(0);
+      } else if (state.currentStep === 2) {
+        const opts = WIZARD_SUBSTEPS[state.subStep].options;
+        let curr = state.selectedOptions[state.subStep];
+        if (e.key === 'ArrowDown' || e.key === 'j') {
+          if (curr < opts.length - 1) {
+            state.selectedOptions[state.subStep]++;
+            renderWizardOptions();
+          }
+        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+          if (curr > 0) {
+            state.selectedOptions[state.subStep]--;
+            renderWizardOptions();
+          }
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          wizardNextSubstep();
+        } else if (e.key === 'b') {
+          wizardPrevSubstep();
+        }
+      } else if (state.currentStep === 3) {
+        if (e.key === 'Enter') submitAuth();
+        if (e.key === 'b') goToStep(2);
+      } else if (state.currentStep === 4) {
+        if (e.key === 'Enter') finishSimulation();
+        if (e.key === 'b') goToStep(3);
+      }
+    });
+
+    // Boot
+    window.onload = () => {
+      goToStep(0);
+    };
+  </script>
+</body>
+</html>
