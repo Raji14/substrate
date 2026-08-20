@@ -1,136 +1,125 @@
-"""State 3: Environment Pre-flight Check (The Doctor Step)."""
+"""Step 2: Control Plane Installation Screen."""
 
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, Optional
+from typing import Optional
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Label, Button
+from textual.widgets import Label, Static, Button
 from rich.text import Text
-from substrate_onboarding.config import OnboardingStep, CheckResult
-from substrate_onboarding.checks.runner import PreflightRunner
+from substrate_onboarding.config import OnboardingStep
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
-from substrate_onboarding.widgets.doctor_item import DoctorItemWidget
+from substrate_onboarding.widgets.sidebar_nav import SidebarNav
+
+
+INSTALL_STEPS = [
+    ("crds", "Applying Substrate CustomResourceDefinitions (ate.dev/v1alpha1: WorkerPool, ActorTemplate, Actor)"),
+    ("valkey", "Deploying Valkey Metadata & State Registry"),
+    ("gateway", "Bootstrapping Substrate Gateway & API Server (listening on :8080)"),
+    ("ebpf", "Initializing eBPF Network & Ingress/Egress Proxy Controller"),
+    ("done", "All control plane components successfully deployed in namespace [substrate-system]."),
+]
 
 
 class DoctorScreen(Screen[None]):
-    """State 3: Pre-flight Diagnostic Doctor Step."""
+    """Step 2: Control Plane Installation Screen."""
 
     BINDINGS = [
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
-        ("r", "rerun_checks", "Re-run Checks"),
-        ("c", "copy_remedy_command", "Copy Fix"),
         ("b", "previous_step", "Back"),
     ]
 
-    def __init__(self, name: str = "doctor"):
+    def __init__(self, name: str = "control_plane"):
         super().__init__(name=name)
-        self.runner = PreflightRunner()
-        self._run_task: Optional[asyncio.Task] = None
-        self._is_finished = False
+        self._step_progress = 0
+        self._timer = None
 
     def compose(self) -> ComposeResult:
-        yield TopHeader(initial_step=OnboardingStep.DOCTOR)
-        with Vertical(id="screen-container"):
-            with Vertical(id="doctor-box"):
-                yield Label("🩺  STEP 1: PRE-FLIGHT ENVIRONMENT & GKE DIAGNOSTICS", classes="wizard-step-title")
-                yield Label(
-                    "Checking your local tools, connected GKE cluster, and cloud storage before starting...",
-                    classes="wizard-step-subtitle",
-                )
+        yield TopHeader(initial_step=OnboardingStep.CONTROL_PLANE)
+        with Horizontal(id="workspace-layout"):
+            yield SidebarNav(current_step=OnboardingStep.CONTROL_PLANE)
+            with Vertical(id="content-area"):
+                with Vertical(id="content-panel"):
+                    yield Label("[2/6] CONTROL PLANE INSTALLATION", classes="wizard-step-title")
+                    yield Label(
+                        "Installing Agent Substrate Control Plane on cluster [demo-cluster] in namespace [substrate-system]...",
+                        classes="wizard-step-subtitle",
+                    )
 
-                with Vertical(id="doctor-list"):
-                    for key, name, _ in PreflightRunner.CHECK_DEFINITIONS:
-                        yield DoctorItemWidget(key=key, name=name, id=f"doc-widget-{key}")
+                    # Live Installation Progress Log Card
+                    yield Static(self._render_install_log(), id="terminal-log-card")
 
-                with Horizontal(classes="auth-button-row"):
-                    btn_back = Button("← Back (b)", id="btn-doc-back", classes="secondary-button")
-                    btn_back.can_focus = False
-                    yield btn_back
+                    # Button Row
+                    with Horizontal(classes="action-button-row"):
+                        btn_back = Button("← Back (b)", id="btn-back", classes="secondary-button")
+                        btn_back.can_focus = False
+                        yield btn_back
 
-                    btn_rerun = Button("Re-run Checks (r)", id="btn-doc-rerun", classes="secondary-button")
-                    btn_rerun.can_focus = False
-                    yield btn_rerun
+                        btn_proceed = Button(
+                            "Proceed to WorkerPool Setup (Enter) →",
+                            variant="primary",
+                            id="btn-proceed",
+                            classes="action-button",
+                        )
+                        btn_proceed.can_focus = False
+                        yield btn_proceed
 
-                    btn_proceed = Button("Proceed to Platform Setup (Enter) →", id="btn-doc-proceed", classes="action-button")
-                    btn_proceed.can_focus = False
-                    yield btn_proceed
         yield BottomBar(
-            initial_tip="Checking your computer and cluster tools. You can proceed at any time.",
-            initial_hints="[Enter] Proceed  [r] Re-run  [c] Copy Fix Command  [/help] Help",
+            initial_tip="Control plane components installing in namespace [substrate-system].",
+            initial_hints="[Enter] Proceed  [b] Back  [/help] Help  [Ctrl+C] Exit",
         )
 
     def on_mount(self) -> None:
-        self.start_diagnostics()
+        self._step_progress = 0
+        self._timer = self.set_interval(0.2, self._tick_install)
 
-    def start_diagnostics(self) -> None:
-        self._is_finished = False
-        self.runner.set_callbacks(
-            on_start=self._on_check_start,
-            on_complete=self._on_check_complete,
-        )
-        self._run_task = asyncio.create_task(self._run_checks_async())
+    def _tick_install(self) -> None:
+        if self._step_progress < len(INSTALL_STEPS):
+            self._step_progress += 1
+            try:
+                log_box = self.query_one("#terminal-log-card", Static)
+                log_box.update(self._render_install_log())
+            except Exception:
+                pass
+        else:
+            if self._timer:
+                self._timer.stop()
 
-    async def _run_checks_async(self) -> None:
-        await self.runner.run_all()
-        self._is_finished = True
-        try:
-            bottom = self.query_one(BottomBar)
-            bottom.set_tip("Pre-flight checks complete. Press [Enter] to proceed.")
-            bottom.set_hints("[r] Re-run  [Enter] Proceed  [/help] Help")
-        except Exception:
-            pass
+    def _render_install_log(self) -> Text:
+        t = Text()
+        t.append("╭── 🚀 SUBSTRATE CONTROL PLANE BOOTSTRAP ─────────────────────────────────────────╮\n", style="bold #8ab4f8")
+        t.append("│                                                                                  │\n", style="#8ab4f8")
 
-    def _on_check_start(self, key: str, name: str) -> None:
-        try:
-            widget = self.query_one(f"#doc-widget-{key}", DoctorItemWidget)
-            widget.set_running()
-        except Exception:
-            pass
+        for i, (key, desc) in enumerate(INSTALL_STEPS):
+            t.append("│  ", style="#8ab4f8")
+            if i < self._step_progress:
+                t.append("✓ ", style="bold #81c995")
+                t.append(f"{desc.ljust(76)}", style="bold #81c995" if i == len(INSTALL_STEPS)-1 else "#e3e3e3")
+            elif i == self._step_progress:
+                t.append("⠋ ", style="bold #8ab4f8")
+                t.append(f"{desc.ljust(76)}", style="bold #8ab4f8")
+            else:
+                t.append("○ ", style="#9aa0a6")
+                t.append(f"{desc.ljust(76)}", style="#9aa0a6")
+            t.append("│\n", style="#8ab4f8")
 
-    def _on_check_complete(self, key: str, result: CheckResult) -> None:
-        try:
-            widget = self.query_one(f"#doc-widget-{key}", DoctorItemWidget)
-            widget.set_result(result)
-        except Exception:
-            pass
+        t.append("│                                                                                  │\n", style="#8ab4f8")
+        t.append("╰──────────────────────────────────────────────────────────────────────────────────╯", style="bold #8ab4f8")
+        return t
 
     def action_proceed_next(self) -> None:
         if hasattr(self.app, "advance_step"):
             self.app.advance_step()
-
-    def action_rerun_checks(self) -> None:
-        if self._run_task and not self._run_task.done():
-            self._run_task.cancel()
-        self.start_diagnostics()
-
-    def action_copy_remedy_command(self) -> None:
-        """Copy active remedy command to clipboard or display it clearly."""
-        for key, res in self.runner.results.items():
-            if res.status in ("warning", "failed") and res.fix_command:
-                try:
-                    import subprocess
-                    subprocess.run(["pbcopy"], input=res.fix_command.encode("utf-8"), check=False)
-                except Exception:
-                    pass
-                try:
-                    bottom = self.query_one(BottomBar)
-                    bottom.set_tip(f"📋 Copied fix command to clipboard: {res.fix_command}")
-                except Exception:
-                    pass
-                return
 
     def action_previous_step(self) -> None:
         if hasattr(self.app, "previous_step"):
             self.app.previous_step()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "btn-doc-proceed":
+        if event.button.id == "btn-proceed":
             self.action_proceed_next()
-        elif event.button.id == "btn-doc-rerun":
-            self.action_rerun_checks()
-        elif event.button.id == "btn-doc-back":
+        elif event.button.id == "btn-back":
             self.action_previous_step()

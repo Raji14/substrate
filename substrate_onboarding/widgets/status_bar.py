@@ -1,10 +1,8 @@
 """Header and status bar widgets with Google Material 3 styling and brand tokens.
 
-Option A Stepper Alignment:
-  1. Pre-Flight (Diagnostics & GKE Cluster Context)
-  2. Platform Setup (WorkerPools, MicroVM / gVisor isolation & capacity buffers)
-  3. Agent Deployment (ActorTemplates, OCI images & credentials)
-  4. Launchpad (Compilation, atectl top workers, precache & ready state)
+Provides:
+- TopHeader: Google Cloud branding, active cluster context, and quick action shortcuts.
+- BottomBar: Contextual interactive tip and keyboard shortcuts legend.
 """
 
 from __future__ import annotations
@@ -19,70 +17,44 @@ from rich.text import Text
 from substrate_onboarding.config import OnboardingStep
 
 
-STEP_NAMES = {
-    OnboardingStep.WELCOME: "🩺 1. Pre-Flight",
-    OnboardingStep.DOCTOR: "🩺 1. Pre-Flight",
-    OnboardingStep.QUESTIONNAIRE: "🛠️ 2. Platform Setup",
-    OnboardingStep.AUTH: "🤖 3. Agent Deployment",
-    OnboardingStep.SUMMARY: "🛸 4. Launchpad",
-    OnboardingStep.COMPLETE: "Launch",
-}
-
-
 class TopHeader(Widget):
-    """Global top navigation bar with Option A 4-phase PRFAQ breadcrumbs."""
+    """Global top navigation bar with Google Cloud branding and quick status badges."""
 
-    current_step: reactive[OnboardingStep] = reactive(OnboardingStep.DOCTOR)
+    current_step: reactive[OnboardingStep] = reactive(OnboardingStep.CLUSTER)
 
-    def __init__(self, initial_step: OnboardingStep = OnboardingStep.DOCTOR, id: str = "top-header"):
+    def __init__(
+        self,
+        initial_step: OnboardingStep = OnboardingStep.CLUSTER,
+        cluster_name: str = "demo-cluster",
+        id: str = "top-header",
+    ):
         super().__init__(id=id)
         self.current_step = initial_step
+        self.cluster_name = cluster_name
 
     def compose(self) -> ComposeResult:
         with Horizontal():
             yield Label(self._render_brand(), id="header-brand")
-            yield Label(self._render_stepper(), id="header-stepper")
+            yield Label(self._render_quick_actions(), id="header-stepper")
 
     def _render_brand(self) -> Text:
         t = Text("⚡ Google Cloud ", style="bold #8ab4f8")
-        t.append("│ Agent Substrate", style="bold #ffffff")
+        t.append("│ Agent Substrate on GKE", style="bold #ffffff")
         return t
 
-    def _render_stepper(self) -> Text:
+    def _render_quick_actions(self) -> Text:
         t = Text()
-        steps = [
-            OnboardingStep.DOCTOR,
-            OnboardingStep.QUESTIONNAIRE,
-            OnboardingStep.AUTH,
-            OnboardingStep.SUMMARY,
-        ]
-        step_order = {
-            OnboardingStep.WELCOME: 0,
-            OnboardingStep.DOCTOR: 1,
-            OnboardingStep.QUESTIONNAIRE: 2,
-            OnboardingStep.AUTH: 3,
-            OnboardingStep.SUMMARY: 4,
-            OnboardingStep.COMPLETE: 5,
-        }
-        current_idx = step_order.get(self.current_step, 1)
-
-        for i, step in enumerate(steps):
-            step_num = i + 1
-            name = STEP_NAMES[step]
-            if step_num == current_idx or (current_idx == 0 and step_num == 1):
-                t.append(f" [ {name} ] ", style="bold #003062 on #a8c7fa")
-            elif step_num < current_idx:
-                t.append(f" ✓ {name} ", style="bold #81c995")
-            else:
-                t.append(f" {name} ", style="#9aa0a6")
-            if i < len(steps) - 1:
-                t.append(" › ", style="#444746")
+        t.append(" [ 🌐 Cluster: ", style="#9aa0a6")
+        t.append(f"{self.cluster_name} ", style="bold #8ab4f8")
+        t.append("] ", style="#9aa0a6")
+        t.append(" [ ? Help (F1) ] ", style="bold #d3e3fd on #0842a0")
+        t.append(" [ ⏻ Exit ] ", style="#9aa0a6")
         return t
 
     def watch_current_step(self, step: OnboardingStep) -> None:
         try:
             stepper_label = self.query_one("#header-stepper", Label)
-            stepper_label.update(self._render_stepper())
+            stepper_label.update(self._render_quick_actions())
         except Exception:
             pass
 
@@ -91,12 +63,12 @@ class BottomBar(Widget):
     """Dynamic bottom status bar displaying contextual tips and keyboard legend."""
 
     tip_text: reactive[str] = reactive("Welcome to Agent Substrate. Press [Enter] to begin.")
-    hint_text: reactive[str] = reactive("[Enter] Proceed  [/help] Commands  [Ctrl+C] Exit")
+    hint_text: reactive[str] = reactive("[Enter] Proceed  [↑/↓] Select  [b] Back  [/help] Commands")
 
     def __init__(
         self,
         initial_tip: str = "Welcome to Agent Substrate. Press [Enter] to begin.",
-        initial_hints: str = "[Enter] Proceed  [/help] Commands  [Ctrl+C] Exit",
+        initial_hints: str = "[Enter] Proceed  [↑/↓] Select  [b] Back  [/help] Commands",
         id: str = "bottom-bar",
     ):
         super().__init__(id=id)

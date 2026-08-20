@@ -1,189 +1,141 @@
-"""State 2: Guided Questionnaire (Personalization Wizard) with Google Material 3 Design."""
+"""Step 3: Node Pool and Hardware Nested Virtualization Screen."""
 
 from __future__ import annotations
 
-from typing import List
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Label, Static, Button
 from rich.text import Text
-from substrate_onboarding.config import (
-    OnboardingStep,
-    TRACK_OPTIONS,
-    DATAPLANE_OPTIONS,
-    SANDBOX_OPTIONS,
-    OptionItem,
-)
+from substrate_onboarding.config import OnboardingStep, NODEPOOL_OPTIONS
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
+from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class QuestionnaireScreen(Screen[None]):
-    """State 2: Guided Questionnaire with arrow-key navigation and persistent tab bar."""
+    """Step 3: Node Pool & Custom Compute Class (CCC) Screen."""
 
     BINDINGS = [
         ("up", "cursor_up", "Move Up"),
         ("k", "cursor_up", "Move Up"),
         ("down", "cursor_down", "Move Down"),
         ("j", "cursor_down", "Move Down"),
-        ("enter", "select_and_next", "Confirm & Next"),
-        ("space", "select_and_next", "Confirm & Next"),
-        ("b", "previous_substep", "Back"),
+        ("enter", "confirm_and_next", "Confirm & Next"),
+        ("space", "confirm_and_next", "Confirm & Next"),
+        ("b", "previous_step", "Back"),
+        ("1", "select_opt_1", "Option 1"),
+        ("2", "select_opt_2", "Option 2"),
+        ("3", "select_opt_3", "Option 3"),
     ]
 
-    SUB_STEPS = [
-        ("track", "Phase 2.1: Workload Architecture & Persona Target", "Select your role and multiplexing target for GKE worker pools & actor sessions:", TRACK_OPTIONS),
-        ("dataplane", "Phase 2.2: WorkerPool Fleet & Dataplane Topology", "Select the worker fleet isolation boundary (MicroVM / gVisor) and proxy:", DATAPLANE_OPTIONS),
-        ("sandbox", "Phase 2.3: Optimization & Image Pre-caching", "Select your image caching strategy (Local SSD / GCS Checkpointing):", SANDBOX_OPTIONS),
-    ]
-
-    def __init__(self, name: str = "questionnaire"):
+    def __init__(self, name: str = "node_pool"):
         super().__init__(name=name)
-        self.sub_step_idx = 0
-        self.selected_indices = [0, 0, 0]
-        self.current_cursor = 0
-
-    @property
-    def current_options(self) -> List[OptionItem]:
-        return self.SUB_STEPS[self.sub_step_idx][3]
+        self.selected_index = 0
 
     def compose(self) -> ComposeResult:
-        yield TopHeader(initial_step=OnboardingStep.QUESTIONNAIRE)
-        with Vertical(id="screen-container"):
-            with Vertical(id="wizard-box"):
-                yield Label("🛠️  STEP 2: PLATFORM SETUP & WORKERPOOL TOPOLOGY", classes="wizard-step-title", id="wizard-main-title")
-                yield Label("", classes="wizard-step-title", id="wizard-sub-title")
-                yield Label("", classes="wizard-step-subtitle", id="wizard-sub-desc")
+        yield TopHeader(initial_step=OnboardingStep.NODE_POOL)
+        with Horizontal(id="workspace-layout"):
+            yield SidebarNav(current_step=OnboardingStep.NODE_POOL)
+            with Vertical(id="content-area"):
+                with Vertical(id="content-panel"):
+                    yield Label("[3/6] NODE POOL & HARDWARE NESTED VIRTUALIZATION", classes="wizard-step-title")
+                    yield Label(
+                        "A Substrate WorkerPool requires a compatible GKE Node Pool with hardware nested virtualization (--nested-virt) enabled for microVM sandbox isolation.",
+                        classes="wizard-step-subtitle",
+                    )
 
-                with Vertical(id="options-container"):
-                    for i in range(5):
-                        yield Static("", id=f"opt-card-{i}", classes="option-card")
+                    # Diagnostic scan result
+                    yield Static(self._render_scan_box(), id="terminal-log-card")
 
-                with Horizontal(classes="auth-button-row"):
-                    btn_back = Button("← Back (b)", id="btn-wizard-back", classes="secondary-button")
-                    btn_back.can_focus = False
-                    yield btn_back
+                    # Options Container
+                    yield Vertical(id="options-container")
 
-                    btn_skip = Button("Skip to Defaults (/skip)", id="btn-wizard-skip", classes="secondary-button")
-                    btn_skip.can_focus = False
-                    yield btn_skip
+                    # Button Row
+                    with Horizontal(classes="action-button-row"):
+                        btn_back = Button("← Back (b)", id="btn-back", classes="secondary-button")
+                        btn_back.can_focus = False
+                        yield btn_back
 
-                    btn_next = Button("Next Step (Enter) →", id="btn-wizard-next", classes="action-button")
-                    btn_next.can_focus = False
-                    yield btn_next
+                        btn_proceed = Button(
+                            "Apply CCC & Proceed (Enter) →",
+                            variant="primary",
+                            id="btn-proceed",
+                            classes="action-button",
+                        )
+                        btn_proceed.can_focus = False
+                        yield btn_proceed
+
         yield BottomBar(
-            initial_tip="Choose your agent topology for GKE worker pools & multiplexing density.",
-            initial_hints="[↑/↓] Select  [Enter] Next  [/skip] Defaults",
+            initial_tip="Select Node Pool configuration. CCC auto-provisions nested-virt N2 Spot instances.",
+            initial_hints="[Enter] Apply  [↑/↓] Select  [b] Back  [/help] Help  [Ctrl+C] Exit",
         )
 
     def on_mount(self) -> None:
-        self._refresh_options_ui()
+        self._refresh_options()
 
-    def _refresh_options_ui(self) -> None:
-        key, title, desc, options = self.SUB_STEPS[self.sub_step_idx]
-
-        # Step indicator dots (e.g. ● ○ ○)
-        dots = "".join(["● " if i == self.sub_step_idx else "○ " for i in range(len(self.SUB_STEPS))]).strip()
-        step_header = Text()
-        step_header.append(f"🛠️  {title}  ", style="bold #a8c7fa")
-        step_header.append(f"[{dots}]", style="bold #81c995")
-
-        # Update headers
+    def _refresh_options(self) -> None:
         try:
-            sub_title_lbl = self.query_one("#wizard-sub-title", Label)
-            sub_title_lbl.update(step_header)
-            sub_desc_lbl = self.query_one("#wizard-sub-desc", Label)
-            sub_desc_lbl.update(desc)
+            container = self.query_one("#options-container", Vertical)
+            container.remove_children()
+
+            for i, opt in enumerate(NODEPOOL_OPTIONS):
+                is_active = i == self.selected_index
+                prefix = "▶ " if is_active else "  "
+                style_title = "bold #ffffff" if is_active else "#e3e3e3"
+                style_desc = "#d3e3fd" if is_active else "#9aa0a6"
+
+                t = Text()
+                t.append(f"{prefix}{opt.icon} ", style="bold #8ab4f8" if is_active else "#9aa0a6")
+                t.append(f"{opt.title}\n", style=style_title)
+                t.append(f"    {opt.description}", style=style_desc)
+
+                card = Static(t, classes=f"option-card {'-active' if is_active else ''}")
+                container.mount(card)
         except Exception:
             pass
 
-        # Update options cards with clear spacing and badges
-        for i in range(5):
-            try:
-                card = self.query_one(f"#opt-card-{i}", Static)
-                if i < len(options):
-                    opt = options[i]
-                    is_active = (i == self.current_cursor)
-
-                    card.display = True
-                    card.set_class(is_active, "-active")
-
-                    t = Text()
-                    if is_active:
-                        t.append(" ▶ ", style="bold #a8c7fa")
-                        t.append(f"{opt.icon}  {opt.title}", style="bold #ffffff")
-                        if i == 0:
-                            t.append("  [★ RECOMMENDED]", style="bold #fdd663 on #332a00")
-                        t.append(f"\n     ↳ {opt.description}", style="#d3e3fd")
-                    else:
-                        t.append("   ", style="#9aa0a6")
-                        t.append(f"{opt.icon}  {opt.title}", style="#f2f2f2")
-                        if i == 0:
-                            t.append("  [RECOMMENDED]", style="#fdd663")
-                        t.append(f"\n     ↳ {opt.description}", style="#9aa0a6")
-
-                    card.update(t)
-                else:
-                    card.display = False
-            except Exception:
-                pass
-
-        # Update dynamic status bar tip on bottom border
-        if 0 <= self.current_cursor < len(options):
-            hovered_opt = options[self.current_cursor]
-            try:
-                bottom = self.query_one(BottomBar)
-                bottom.set_tip(hovered_opt.tip)
-                bottom.set_hints(f"[↑/↓] Select ({self.current_cursor + 1}/{len(options)})  [Enter] Next  [/skip] Defaults")
-            except Exception:
-                pass
+    def _render_scan_box(self) -> Text:
+        t = Text()
+        t.append("Scanning cluster [demo-cluster] node pools...\n", style="#9aa0a6")
+        t.append("▲ No node pool detected with hardware nested virtualization enabled.\n\n", style="bold #fdd663")
+        t.append("┌─ 💡 Action Required ─────────────────────────────────────────────────────────────┐\n", style="bold #fdd663")
+        t.append("│ Automatically configure a compatible Node Pool using Custom Compute Class (CCC). │\n", style="#ffffff")
+        t.append("│ 📋 atectl create ccc agent-spot-ccc --machine-type=n2-standard-48 --nested-virt  │\n", style="bold #8ab4f8")
+        t.append("└──────────────────────────────────────────────────────────────────────────────────┘", style="bold #fdd663")
+        return t
 
     def action_cursor_up(self) -> None:
-        if self.current_cursor > 0:
-            self.current_cursor -= 1
-            self._refresh_options_ui()
+        if self.selected_index > 0:
+            self.selected_index -= 1
+            self._refresh_options()
 
     def action_cursor_down(self) -> None:
-        if self.current_cursor < len(self.current_options) - 1:
-            self.current_cursor += 1
-            self._refresh_options_ui()
+        if self.selected_index < len(NODEPOOL_OPTIONS) - 1:
+            self.selected_index += 1
+            self._refresh_options()
 
-    def action_select_and_next(self) -> None:
-        self._commit_current_selection()
-        if self.sub_step_idx < len(self.SUB_STEPS) - 1:
-            self.sub_step_idx += 1
-            self.current_cursor = self.selected_indices[self.sub_step_idx]
-            self._refresh_options_ui()
-        else:
-            if hasattr(self.app, "advance_step"):
-                self.app.advance_step()
+    def action_select_opt_1(self) -> None:
+        self.selected_index = 0
+        self._refresh_options()
 
-    def _commit_current_selection(self) -> None:
-        self.selected_indices[self.sub_step_idx] = self.current_cursor
-        opt = self.current_options[self.current_cursor]
+    def action_select_opt_2(self) -> None:
+        self.selected_index = 1
+        self._refresh_options()
 
-        if hasattr(self.app, "state"):
-            if self.sub_step_idx == 0:
-                self.app.state.track = opt.id
-            elif self.sub_step_idx == 1:
-                self.app.state.dataplane = opt.id
-            elif self.sub_step_idx == 2:
-                self.app.state.sandbox_tier = opt.id
+    def action_select_opt_3(self) -> None:
+        self.selected_index = 2
+        self._refresh_options()
 
-    def action_previous_substep(self) -> None:
-        if self.sub_step_idx > 0:
-            self.sub_step_idx -= 1
-            self.current_cursor = self.selected_indices[self.sub_step_idx]
-            self._refresh_options_ui()
-        else:
-            if hasattr(self.app, "previous_step"):
-                self.app.previous_step()
+    def action_confirm_and_next(self) -> None:
+        if hasattr(self.app, "advance_step"):
+            self.app.advance_step()
+
+    def action_previous_step(self) -> None:
+        if hasattr(self.app, "previous_step"):
+            self.app.previous_step()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "btn-wizard-next":
-            self.action_select_and_next()
-        elif event.button.id == "btn-wizard-back":
-            self.action_previous_substep()
-        elif event.button.id == "btn-wizard-skip":
-            if hasattr(self.app, "advance_step"):
-                self.app.advance_step()
+        if event.button.id == "btn-proceed":
+            self.action_confirm_and_next()
+        elif event.button.id == "btn-back":
+            self.action_previous_step()

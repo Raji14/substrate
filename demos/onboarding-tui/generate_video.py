@@ -1,8 +1,8 @@
-"""High-Definition (1080p/720p) Video Recording Generator for Agent Substrate Onboarding.
+"""High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Day-0 Onboarding.
 
-Renders each scene, animation frame, keyboard interaction, doctor check, and modal dialog
+Renders each scene, animation frame, keyboard interaction, CCC remedy, and modal dialog
 into a video file (onboarding_demo.mp4) with Google Material 3 tokens, rich icons,
-and pixel-perfect button layouts with zero label bleeding.
+and pixel-perfect 2-column Left Sidebar Navigation layout.
 """
 
 import os
@@ -45,667 +45,427 @@ font_sm = ImageFont.truetype(FONT_PATH, 13)
 font_base = ImageFont.truetype(FONT_PATH, 15)
 font_md = ImageFont.truetype(FONT_PATH, 17)
 font_lg = ImageFont.truetype(FONT_PATH, 20)
-font_logo = ImageFont.truetype(FONT_PATH, 13)
 
-SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+SPINNER_FRAMES = ["-", "\\", "|", "/"]
 
-
-def get_google_gradient_color(progress: float):
-    stops = [
-        (138, 180, 248),  # Blue
-        (242, 139, 130),  # Red
-        (253, 214, 99),   # Yellow
-        (129, 201, 149),  # Green
-        (168, 199, 250),  # Light Blue
-    ]
-    p = max(0.0, min(1.0, progress))
-    num_seg = len(stops) - 1
-    idx = min(int(p * num_seg), num_seg - 1)
-    seg_p = (p * num_seg) - idx
-    c1, c2 = stops[idx], stops[idx + 1]
-    r = int(c1[0] + (c2[0] - c1[0]) * seg_p)
-    g = int(c1[1] + (c2[1] - c1[1]) * seg_p)
-    b = int(c1[2] + (c2[2] - c1[2]) * seg_p)
-    return (r, g, b)
+NAV_STEPS = [
+    "1. Cluster Detection",
+    "2. Control Plane",
+    "3. Node Pool & CCC",
+    "4. Autoscaling (HPA)",
+    "5. Deploy WorkerPool",
+    "6. Launchpad & Verify",
+]
 
 
-def draw_pill_button(draw, right_x, y, text, is_primary=True, outline_color=None, custom_font=font_xs):
-    """Draws a button calculated from text bounds so label NEVER bleeds outside."""
-    bbox = custom_font.getbbox(text)
-    text_w = bbox[2] - bbox[0]
-    text_h = bbox[3] - bbox[1]
-    
-    pad_h = 16
-    pad_v = 10
-    btn_w = text_w + (pad_h * 2)
-    btn_h = text_h + (pad_v * 2)
-    
-    left_x = right_x - btn_w
-    top_y = y
-    
-    bg = CARD_ACTIVE if is_primary else CARD_BG
-    out = outline_color or (M3_PRIMARY if is_primary else BORDER_COLOR)
-    fg = TEXT_WHITE if is_primary else (M3_PRIMARY if outline_color else TEXT_MUTED)
-    
-    draw.rounded_rectangle([left_x, top_y, right_x, top_y + btn_h], radius=6, fill=bg, outline=out, width=1)
-    draw.text((left_x + pad_h, top_y + pad_v - 1), text, font=custom_font, fill=fg)
-    
-    return left_x - 12  # returns next right_x for left-adjacent button
+def draw_window_frame(active_step_idx=0, tip_text=""):
+    """Draws outer container, terminal window, top bar, left sidebar, and bottom bar."""
+    img = Image.new("RGB", (WIDTH, HEIGHT), (17, 18, 19))
+    draw = ImageDraw.Draw(img)
 
+    # Window bounds
+    wx, wy, ww, wh = 80, 40, 1120, 640
+    draw.rounded_rectangle([wx, wy, wx + ww, wy + wh], radius=12, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
 
-def draw_window_base(draw, title_step=1, active_step_name="1. Welcome", tip_text="", legend_text=""):
-    """Draw the outer terminal frame, title bar, stepper breadcrumbs, and bottom status bar."""
-    # Background radial wash
-    draw.rectangle([0, 0, WIDTH, HEIGHT], fill=BG_CANVAS)
+    # Titlebar
+    draw.rectangle([wx, wy, wx + ww, wy + 36], fill=(24, 25, 26))
+    draw.line([wx, wy + 36, wx + ww, wy + 36], fill=(40, 41, 42), width=1)
 
-    # Window Outer Box
-    wx, wy, ww, wh = 100, 35, 1080, 650
-    draw.rounded_rectangle([wx, wy, wx + ww, wy + wh], radius=14, fill=SURFACE_PANEL, outline=BORDER_COLOR, width=1)
+    # Traffic lights
+    draw.ellipse([wx + 16, wy + 12, wx + 28, wy + 24], fill=(255, 95, 86))
+    draw.ellipse([wx + 34, wy + 12, wx + 46, wy + 24], fill=(255, 189, 46))
+    draw.ellipse([wx + 52, wy + 12, wx + 64, wy + 24], fill=(39, 201, 63))
+    draw.text((wx + 360, wy + 10), "broyal@broyal: ~/workspaces/ate-demos/demos — atectl onboard", fill=TEXT_MUTED, font=font_sm)
 
-    # Title Bar
-    draw.rectangle([wx, wy, wx + ww, wy + 38], fill=(26, 27, 28))
-    draw.line([wx, wy + 38, wx + ww, wy + 38], fill=BORDER_COLOR, width=1)
+    # Top Brand Bar
+    draw.rectangle([wx, wy + 37, wx + ww, wy + 76], fill=SURFACE_PANEL)
+    draw.line([wx, wy + 76, wx + ww, wy + 76], fill=BORDER_COLOR, width=1)
+    draw.text((wx + 20, wy + 48), "Google Cloud ", fill=GOOGLE_BLUE, font=font_base)
+    draw.text((wx + 140, wy + 48), "│ Agent Substrate on GKE", fill=TEXT_WHITE, font=font_base)
 
-    # Mac dots
-    draw.ellipse([wx + 16, wy + 13, wx + 28, wy + 25], fill=(255, 95, 86))
-    draw.ellipse([wx + 34, wy + 13, wx + 46, wy + 25], fill=(255, 189, 46))
-    draw.ellipse([wx + 52, wy + 13, wx + 64, wy + 25], fill=(39, 201, 63))
-
-    # Window Title
-    title_str = "⚡ Agent Substrate Onboarding — GKE Workload Multiplexing"
-    draw.text((wx + ww // 2 - 240, wy + 11), title_str, font=font_sm, fill=TEXT_MUTED)
-
-    # Stepper Bar with Snazzy Icons
-    sy = wy + 39
-    draw.rectangle([wx, sy, wx + ww, sy + 32], fill=(22, 23, 24))
-    draw.line([wx, sy + 32, wx + ww, sy + 32], fill=BORDER_COLOR, width=1)
-
-    steps = [
-        (1, "🩺 1. Pre-Flight"),
-        (2, "🛠️ 2. Platform Setup"),
-        (3, "🤖 3. Agent Deployment"),
-        (4, "🛸 4. Launchpad"),
-    ]
-    cur_x = wx + 18
-    for step_num, step_name in steps:
-        bbox = font_xs.getbbox(step_name)
-        step_w = bbox[2] - bbox[0]
-        if step_num == title_step:
-            draw.rounded_rectangle([cur_x - 4, sy + 5, cur_x + step_w + 12, sy + 27], radius=6, fill=M3_PRIMARY)
-            draw.text((cur_x + 2, sy + 7), step_name, font=font_xs, fill=(0, 48, 98))
-            cur_x += step_w + 20
-        else:
-            draw.text((cur_x, sy + 8), step_name, font=font_xs, fill=TEXT_MUTED)
-            cur_x += step_w + 8
-
-        if step_num < 4:
-            draw.text((cur_x, sy + 8), "›", font=font_xs, fill=(80, 84, 90))
-            cur_x += 16
-
-    if legend_text:
-        bbox = font_xs.getbbox(legend_text)
-        leg_w = bbox[2] - bbox[0]
-        draw.text((wx + ww - leg_w - 18, sy + 8), legend_text, font=font_xs, fill=TEXT_MUTED)
+    # Right side badge
+    cluster_str = "[ Cluster: demo-cluster ]"
+    draw.text((wx + ww - 310, wy + 50), cluster_str, fill=GOOGLE_BLUE, font=font_sm)
+    draw.rounded_rectangle([wx + ww - 100, wy + 46, wx + ww - 20, wy + 68], radius=6, fill=CARD_ACTIVE, outline=M3_PRIMARY, width=1)
+    draw.text((wx + ww - 90, wy + 50), "? Help", fill=M3_PRIMARY, font=font_xs)
 
     # Bottom Status Bar
-    by = wy + wh - 36
-    draw.rectangle([wx, by, wx + ww, wy + wh], fill=(26, 27, 28))
-    draw.line([wx, by, wx + ww, by], fill=BORDER_COLOR, width=1)
+    draw.rectangle([wx, wy + wh - 38, wx + ww, wy + wh], fill=SURFACE_PANEL)
+    draw.line([wx, wy + wh - 38, wx + ww, wy + wh - 38], fill=BORDER_COLOR, width=1)
+    draw.text((wx + 20, wy + wh - 26), f"[!] {tip_text}", fill=(211, 227, 253), font=font_sm)
+    draw.text((wx + ww - 300, wy + wh - 26), "[Enter] Confirm  [b] Back  [F1] Help", fill=TEXT_MUTED, font=font_sm)
 
-    if tip_text:
-        draw.text((wx + 18, by + 10), f"💡 {tip_text}", font=font_xs, fill=M3_PRIMARY)
+    # Left Sidebar Navigation (width 260)
+    sw = 260
+    draw.rectangle([wx, wy + 77, wx + sw, wy + wh - 39], fill=SURFACE_PANEL)
+    draw.line([wx + sw, wy + 77, wx + sw, wy + wh - 39], fill=BORDER_COLOR, width=1)
 
-    bottom_hints = "[Enter] Proceed  [/help] Help  [Ctrl+C] Exit"
-    draw.text((wx + ww - 310, by + 10), bottom_hints, font=font_xs, fill=TEXT_MUTED)
+    draw.text((wx + 16, wy + 94), "ONBOARDING WIZARD", fill=GOOGLE_BLUE, font=font_sm)
 
-    # Viewport Bounds: (wx + 20, wy + 85, ww - 40, wh - 130)
-    return wx + 20, wy + 85, ww - 40, wh - 130
+    # Render Nav Steps
+    sy = wy + 124
+    for i, step_name in enumerate(NAV_STEPS):
+        if i < active_step_idx:
+            icon = "✓"
+            icon_col = GOOGLE_GREEN
+            txt_col = GOOGLE_GREEN
+            bg_col = None
+        elif i == active_step_idx:
+            icon = "▶"
+            icon_col = M3_PRIMARY
+            txt_col = TEXT_WHITE
+            bg_col = CARD_ACTIVE
+        else:
+            icon = "○"
+            icon_col = TEXT_MUTED
+            txt_col = TEXT_MUTED
+            bg_col = None
 
+        if bg_col:
+            draw.rounded_rectangle([wx + 12, sy - 4, wx + sw - 12, sy + 24], radius=6, fill=bg_col, outline=M3_PRIMARY, width=1)
 
-def render_scene_1_welcome(frame_idx, total_frames):
-    """Scene 1: Welcome Splash with Google 4-Color Gradient & Typewriter."""
-    img = Image.new("RGB", (WIDTH, HEIGHT), color=BG_CANVAS)
-    draw = ImageDraw.Draw(img)
+        draw.text((wx + 20, sy), icon, fill=icon_col, font=font_sm)
+        draw.text((wx + 40, sy), step_name, fill=txt_col, font=font_sm)
+        sy += 36
 
-    tip = "Welcome to Agent Substrate. Press [Enter] to start your onboarding."
-    vx, vy, vw, vh = draw_window_base(draw, title_step=1, tip_text=tip, legend_text="[Enter] Start  [/help] Help")
+    # Lower Sidebar Metadata Panel
+    my = wy + wh - 170
+    draw.rounded_rectangle([wx + 12, my, wx + sw - 12, my + 120], radius=8, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((wx + 20, my + 8), "CLUSTER CONTEXT", fill=GOOGLE_BLUE, font=font_xs)
 
-    # Card Panel
-    cx, cy, cw, ch = vx + 80, vy + 15, vw - 160, vh - 30
-    draw.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=(24, 25, 26), outline=BORDER_COLOR, width=1)
-
-    # ASCII Logo with Google 4-Color Gradient
-    logo_lines = [
-        r"   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
-        r"  / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|",
-        r"  \___ \| | | |  _ \\___ \ | | | |_) | / _ \ | | |  _|  ",
-        r"   ___) | |_| | |_) |___) || | |  _ < / ___ \| | | |___ ",
-        r"  |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|",
+    meta_items = [
+        ("Cluster", "demo-cluster", GOOGLE_BLUE),
+        ("Region", "us-central1-a", TEXT_WHITE),
+        ("GKE K8s", "v1.31.1-gke", TEXT_WHITE),
+        ("Namespace", "substrate-sys", TEXT_WHITE),
+        ("Status", "Connected", GOOGLE_GREEN),
     ]
+    my_row = my + 28
+    for label, val, val_col in meta_items:
+        draw.text((wx + 20, my_row), f"{label}:", fill=TEXT_MUTED, font=font_xs)
+        draw.text((wx + 110, my_row), val, fill=val_col, font=font_xs)
+        my_row += 18
 
-    ly = cy + 25
-    for y_idx, line in enumerate(logo_lines):
-        lx = cx + (cw - len(line) * 8) // 2
-        for x_idx, char in enumerate(line):
-            if not char.isspace():
-                p = (x_idx / len(line) * 0.7) + (y_idx / len(logo_lines) * 0.3)
-                color = get_google_gradient_color(p)
-                draw.text((lx + x_idx * 8, ly + y_idx * 16), char, font=font_logo, fill=color)
+    # Content Area coordinates
+    cx = wx + sw + 24
+    cy = wy + 94
+    cw = ww - sw - 48
 
-    # Subtitle with Snazzy Icon
-    sub_title = "⚡ A G E N T   S U B S T R A T E ⚡"
-    draw.text((cx + (cw - len(sub_title) * 8.5) // 2, cy + 120), sub_title, font=font_sm, fill=GOOGLE_BLUE)
+    return img, draw, cx, cy, cw
 
-    # Typewriter streaming
-    full_intro = "Welcome to Agent Substrate on GKE — the high-density execution plane with a pierceable abstraction for Platform Engineers and AI Engineers."
-    typed_len = min(len(full_intro), int((frame_idx / (total_frames * 0.65)) * len(full_intro)))
-    typed_text = full_intro[:typed_len]
 
-    # Wrap text cleanly
-    line1 = typed_text[:88]
-    line2 = typed_text[88:] if len(typed_text) > 88 else ""
+def draw_pill_button(draw, right_x, y, text, is_primary=True, custom_font=font_sm):
+    bbox = custom_font.getbbox(text)
+    w = (bbox[2] - bbox[0]) + 32
+    h = (bbox[3] - bbox[1]) + 20
+    x = right_x - w
+    bg = CARD_ACTIVE if is_primary else CARD_BG
+    out = M3_PRIMARY if is_primary else BORDER_COLOR
+    draw.rounded_rectangle([x, y, right_x, y + h], radius=8, fill=bg, outline=out, width=1)
+    draw.text((x + 16, y + 8), text, fill=TEXT_WHITE, font=custom_font)
+    return x
 
-    draw.text((cx + (cw - len(line1) * 7.5) // 2, cy + 150), line1, font=font_sm, fill=TEXT_PRIMARY)
-    if line2:
-        cursor = " ▌" if (frame_idx // 6) % 2 == 0 else ""
-        draw.text((cx + (cw - len(line2) * 7.5) // 2, cy + 172), line2 + cursor, font=font_sm, fill=TEXT_PRIMARY)
+
+# Scene 1: Step 1 Cluster Detection
+def render_scene_step1(frame_idx=0):
+    img, draw, cx, cy, cw = draw_window_frame(0, "Select target GKE cluster. Press [Enter] to install Substrate Control Plane.")
+    
+    draw.text((cx, cy), "[1/6] CLUSTER DETECTION & ENVIRONMENT SCAN", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "Scanning active kubeconfig for Google Kubernetes Engine (GKE) clusters...", fill=TEXT_MUTED, font=font_sm)
+
+    # 3 Cluster Options
+    clusters = [
+        ("gke_demo_project_us-central1-a_demo-cluster (Recommended)", "GKE v1.31.1-gke.1520000 in us-central1-a (Target: demo-cluster)", True),
+        ("gke_demo_project_us-west1-b_staging-cluster", "GKE v1.31.0 in us-west1-b (Target: staging-cluster)", False),
+        ("gke_demo_project_europe-west1-c_analytics-cluster", "GKE v1.30.4 in europe-west1-c (Target: analytics-cluster)", False),
+    ]
+    oy = cy + 54
+    for title, desc, is_act in clusters:
+        bg = CARD_ACTIVE if is_act else CARD_BG
+        out = M3_PRIMARY if is_act else BORDER_COLOR
+        draw.rounded_rectangle([cx, oy, cx + cw, oy + 52], radius=10, fill=bg, outline=out, width=1)
+        draw.text((cx + 16, oy + 12), "▶" if is_act else "○", fill=TEXT_WHITE if is_act else GOOGLE_BLUE, font=font_sm)
+        draw.text((cx + 36, oy + 10), title, fill=TEXT_WHITE, font=font_sm)
+        draw.text((cx + 36, oy + 30), desc, fill=(211, 227, 253) if is_act else TEXT_MUTED, font=font_xs)
+        oy += 60
+
+    # Diagnostic Box
+    dy = oy + 6
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 90], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((cx + 16, dy + 12), "✓ Selected target cluster: demo-cluster", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 36), "✓ Verified cluster type: Google Kubernetes Engine (v1.31.1-gke)", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 60), "✓ Substrate Control Plane: No existing instance detected (Ready for clean install)", fill=GOOGLE_YELLOW, font=font_sm)
+
+    # Action Button
+    draw_pill_button(draw, cx + cw, dy + 110, "Install Substrate on [demo-cluster] (Enter) →", True)
+    return img
+
+
+# Scene 2: Step 2 Control Plane Installation
+def render_scene_step2(progress_items=5):
+    img, draw, cx, cy, cw = draw_window_frame(1, "Control plane components installing in namespace [substrate-system]...")
+    
+    draw.text((cx, cy), "[2/6] CONTROL PLANE INSTALLATION", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "Installing Agent Substrate Control Plane on cluster [demo-cluster] in namespace [substrate-system]...", fill=TEXT_MUTED, font=font_sm)
+
+    items = [
+        "Applying Substrate CustomResourceDefinitions (ate.dev/v1alpha1: WorkerPool, ActorTemplate, Actor)",
+        "Deploying Valkey Metadata & State Registry",
+        "Bootstrapping Substrate Gateway & API Server (listening on :8080)",
+        "Initializing eBPF Network & Ingress/Egress Proxy Controller",
+        "All control plane components successfully deployed in namespace [substrate-system].",
+    ]
+    dy = cy + 60
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 210], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+
+    iy = dy + 16
+    for i, desc in enumerate(items):
+        if i < progress_items:
+            draw.text((cx + 16, iy), "✓", fill=GOOGLE_GREEN, font=font_sm)
+            draw.text((cx + 36, iy), desc, fill=GOOGLE_GREEN if i == 4 else TEXT_WHITE, font=font_sm)
+        elif i == progress_items:
+            sp = SPINNER_FRAMES[i % len(SPINNER_FRAMES)]
+            draw.text((cx + 16, iy), sp, fill=GOOGLE_BLUE, font=font_sm)
+            draw.text((cx + 36, iy), desc, fill=GOOGLE_BLUE, font=font_sm)
+        else:
+            draw.text((cx + 16, iy), "○", fill=TEXT_MUTED, font=font_sm)
+            draw.text((cx + 36, iy), desc, fill=TEXT_MUTED, font=font_sm)
+        iy += 36
+
+    bx = draw_pill_button(draw, cx + cw, dy + 230, "Proceed to WorkerPool Setup (Enter) →", True)
+    draw_pill_button(draw, bx - 16, dy + 230, "← Back (b)", False)
+    return img
+
+
+# Scene 3: Step 3 Node Pool & CCC Hardware Isolation
+def render_scene_step3(fixed=False):
+    img, draw, cx, cy, cw = draw_window_frame(2, "Select Node Pool configuration. CCC auto-provisions nested-virt N2 Spot instances.")
+    
+    draw.text((cx, cy), "[3/6] NODE POOL & HARDWARE NESTED VIRTUALIZATION", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "A Substrate WorkerPool requires a compatible GKE Node Pool with hardware nested virtualization.", fill=TEXT_MUTED, font=font_sm)
+
+    # Diagnostic Box
+    dy = cy + 54
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 56], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((cx + 16, dy + 10), "Scanning cluster [demo-cluster] node pools...", fill=TEXT_MUTED, font=font_xs)
+    if not fixed:
+        draw.text((cx + 16, dy + 30), "! No node pool detected with hardware nested virtualization enabled.", fill=GOOGLE_YELLOW, font=font_sm)
     else:
-        cursor = " ▌" if (frame_idx // 6) % 2 == 0 else ""
-        draw.text((cx + (cw - len(line1) * 7.5) // 2 + len(line1) * 7.5, cy + 150), cursor, font=font_sm, fill=M3_PRIMARY)
+        draw.text((cx + 16, dy + 30), "✓ Node pool configured with nested virtualization enabled!", fill=GOOGLE_GREEN, font=font_sm)
 
-    # Core Capabilities Feature Card with generous spacing & legible title
-    fx, fy, fw, fh = cx + 60, cy + 205, cw - 120, 160
-    draw.rounded_rectangle([fx, fy, fx + fw, fy + fh], radius=8, fill=(19, 20, 22), outline=GOOGLE_BLUE, width=1)
+    # Action Required Box
+    ry = dy + 66
+    draw.rounded_rectangle([cx, ry, cx + cw, ry + 78], radius=10, fill=(35, 30, 20), outline=GOOGLE_YELLOW, width=1)
+    draw.text((cx + 16, ry + 10), "[!] Action Required: Create compatible Node Pool using Custom Compute Class (CCC)", fill=GOOGLE_YELLOW, font=font_sm)
+    draw.text((cx + 16, ry + 32), "atectl create ccc agent-spot-ccc --machine-type=n2-standard-48 --nested-virt", fill=GOOGLE_BLUE, font=font_xs)
+    draw.rounded_rectangle([cx + cw - 120, ry + 46, cx + cw - 16, ry + 70], radius=6, fill=CARD_BG, outline=GOOGLE_GREEN if fixed else BORDER_COLOR, width=1)
+    draw.text((cx + cw - 110, ry + 50), "✓ Fixed" if fixed else "[Fix Inline]", fill=GOOGLE_GREEN if fixed else TEXT_WHITE, font=font_xs)
 
-    # Title badge
-    badge_text = " ⚡ CORE SUBSTRATE CAPABILITIES "
-    bw = int(len(badge_text) * 8)
-    draw.rounded_rectangle([fx + 20, fy - 10, fx + 20 + bw, fy + 12], radius=4, fill=(8, 66, 160), outline=M3_PRIMARY, width=1)
-    draw.text((fx + 24, fy - 6), badge_text, font=font_xs, fill=(255, 255, 255))
-
-    # Capability rows with generous vertical spacing
-    row1_y = fy + 26
-    draw.text((fx + 24, row1_y), "🛠️  Platform Fleet  :", font=font_sm, fill=M3_PRIMARY)
-    draw.text((fx + 215, row1_y), "Warm worker pools on GKE with MicroVM & Spot buffers", font=font_sm, fill=(255, 255, 255))
-
-    row2_y = fy + 68
-    draw.text((fx + 24, row2_y), "🤖  Agent Workloads :", font=font_sm, fill=GOOGLE_GREEN)
-    draw.text((fx + 215, row2_y), "No-YAML container templates, turn hooks & request parking", font=font_sm, fill=(255, 255, 255))
-
-    row3_y = fy + 110
-    draw.text((fx + 24, row3_y), "⚡  Instant Resume  :", font=font_sm, fill=GOOGLE_YELLOW)
-    draw.text((fx + 215, row3_y), "Suspend idle actors to 0% CPU; restore state in <200ms", font=font_sm, fill=(255, 255, 255))
-
-    # Pulsing CTA
-    cta_text = "▶ Press [ENTER] to start Pre-Flight Diagnostics..."
-    alpha_pulse = 1.0 if (frame_idx // 10) % 2 == 0 else 0.5
-    cta_color = (int(M3_PRIMARY[0] * alpha_pulse), int(M3_PRIMARY[1] * alpha_pulse), int(M3_PRIMARY[2] * alpha_pulse))
-    draw.text((cx + (cw - len(cta_text) * 8.5) // 2, cy + 395), cta_text, font=font_md, fill=cta_color)
-
-    return np.array(img)
-
-
-def render_scene_2_wizard(substep=0, selected_idx=0, frame_idx=0):
-    """Scene 2: Guided Questionnaire Wizard with glowing selection cards."""
-    img = Image.new("RGB", (WIDTH, HEIGHT), color=BG_CANVAS)
-    draw = ImageDraw.Draw(img)
-
-    substeps_data = [
-        {
-            "step_title": "🤖 Step 1 of 3: Persona & Architecture Target (Pierceable Abstraction)",
-            "step_desc": "Select your role and multiplexing target for GKE worker pools & actor sessions:",
-            "tip": "Runs 'atectl create workerpools' with capacity buffers, Custom Compute Classes (CCC), and Spot optimization.",
-            "options": [
-                ("🛠️", "Platform Engineer — Fleet WorkerPools", "Provision fungible, pre-warmed GKE worker pools with microVM/gVisor isolation"),
-                ("🤖", "AI Engineer — No-YAML Agent Deployment", "Deploy ActorTemplates (OCI images) and multiplex sessions without Kubernetes YAML"),
-                ("⚡", "Full-Stack Platform & Autonomous Swarms", "End-to-end setup: WorkerPool fleets, ActorTemplates, Envoy dataplane, & telemetry"),
-                ("💻", "Local Dev & Rapid MicroVM Prototyping", "Fast iteration on macOS/Linux using Docker, Colima, or Kind clusters"),
-            ],
-        },
-        {
-            "step_title": "⚡ Step 2 of 3: WorkerPool & Dataplane Topology (--isolation / --workers)",
-            "step_desc": "Select the worker fleet isolation boundary and state store architecture:",
-            "tip": "Applies --isolation=microvm --workers=100 --atenet-router=envoy --store-backend=redis for sub-50ms resume.",
-            "options": [
-                ("⚡", "MicroVM WorkerPool + Envoy Dataplane", "100 pre-warmed workers (Cloud Hypervisor), Envoy proxy, and Redis state store"),
-                ("🛡️", "gVisor WorkerPool + Agent Gateway Router", "Hardened userspace syscall sandboxing with dynamic TLS and stream multiplexing"),
-                ("🐘", "Enterprise Multi-Tenant Fleet + PostgreSQL", "Relational persistence for multi-tenant audit logs, RBAC, and durable actor state"),
-            ],
-        },
-        {
-            "step_title": "🛡️ Step 3 of 3: Optimization & Image Pre-caching (--workerpool / precache)",
-            "step_desc": "Select your image caching strategy and sandbox checkpointing storage:",
-            "tip": "Enables 'atectl precache image' for instant zero-delay rollouts across worker nodes.",
-            "options": [
-                ("⚡", "Local SSD Image Pre-caching (RL & Large Models)", "Pre-warm heavy environment images onto Local SSDs to eliminate image pull delays"),
-                ("🛡️", "Cloud Hypervisor MicroVM (Hardware Virtualized)", "Hardware-virtualized microVM isolation with nested virtualization on N2/C3/C4 nodes"),
-                ("🪣", "GCS Snapshot Checkpointing (L2 Storage)", "Persistent GCS bucket for microVM memory/disk state suspend and resume"),
-            ],
-        },
+    # Options
+    oy = ry + 88
+    opts = [
+        ("Automatically create a compatible Node Pool using Custom Compute Class (Recommended)", "Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt", True),
+        ("Create a compatible Node Pool manually via gcloud", "Run 'gcloud container node-pools create --enable-nested-virtualization' in terminal", False),
     ]
+    for title, desc, is_act in opts:
+        bg = CARD_ACTIVE if is_act else CARD_BG
+        out = M3_PRIMARY if is_act else BORDER_COLOR
+        draw.rounded_rectangle([cx, oy, cx + cw, oy + 50], radius=10, fill=bg, outline=out, width=1)
+        draw.text((cx + 16, oy + 10), "▶" if is_act else "○", fill=TEXT_WHITE if is_act else GOOGLE_BLUE, font=font_sm)
+        draw.text((cx + 36, oy + 8), title, fill=TEXT_WHITE, font=font_sm)
+        draw.text((cx + 36, oy + 28), desc, fill=(211, 227, 253) if is_act else TEXT_MUTED, font=font_xs)
+        oy += 58
 
-    cur_data = substeps_data[substep]
-    vx, vy, vw, vh = draw_window_base(
-        draw,
-        title_step=2,
-        tip_text=cur_data["tip"],
-        legend_text=f"[↑/↓] Select ({selected_idx + 1}/{len(cur_data['options'])})  [Enter] Next",
-    )
+    bx = draw_pill_button(draw, cx + cw, oy + 10, "Apply CCC & Proceed (Enter) →", True)
+    draw_pill_button(draw, bx - 16, oy + 10, "← Back (b)", False)
+    return img
 
-    # Card Panel
-    cx, cy, cw, ch = vx + 40, vy + 10, vw - 80, vh - 20
-    draw.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=(24, 25, 26), outline=BORDER_COLOR, width=1)
 
-    # Headers with Snazzy Icons
-    draw.text((cx + 24, cy + 20), "🛠️ STEP 2: PLATFORM SETUP & WORKERPOOL TOPOLOGY", font=font_md, fill=M3_PRIMARY)
-    draw.text((cx + 24, cy + 46), cur_data["step_title"], font=font_sm, fill=M3_PRIMARY)
-    draw.text((cx + 24, cy + 66), cur_data["step_desc"], font=font_xs, fill=TEXT_MUTED)
-
-    # Option Cards
-    oy = cy + 96
-    for idx, (icon, title, desc) in enumerate(cur_data["options"]):
-        is_sel = idx == selected_idx
-        card_fill = CARD_ACTIVE if is_sel else CARD_BG
-        card_outline = M3_PRIMARY if is_sel else BORDER_COLOR
-        card_w = cw - 48
-
-        draw.rounded_rectangle([cx + 24, oy, cx + 24 + card_w, oy + 46], radius=8, fill=card_fill, outline=card_outline, width=2 if is_sel else 1)
-
-        # Indicator
-        ind = "▶" if is_sel else " "
-        draw.text((cx + 36, oy + 14), ind, font=font_sm, fill=M3_PRIMARY)
-        draw.text((cx + 56, oy + 13), icon, font=font_sm, fill=TEXT_WHITE)
-        draw.text((cx + 88, oy + 14), title, font=font_sm, fill=TEXT_WHITE if is_sel else TEXT_PRIMARY)
-        draw.text((cx + 88 + len(title) * 8 + 14, oy + 14), f"— {desc}", font=font_xs, fill=(211, 227, 253) if is_sel else TEXT_MUTED)
-
-        oy += 56
-
-    # Action Buttons with Dynamic Bounding (Zero Label Bleed)
-    by = cy + ch - 48
-    draw.line([cx + 24, by - 10, cx + cw - 24, by - 10], fill=BORDER_COLOR, width=1)
-
-    # Right-aligned buttons
-    rx = cx + cw - 24
-    rx = draw_pill_button(draw, rx, by, "Next Step [Enter] →", is_primary=True)
-    rx = draw_pill_button(draw, rx, by, "Skip Defaults (/skip)", is_primary=False)
+# Scene 4: Step 4 Autoscaling & CapacityBuffer
+def render_scene_step4():
+    img, draw, cx, cy, cw = draw_window_frame(3, "OneHPA scales 10-100 pods with 3 standby warm replicas ready.")
     
-    # Left-aligned back button
-    draw_pill_button(draw, cx + 130, by, "← Back (b)", is_primary=False)
+    draw.text((cx, cy), "[4/6] WORKERPOOL AUTOSCALING & CAPACITY BUFFERS", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "Substrate uses Kubernetes HPA along with an upstream CapacityBuffer for instant (<100ms) injection.", fill=TEXT_MUTED, font=font_sm)
 
-    return np.array(img)
-
-
-def render_scene_3_doctor(frame_idx=0):
-    """Scene 3: Environment Pre-Flight Doctor with live diagnostic probes, spinners, and inline remedy execution."""
-    img = Image.new("RGB", (WIDTH, HEIGHT), color=BG_CANVAS)
-    draw = ImageDraw.Draw(img)
-
-    tip = "Running GKE, Cloud Hypervisor, and Substrate pre-flight diagnostic probes..."
-    vx, vy, vw, vh = draw_window_base(draw, title_step=1, tip_text=tip, legend_text="[r] Re-run  [Enter] Proceed")
-
-    cx, cy, cw, ch = vx + 40, vy + 10, vw - 80, vh - 20
-    draw.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=(24, 25, 26), outline=BORDER_COLOR, width=1)
-
-    # Headers with Snazzy Icon
-    draw.text((cx + 24, cy + 20), "🩺 STEP 1: PRE-FLIGHT ENVIRONMENT & GKE DIAGNOSTICS", font=font_md, fill=M3_PRIMARY)
-    draw.text((cx + 24, cy + 46), "Checking your local tools, connected GKE cluster, and cloud storage before starting...", font=font_xs, fill=TEXT_MUTED)
-
-    # If frame_idx >= 105, simulate that inline fix was executed and Docker is now healthy!
-    docker_is_fixed = frame_idx >= 105
-    docker_status = "ok" if docker_is_fixed else "warning"
-    docker_msg = "Docker sandbox started & ready (Colima runtime)" if docker_is_fixed else "Docker or Colima is not running"
-    docker_remedy = None if docker_is_fixed else "open -a Docker || colima start"
-
-    probes = [
-        ("Version Control (Git)", "ok", "Git v2.55 (Identity: Rajitha Leonhard)", None, None, 10),
-        ("Python Environment", "ok", "Python v3.13.7 (darwin) ready", None, None, 20),
-        ("Agent Sandbox Engine (Docker / Colima)", docker_status, docker_msg, docker_remedy, "https://ate.dev/docs/sandboxes", 35),
-        ("Connected Cloud Cluster (GKE / Kubectl)", "ok", "Connected to cluster context (gke-agent-cluster)", None, None, 50),
-        ("Substrate Helper Tools (atectl)", "ok", "atectl CLI v0.17 ready (No-YAML agent operations)", None, None, 65),
-        ("Cloud Connection & Memory Storage", "ok", "Cloud connection healthy (4ms) — memory saves instantly", None, None, 80),
+    opts = [
+        ("Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)", "Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas)", True),
+        ("Configure Autoscaling manually via kubectl", "Apply custom HorizontalPodAutoscaler and CapacityBuffer manifests later", False),
     ]
+    oy = cy + 54
+    for title, desc, is_act in opts:
+        bg = CARD_ACTIVE if is_act else CARD_BG
+        out = M3_PRIMARY if is_act else BORDER_COLOR
+        draw.rounded_rectangle([cx, oy, cx + cw, oy + 50], radius=10, fill=bg, outline=out, width=1)
+        draw.text((cx + 16, oy + 10), "▶" if is_act else "○", fill=TEXT_WHITE if is_act else GOOGLE_BLUE, font=font_sm)
+        draw.text((cx + 36, oy + 8), title, fill=TEXT_WHITE, font=font_sm)
+        draw.text((cx + 36, oy + 28), desc, fill=(211, 227, 253) if is_act else TEXT_MUTED, font=font_xs)
+        oy += 58
 
-    oy = cy + 74
-    for name, status, msg, remedy, doc_url, trigger_frame in probes:
-        card_w = cw - 48
-        is_done = frame_idx >= trigger_frame
-        is_running = not is_done and frame_idx >= trigger_frame - 15
+    dy = oy + 6
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 90], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((cx + 16, dy + 12), "✓ Applying HorizontalPodAutoscaler (OneHPA: minReplicas=10, maxReplicas=100)", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 36), "✓ Applying CapacityBuffer (fixed-replica-buffer: 3 standby replicas via buffer.gke.io)", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 60), "✓ Standby buffer ready for instant (<100ms) agent session injection", fill=GOOGLE_GREEN, font=font_sm)
 
-        if is_running:
-            b_color = M3_PRIMARY
-            sp_char = SPINNER_FRAMES[(frame_idx // 3) % len(SPINNER_FRAMES)]
-            main_text = f"{sp_char} Checking {name}... [RUNNING]"
-            badge_text = "[RUNNING]"
-            badge_col = M3_PRIMARY
-        elif is_done:
-            if status == "ok":
-                b_color = GOOGLE_GREEN
-                main_text = f"✓ Checking {name}... ({msg})"
-                badge_text = "[OK]"
-                badge_col = GOOGLE_GREEN
-            else:
-                b_color = GOOGLE_YELLOW
-                main_text = f"▲ Checking {name}... ({msg})"
-                badge_text = "[WARNING]"
-                badge_col = GOOGLE_YELLOW
-        else:
-            b_color = BORDER_COLOR
-            main_text = f"○ Checking {name}... [WAITING]"
-            badge_text = "[PENDING]"
-            badge_col = TEXT_MUTED
+    bx = draw_pill_button(draw, cx + cw, dy + 110, "Configure Autoscaling & Proceed (Enter) →", True)
+    draw_pill_button(draw, bx - 16, dy + 110, "← Back (b)", False)
+    return img
 
-        draw.rounded_rectangle([cx + 24, oy, cx + 24 + card_w, oy + 32], radius=6, fill=CARD_BG)
-        draw.line([cx + 24, oy, cx + 24, oy + 32], fill=b_color, width=4)
 
-        draw.text((cx + 36, oy + 8), main_text, font=font_xs, fill=TEXT_WHITE if is_done else TEXT_MUTED)
-        draw.text((cx + cw - 120, oy + 8), badge_text, font=font_xs, fill=badge_col)
-
-        if is_done and remedy:
-            oy += 36
-            # Actionable Remedy Card
-            rem_h = 48
-            draw.rounded_rectangle([cx + 40, oy, cx + 24 + card_w - 16, oy + rem_h], radius=6, fill=(24, 25, 26), outline=GOOGLE_YELLOW, width=1)
-            draw.text((cx + 50, oy + 6), "💡 Action Required: Docker is needed so agents run in safe, isolated sandboxes.", font=font_xs, fill=GOOGLE_YELLOW)
-            
-            # Inner Action Bar
-            draw.rounded_rectangle([cx + 50, oy + 22, cx + 24 + card_w - 28, oy + rem_h - 4], radius=4, fill=(18, 19, 20), outline=BORDER_COLOR)
-            draw.text((cx + 58, oy + 26), f"📋 {remedy}", font=font_xs, fill=GOOGLE_BLUE)
-            
-            # Action buttons
-            draw.rounded_rectangle([cx + cw - 280, oy + 24, cx + cw - 215, oy + rem_h - 6], radius=4, fill=(40, 42, 44), outline=BORDER_COLOR)
-            draw.text((cx + cw - 275, oy + 26), "📋 Copy", font=font_xs, fill=TEXT_WHITE)
-
-            is_fixing = 80 <= frame_idx < 105
-            fix_bg = (11, 87, 208) if is_fixing else M3_PRIMARY
-            fix_text = "⚡ Fixing..." if is_fixing else "⚡ Fix Inline"
-            draw.rounded_rectangle([cx + cw - 210, oy + 24, cx + cw - 145, oy + rem_h - 6], radius=4, fill=fix_bg)
-            draw.text((cx + cw - 205, oy + 26), fix_text, font=font_xs, fill=(255, 255, 255) if is_fixing else (0, 48, 98))
-
-            draw.rounded_rectangle([cx + cw - 140, oy + 24, cx + cw - 40, oy + rem_h - 6], radius=4, fill=(30, 40, 55), outline=GOOGLE_BLUE)
-            draw.text((cx + cw - 135, oy + 26), "📖 Docs ↗", font=font_xs, fill=GOOGLE_BLUE)
-
-            oy += rem_h + 8
-        else:
-            oy += 38
-
-    if docker_is_fixed:
-        draw.text((cx + 36, oy + 12), "✓ Inline remediation completed: All 6/6 diagnostics passed!", font=font_xs, fill=GOOGLE_GREEN)
-
-    # Bottom buttons with dynamic bounding
-    by = cy + ch - 48
-    draw.line([cx + 24, by - 10, cx + cw - 24, by - 10], fill=BORDER_COLOR, width=1)
+# Scene 5: Step 5 Deploy WorkerPool
+def render_scene_step5():
+    img, draw, cx, cy, cw = draw_window_frame(4, "Deploying default WorkerPool with 10 standby MicroVM workers.")
     
-    rx = cx + cw - 24
-    rx = draw_pill_button(draw, rx, by, "Proceed to Platform Setup [Enter] →", is_primary=True)
-    rx = draw_pill_button(draw, rx, by, "Re-run Checks (r)", is_primary=False)
-    draw_pill_button(draw, cx + 130, by, "← Back (b)", is_primary=False)
+    draw.text((cx, cy), "[5/6] DEPLOY DEFAULT WORKERPOOL (EXECUTION LAYER)", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "Proceed with deploying the default Substrate WorkerPool [default-worker-pool]?", fill=TEXT_MUTED, font=font_sm)
 
-    return np.array(img)
-
-
-def render_scene_4_auth(frame_idx=0):
-    """Scene 4: Integration, Credentials & Google IAP OAuth screen."""
-    img = Image.new("RGB", (WIDTH, HEIGHT), color=BG_CANVAS)
-    draw = ImageDraw.Draw(img)
-
-    tip = "Enter LLM API credentials or authenticate via Google IAP. Type /skip for local offline mode."
-    vx, vy, vw, vh = draw_window_base(draw, title_step=3, tip_text=tip, legend_text="[Enter] Submit  [/skip] Bypass")
-
-    cx, cy, cw, ch = vx + 40, vy + 10, vw - 80, vh - 20
-    draw.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=(24, 25, 26), outline=BORDER_COLOR, width=1)
-
-    # Headers with Snazzy Icon
-    draw.text((cx + 24, cy + 20), "🤖 STEP 3: AGENT DEPLOYMENT & CREDENTIAL LINKAGE", font=font_md, fill=M3_PRIMARY)
-    draw.text((cx + 24, cy + 46), "Link your workspace credentials (LLM API keys, Google IAP OAuth) for Actor runtime dispatch:", font=font_xs, fill=TEXT_MUTED)
-
-    draw.text((cx + 24, cy + 90), "API Key / Token:", font=font_xs, fill=TEXT_MUTED)
-
-    # Input Box
-    masked = frame_idx < 40 or frame_idx > 80
-    key_display = "sk-ant-••••••••••••••••••••••••••••" if masked else "sk-ant-api03-89f4a9b2c01e5d3-live"
-
-    draw.rounded_rectangle([cx + 24, cy + 112, cx + cw - 150, cy + 150], radius=6, fill=(19, 19, 20), outline=BORDER_FOCUS, width=1)
-    draw.text((cx + 36, cy + 122), key_display, font=font_sm, fill=TEXT_WHITE)
-
-    # Toggle Mask Button
-    mask_btn = "👁 Show" if masked else "🔒 Hide"
-    draw_pill_button(draw, cx + cw - 24, cy + 112, mask_btn, is_primary=False)
-
-    # Google IAP Card
-    ix, iy, iw, ih = cx + 24, cy + 175, cw - 48, 85
-    draw.rounded_rectangle([ix, iy, ix + iw, iy + ih], radius=8, fill=(19, 20, 22), outline=GOOGLE_BLUE, width=1)
-
-    # Title badge
-    badge_text = " 🌐 ENTERPRISE AUTHENTICATION (GOOGLE CLOUD IAP) "
-    bw = int(len(badge_text) * 8)
-    draw.rounded_rectangle([ix + 16, iy - 10, ix + 16 + bw, iy + 12], radius=4, fill=(8, 66, 160), outline=M3_PRIMARY, width=1)
-    draw.text((ix + 20, iy - 6), badge_text, font=font_xs, fill=(255, 255, 255))
-
-    draw.text((ix + 20, iy + 22), "Agent Substrate integrates with Google Identity-Aware Proxy (Port 8443)", font=font_sm, fill=(255, 255, 255))
-    draw.text((ix + 20, iy + 48), "for zero-trust workforce single-sign-on and role-based actor access.", font=font_sm, fill=(211, 227, 253))
-
-    if frame_idx >= 60:
-        sp_char = SPINNER_FRAMES[(frame_idx // 3) % len(SPINNER_FRAMES)]
-        if frame_idx < 100:
-            draw.text((cx + 24, cy + 275), f"{sp_char} Waiting for authorization from Google Identity-Aware Proxy portal...", font=font_sm, fill=M3_PRIMARY)
-        else:
-            draw.text((cx + 24, cy + 275), "✓ Google IAP authorization received! ServiceAccount authenticated. [OK]", font=font_sm, fill=GOOGLE_GREEN)
-
-    # Bottom Buttons with dynamic bounding
-    by = cy + ch - 48
-    draw.line([cx + 24, by - 10, cx + cw - 24, by - 10], fill=BORDER_COLOR, width=1)
-
-    rx = cx + cw - 24
-    rx = draw_pill_button(draw, rx, by, "Proceed to Launchpad [Enter] →", is_primary=True)
-    rx = draw_pill_button(draw, rx, by, "🌐 Authenticate via Google IAP", is_primary=False, outline_color=M3_PRIMARY)
-    draw_pill_button(draw, cx + 130, by, "← Back (b)", is_primary=False)
-
-    return np.array(img)
-
-
-def render_scene_5_launchpad(progress_pct=100.0, show_celebration=True, frame_idx=0):
-    """Scene 5: Summary Card, Compilation Progress Bar & Celebration."""
-    img = Image.new("RGB", (WIDTH, HEIGHT), color=BG_CANVAS)
-    draw = ImageDraw.Draw(img)
-
-    tip = "Onboarding successfully finished! Press [Enter] or click Launch."
-    vx, vy, vw, vh = draw_window_base(draw, title_step=4, tip_text=tip, legend_text="[Enter] Launch Substrate  [/help] Help")
-
-    cx, cy, cw, ch = vx + 40, vy + 10, vw - 80, vh - 20
-    draw.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=(24, 25, 26), outline=BORDER_COLOR, width=1)
-
-    # Headers with Snazzy Icon
-    draw.text((cx + 24, cy + 20), "🛸 STEP 4: CLUSTER LAUNCHPAD & 3-PHASE OPERATIONS RUNBOOK", font=font_md, fill=M3_PRIMARY)
-    draw.text((cx + 24, cy + 46), "Review your GKE Substrate profile before compiling manifests & starting worker pools:", font=font_xs, fill=TEXT_MUTED)
-
-    # Summary Box
-    sy = cy + 66
-    draw.rounded_rectangle([cx + 24, sy, cx + cw - 24, sy + 115], radius=8, fill=(19, 19, 20), outline=M3_PRIMARY, width=1)
-
-    summary_items = [
-        ("Persona & Target:", "🛠️ Platform Engineer — Fleet WorkerPools"),
-        ("WorkerPool Topology:", "⚡ MicroVM WorkerPool + Envoy Dataplane"),
-        ("Optimization & Runtime:", "⚡ Local SSD Image Pre-caching"),
-        ("Authentication Mode:", "Google IAP (Authenticated)"),
-        ("GKE Cluster Target:", "gke-agent-cluster (us-central1-a)"),
-        ("Pre-Flight Health:", "5/6 Diagnostics Passed (Healthy)"),
+    opts = [
+        ("Yes, deploy default WorkerPool [default-worker-pool] (Recommended)", "10 standby replicas, microVM sandbox isolation, 10% warm headroom", True),
+        ("No, skip default WorkerPool deployment", "Only install control plane; create worker pools later via atectl CLI", False),
     ]
+    oy = cy + 54
+    for title, desc, is_act in opts:
+        bg = CARD_ACTIVE if is_act else CARD_BG
+        out = M3_PRIMARY if is_act else BORDER_COLOR
+        draw.rounded_rectangle([cx, oy, cx + cw, oy + 50], radius=10, fill=bg, outline=out, width=1)
+        draw.text((cx + 16, oy + 10), "▶" if is_act else "○", fill=TEXT_WHITE if is_act else GOOGLE_BLUE, font=font_sm)
+        draw.text((cx + 36, oy + 8), title, fill=TEXT_WHITE, font=font_sm)
+        draw.text((cx + 36, oy + 28), desc, fill=(211, 227, 253) if is_act else TEXT_MUTED, font=font_xs)
+        oy += 58
 
-    for i, (k, v) in enumerate(summary_items):
-        col = 0 if i < 3 else 1
-        row = i % 3
-        kx = cx + 44 + col * (cw // 2 - 20)
-        ky = sy + 14 + row * 32
-        draw.text((kx, ky), k, font=font_xs, fill=TEXT_MUTED)
-        draw.text((kx + 160, ky), v, font=font_xs, fill=TEXT_WHITE if "Health" not in k else GOOGLE_GREEN)
+    dy = oy + 6
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 90], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((cx + 16, dy + 12), "✓ WorkerPool CRD applied (10 replicas, OneHPA autoscaler enabled)", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 36), "✓ CapacityBuffer configured with 10% warm standby headroom", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, dy + 60), "* Data Plane Benchmark: Cold Start (890ms) -> Suspend (38ms) -> Resume (115ms)", fill=GOOGLE_YELLOW, font=font_sm)
 
-    # Progress Bar or Celebration
-    if not show_celebration:
-        py = sy + 130
-        draw.rounded_rectangle([cx + 24, py, cx + cw - 24, py + 10], radius=5, fill=(40, 41, 42), outline=BORDER_COLOR)
+    bx = draw_pill_button(draw, cx + cw, dy + 110, "Deploy WorkerPool & Launch (Enter) →", True)
+    draw_pill_button(draw, bx - 16, dy + 110, "← Back (b)", False)
+    return img
 
-        fill_w = int((cw - 48) * (progress_pct / 100.0))
-        if fill_w > 0:
-            draw.rounded_rectangle([cx + 24, py, cx + 24 + fill_w, py + 10], radius=5, fill=M3_PRIMARY)
 
-        # Progress text
-        if progress_pct < 30:
-            pmsg = "Generating substrate.yaml & WorkerPool CRD manifests..."
-        elif progress_pct < 60:
-            pmsg = "Configuring Envoy dataplane, Valkey cache & GCS snapshot bucket..."
-        elif progress_pct < 90:
-            pmsg = "Testing data plane: Cold Boot (912ms) → Suspend (42ms) → Warm Resume (120ms)..."
-        else:
-            pmsg = "Workspace configured successfully! Worker pool ready for dispatch."
-
-        draw.text((cx + (cw - len(pmsg) * 7.5) // 2, py + 18), f"⚙ {pmsg}", font=font_xs, fill=GOOGLE_BLUE)
-    else:
-        # Celebration Banner directly under summary box
-        cely = sy + 125
-        draw.rounded_rectangle([cx + 24, cely, cx + cw - 24, cely + 115], radius=8, fill=(20, 35, 26), outline=GOOGLE_GREEN, width=1)
-        draw.text((cx + 40, cely + 10), "🎉 SUBSTRATE CONFIGURED — READY FOR PLATFORM & AI WORKLOADS!", font=font_sm, fill=GOOGLE_GREEN)
-        draw.text((cx + 40, cely + 34), "🚀 Phase 1: curl -sSL ate.dev/install.sh | bash && atectl create workerpools my-pool --isolation=microvm", font=font_xs, fill=M3_PRIMARY)
-        draw.text((cx + 40, cely + 56), "🤖 Phase 2: atectl create template my-agent --image gcr.io/repo/my-agent:v1 --worker-pool=workload=agent", font=font_xs, fill=GOOGLE_BLUE)
-        draw.text((cx + 40, cely + 78), "📊 Phase 3: atectl top workers  |  atectl precache image gcr.io/rl-lab/env:v3.0 --workerpool=rl-pool", font=font_xs, fill=TEXT_PRIMARY)
-        draw.text((cx + 40, cely + 96), "• Substrate Data Plane dynamically injects waking actors into ready worker pools in real-time.", font=font_xs, fill=TEXT_MUTED)
-
-    # Bottom buttons with dynamic bounding
-    by = cy + ch - 48
-    draw.line([cx + 24, by - 10, cx + cw - 24, by - 10], fill=BORDER_COLOR, width=1)
+# Scene 6: Step 6 Launchpad & Verification
+def render_scene_step6():
+    img, draw, cx, cy, cw = draw_window_frame(5, "Agent Substrate installed successfully! Press [Enter] to exit to shell.")
     
-    rx = cx + cw - 24
-    rx = draw_pill_button(draw, rx, by, "Launch Agent Substrate 🚀", is_primary=True)
-    draw_pill_button(draw, cx + 180, by, "← Modify Settings", is_primary=False)
+    draw.text((cx, cy), "[6/6] LAUNCHPAD & LIVE CLUSTER VERIFICATION", fill=M3_PRIMARY, font=font_md)
+    draw.text((cx, cy + 24), "✓ Agent Substrate on GKE Installation Complete! Cluster [demo-cluster] is ready.", fill=GOOGLE_GREEN, font=font_sm)
 
-    return np.array(img)
+    # Verification Table
+    dy = cy + 54
+    draw.rounded_rectangle([cx, dy, cx + cw, dy + 90], radius=10, fill=BG_CANVAS, outline=BORDER_COLOR, width=1)
+    draw.text((cx + 16, dy + 10), "$ atectl get workerpools", fill=GOOGLE_BLUE, font=font_xs)
+    
+    headers = "WORKERPOOL           NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE"
+    vals    = "default-worker-pool  substrate-system  microvm    10/10  10       4%   8%   0"
+    draw.text((cx + 16, dy + 32), headers, fill=M3_PRIMARY, font=font_xs)
+    draw.text((cx + 16, dy + 56), vals, fill=GOOGLE_GREEN, font=font_xs)
+
+    # Runbook Box
+    ry = dy + 100
+    draw.rounded_rectangle([cx, ry, cx + cw, ry + 120], radius=10, fill=(20, 35, 25), outline=GOOGLE_GREEN, width=1)
+    draw.text((cx + 16, ry + 10), "DAY-0 QUICKSTART RUNBOOK (NEXT STEPS):", fill=GOOGLE_GREEN, font=font_sm)
+    draw.text((cx + 16, ry + 32), "1. Deploy your first agent session (No-YAML):", fill=TEXT_WHITE, font=font_xs)
+    draw.text((cx + 16, ry + 48), "   $ atectl actor create my-first-actor --template=default-agent", fill=GOOGLE_BLUE, font=font_xs)
+    draw.text((cx + 16, ry + 68), "2. Inspect standby workers and memory overcommit:", fill=TEXT_WHITE, font=font_xs)
+    draw.text((cx + 16, ry + 84), "   $ atectl top workers", fill=GOOGLE_BLUE, font=font_xs)
+
+    bx = draw_pill_button(draw, cx + cw, ry + 135, "Finish & Launch CLI (Enter)", True)
+    draw_pill_button(draw, bx - 16, ry + 135, "← Back (b)", False)
+    return img
 
 
-def render_scene_6_help_modal(frame_idx=0):
-    """Scene 6: Interactive Help Overlay Modal with Slash Commands."""
-    base_frame = render_scene_2_wizard(substep=0, selected_idx=0, frame_idx=0)
-    img = Image.fromarray(base_frame)
+# Scene 7: Global Help Modal
+def render_scene_help():
+    img = render_scene_step3()
+    # Dim overlay
+    overlay = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 160))
+    img.paste(Image.alpha_composite(Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0)), overlay).convert("RGB"), (0, 0), overlay)
     draw = ImageDraw.Draw(img)
 
-    # Dark overlay
-    overlay = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 180))
-    img.paste(Image.alpha_composite(Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0)), overlay), (0, 0))
+    # Modal Box
+    mx, my, mw, mh = 360, 160, 560, 400
+    draw.rounded_rectangle([mx, my, mx + mw, my + mh], radius=12, fill=SURFACE_PANEL, outline=M3_PRIMARY, width=2)
 
-    # Dialog Box
-    dx, dy, dw, dh = WIDTH // 2 - 320, HEIGHT // 2 - 200, 640, 400
-    draw.rounded_rectangle([dx, dy, dx + dw, dy + dh], radius=14, fill=(30, 31, 32), outline=M3_PRIMARY, width=2)
+    draw.text((mx + 24, my + 24), "AGENT SUBSTRATE WIZARD HELP & SHORTCUTS", fill=M3_PRIMARY, font=font_md)
 
-    draw.text((dx + (dw - 380) // 2, dy + 20), "⚡ KEYBOARD SHORTCUTS & SLASH COMMANDS", font=font_sm, fill=M3_PRIMARY)
-
-    draw.text((dx + 30, dy + 55), "Global Slash Commands:", font=font_xs, fill=M3_PRIMARY)
-
-    cmds = [
-        ("/help", "/?, /h, F1", "Show this interactive command overlay"),
-        ("/skip", "/s, /next", "Skip current question using recommended defaults"),
-        ("/back", "/prev, /b", "Return to previous onboarding screen"),
-        ("/doctor", "/check", "Run or inspect environment pre-flight diagnostics"),
-        ("/exit", "/quit, /q", "Pause onboarding and exit cleanly"),
+    shortcuts = [
+        ("Enter / Space", "Confirm selection and proceed to next step"),
+        ("↑ / ↓ (or k / j)", "Navigate options and cluster choices"),
+        ("b", "Return to previous step"),
+        ("/skip", "Skip current step with recommended defaults"),
+        ("/doctor", "Jump straight to pre-flight diagnostic scan"),
+        ("F1 / /help", "Toggle this command overlay"),
     ]
 
-    cy = dy + 78
-    for cmd, alias, desc in cmds:
-        draw.text((dx + 40, cy), cmd, font=font_xs, fill=M3_PRIMARY)
-        draw.text((dx + 110, cy), alias, font=font_xs, fill=TEXT_MUTED)
-        draw.text((dx + 230, cy), desc, font=font_xs, fill=TEXT_PRIMARY)
-        draw.line([dx + 30, cy + 18, dx + dw - 30, cy + 18], fill=(45, 47, 49), width=1)
-        cy += 26
+    sy = my + 64
+    for key, desc in shortcuts:
+        draw.text((mx + 24, sy), key, fill=GOOGLE_BLUE, font=font_sm)
+        draw.text((mx + 180, sy), desc, fill=TEXT_WHITE, font=font_sm)
+        draw.line([mx + 24, sy + 24, mx + mw - 24, sy + 24], fill=(50, 52, 55), width=1)
+        sy += 38
 
-    draw.text((dx + 30, cy + 15), "Keyboard Shortcuts:", font=font_xs, fill=M3_PRIMARY)
-    keys = [
-        ("[Up / Down]", "Navigate items, options, and lists"),
-        ("[Enter]", "Confirm selection / Submit input / Proceed"),
-        ("[Space]", "Toggle selection or buttons"),
-        ("[Ctrl+C / Ctrl+D]", "Pause onboarding & prompt exit confirmation"),
-        ("[Esc]", "Close modal dialogs"),
-    ]
-    cy += 38
-    for k, desc in keys:
-        draw.text((dx + 40, cy), k, font=font_xs, fill=GOOGLE_BLUE)
-        draw.text((dx + 230, cy), desc, font=font_xs, fill=TEXT_PRIMARY)
-        cy += 24
-
-    draw_pill_button(draw, dx + dw - 24, dy + dh - 40, "Close (Esc)", is_primary=False)
-
-    return np.array(img)
+    draw_pill_button(draw, mx + mw - 24, my + mh - 50, "Close Help (Esc)", True)
+    return img
 
 
-def generate_full_video(output_path: str):
-    """Generate high-definition MP4 recording of the full onboarding journey with Option A PRFAQ sequencing."""
-    print(f"🎬 Generating video recording: {output_path}")
+def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
+    print(f"🎬 Generating HD Demo Video: {output_path}...")
     writer = imageio.get_writer(output_path, fps=FPS, codec="libx264", quality=8)
 
-    # 1. Welcome Scene (0.0s - 4.0s = 120 frames)
-    print("  • Rendering Scene 1: Welcome Splash & Typewriter...")
-    scene1_frames = 120
-    for i in range(scene1_frames):
-        frame = render_scene_1_welcome(i, scene1_frames)
-        writer.append_data(frame)
+    # Sequence of scenes with durations
+    scenes = [
+        (render_scene_step1, 2.5),
+        (lambda: render_scene_step2(2), 0.8),
+        (lambda: render_scene_step2(4), 0.8),
+        (lambda: render_scene_step2(5), 1.8),
+        (lambda: render_scene_step3(False), 1.8),
+        (lambda: render_scene_step3(True), 2.0),
+        (render_scene_step4, 2.2),
+        (render_scene_step5, 2.2),
+        (render_scene_step6, 3.0),
+        (render_scene_help, 2.0),
+    ]
 
-    # 2. Step 1: Pre-Flight Environment Doctor (4.0s - 9.0s = 150 frames)
-    print("  • Rendering Scene 2: Step 1 Pre-Flight Environment Doctor...")
-    for i in range(150):
-        frame = render_scene_3_doctor(frame_idx=i)
-        writer.append_data(frame)
-
-    # 3. Step 2: Platform Setup Wizard Substeps 1, 2, 3 (9.0s - 16.0s = 210 frames)
-    print("  • Rendering Scene 3: Step 2 Platform Setup & WorkerPool Topology...")
-    # Substep 0: Navigate options (Platform Engineer -> AI Engineer -> Platform Engineer)
-    for i in range(25):
-        frame = render_scene_2_wizard(substep=0, selected_idx=0, frame_idx=i)
-        writer.append_data(frame)
-    for i in range(25):
-        frame = render_scene_2_wizard(substep=0, selected_idx=1, frame_idx=i)
-        writer.append_data(frame)
-    for i in range(20):
-        frame = render_scene_2_wizard(substep=0, selected_idx=0, frame_idx=i)
-        writer.append_data(frame)
-
-    # Substep 1: Navigate Dataplane options
-    for i in range(35):
-        frame = render_scene_2_wizard(substep=1, selected_idx=0, frame_idx=i)
-        writer.append_data(frame)
-    for i in range(35):
-        frame = render_scene_2_wizard(substep=1, selected_idx=0, frame_idx=i)
-        writer.append_data(frame)
-
-    # Substep 2: Select Local SSD Caching
-    for i in range(70):
-        frame = render_scene_2_wizard(substep=2, selected_idx=0, frame_idx=i)
-        writer.append_data(frame)
-
-    # 4. Step 3: Agent Deployment & Credentials (16.0s - 21.0s = 150 frames)
-    print("  • Rendering Scene 4: Step 3 Agent Deployment & Credentials...")
-    for i in range(150):
-        frame = render_scene_4_auth(frame_idx=i)
-        writer.append_data(frame)
-
-    # 5. Step 4: Cluster Launchpad & Compilation Progress (21.0s - 27.0s = 180 frames)
-    print("  • Rendering Scene 5: Step 4 Compilation Progress & Launchpad...")
-    for i in range(180):
-        progress = min(100.0, (i / 130.0) * 100.0)
-        show_cel = i >= 130
-        frame = render_scene_5_launchpad(progress_pct=progress, show_celebration=show_cel, frame_idx=i)
-        writer.append_data(frame)
-
-    # 6. Help Overlay Modal (27.0s - 31.0s = 120 frames)
-    print("  • Rendering Scene 6: Slash Commands & Help Modal...")
-    for i in range(120):
-        frame = render_scene_6_help_modal(frame_idx=i)
-        writer.append_data(frame)
-
-    # 7. Final Launchpad Hold (31.0s - 34.0s = 90 frames)
-    for i in range(90):
-        frame = render_scene_5_launchpad(progress_pct=100.0, show_celebration=True, frame_idx=i)
-        writer.append_data(frame)
+    for scene_func, duration in scenes:
+        num_frames = int(duration * FPS)
+        for _ in range(num_frames):
+            frame_img = scene_func()
+            frame_np = np.array(frame_img)
+            writer.append_data(frame_np)
 
     writer.close()
-    print(f"✅ Video recording completed successfully: {output_path}")
+    print(f"✅ Video generated successfully: {output_path}")
+
+
+def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
+    os.makedirs(out_dir, exist_ok=True)
+    print(f"📸 Exporting high-res screenshots to {out_dir}...")
+    
+    shots = [
+        ("step1_cluster_detection.png", render_scene_step1()),
+        ("step2_control_plane.png", render_scene_step2(5)),
+        ("step3_nodepool_ccc.png", render_scene_step3(True)),
+        ("step4_autoscaling.png", render_scene_step4()),
+        ("step5_deploy_workerpool.png", render_scene_step5()),
+        ("step6_launchpad_verify.png", render_scene_step6()),
+        ("step7_help_modal.png", render_scene_help()),
+        # Backward compatibility copies for guide
+        ("step0_welcome.png", render_scene_step1()),
+        ("step1_preflight_doctor.png", render_scene_step2(5)),
+        ("step2_platform_setup.png", render_scene_step3(True)),
+        ("step3_agent_deployment.png", render_scene_step4()),
+        ("step4_cluster_launchpad.png", render_scene_step6()),
+        ("step5_help_modal.png", render_scene_help()),
+    ]
+
+    for fname, img in shots:
+        path = os.path.join(out_dir, fname)
+        img.save(path)
+        print(f"  ✓ Saved {fname}")
 
 
 if __name__ == "__main__":
-    out = os.path.abspath("demos/onboarding-tui/onboarding_demo.mp4")
-    generate_full_video(out)
+    export_step_screenshots()
+    generate_demo_video()

@@ -1,11 +1,11 @@
-"""Theme, color tokens, and ASCII styling for Agent Substrate Onboarding TUI.
+"""Theme, color tokens, and styling for Agent Substrate Onboarding TUI.
 
 Follows Google Material 3 (Material You) Dark Surface tokens and 4-Color Brand Palette:
 - Google Blue:   #8ab4f8 / #a8c7fa / #0842a0
 - Google Red:    #f28b82
 - Google Yellow: #fdd663
 - Google Green:  #81c995
-- Dark Surfaces: #131314 (Base), #1e1f20 (Panels), #28292a (Cards), #333538 (Hover), #444746 (Outlines)
+- Dark Surfaces: #131314 (Base), #1e1f20 (Panels/Sidebar), #28292a (Cards), #333538 (Hover), #444746 (Outlines)
 """
 
 from __future__ import annotations
@@ -83,7 +83,6 @@ def apply_google_gradient(text_lines: List[str]) -> Text:
             if char.isspace():
                 rich_text.append(char)
                 continue
-            # Smooth diagonal sweep
             diag_pos = (x / line_len * 0.7) + (y / total_lines * 0.3)
             r, g, b = get_gradient_color(diag_pos)
             hex_color = f"#{r:02x}{g:02x}{b:02x}"
@@ -93,7 +92,6 @@ def apply_google_gradient(text_lines: List[str]) -> Text:
     return rich_text
 
 
-# Backward compatibility alias
 apply_pastel_gradient = apply_google_gradient
 
 
@@ -103,14 +101,6 @@ Screen {
     color: #e3e3e3;
     layers: base modal;
     layout: vertical;
-}
-
-#screen-container {
-    width: 100%;
-    height: 1fr;
-    padding: 1 2;
-    align: center middle;
-    overflow-y: auto;
 }
 
 /* Header & Status Bar */
@@ -154,59 +144,51 @@ Screen {
     width: auto;
 }
 
-/* Welcome Screen */
-#welcome-box {
-    width: 96;
-    height: auto;
-    max-height: 95%;
-    border: round #444746;
+/* 2-Column Wizard Layout */
+#workspace-layout {
+    width: 100%;
+    height: 1fr;
+    layout: horizontal;
+    background: #131314;
+}
+
+#sidebar-nav {
+    width: 32;
+    height: 100%;
     background: #1e1f20;
-    padding: 1 3;
-    align: center middle;
+    border-right: round #444746;
+    padding: 1 1;
 }
 
-#ascii-container {
+#sidebar-container {
     width: 100%;
     height: auto;
-    content-align: center middle;
-    margin-bottom: 1;
 }
 
-#typewriter-text {
+#sidebar-content {
     width: 100%;
     height: auto;
-    min-height: 3;
-    color: #e3e3e3;
-    margin: 1 0;
 }
 
-#welcome-features-card {
+#content-area {
+    width: 1fr;
+    height: 1fr;
+    padding: 1 2;
+    overflow-y: auto;
+}
+
+#content-panel {
     width: 100%;
-    margin: 1 0;
-}
-
-#cta-prompt {
-    width: 100%;
-    content-align: center middle;
-    color: #a8c7fa;
-    text-style: bold;
-    margin-top: 1;
-}
-
-/* Questionnaire Screen */
-#wizard-box {
-    width: 96;
     height: auto;
-    max-height: 95%;
-    border: round #444746;
     background: #1e1f20;
-    padding: 1 3;
+    border: round #444746;
+    padding: 1 2;
 }
 
 .wizard-step-title {
     color: #a8c7fa;
     text-style: bold;
-    margin-bottom: 1;
+    margin-bottom: 0;
 }
 
 .wizard-step-subtitle {
@@ -214,6 +196,27 @@ Screen {
     margin-bottom: 1;
 }
 
+/* Log and Diagnostic Cards */
+#terminal-log-card {
+    width: 100%;
+    height: auto;
+    background: #131314;
+    border: round #444746;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+/* Actionable Remedy Card */
+#remedy-card {
+    width: 100%;
+    height: auto;
+    background: #201a14;
+    border: round #fdd663;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+/* Options Container & Cards */
 #options-container {
     width: 100%;
     height: auto;
@@ -243,141 +246,16 @@ Screen {
     text-style: bold;
 }
 
-/* Doctor Screen */
-#doctor-box {
-    width: 96;
-    height: auto;
-    max-height: 95%;
-    border: round #444746;
-    background: #1e1f20;
-    padding: 1 3;
-}
-
-#doctor-list {
+/* Button Rows */
+.action-button-row {
     width: 100%;
     height: auto;
-    margin: 1 0;
-}
-
-.doctor-item-row {
-    width: 100%;
-    height: auto;
-    background: #28292a;
-    border-left: solid #444746;
-    padding: 0 1;
-    margin-bottom: 1;
-}
-
-.doctor-item-row.-ok {
-    border-left: heavy #81c995;
-}
-
-.doctor-item-row.-warning {
-    border-left: heavy #fdd663;
-}
-
-.doctor-item-row.-failed {
-    border-left: heavy #f28b82;
-}
-
-.doctor-item-row.-running {
-    border-left: heavy #a8c7fa;
-}
-
-.remedy-box {
-    width: 100%;
-    background: #131314;
-    border: solid #444746;
-    color: #fdd663;
-    padding: 0 1;
-    margin: 0 0 1 1;
-}
-
-/* Auth Screen */
-#auth-box {
-    width: 92;
-    height: auto;
-    max-height: 95%;
-    border: round #444746;
-    background: #1e1f20;
-    padding: 1 3;
-}
-
-#auth-inputs-container {
-    width: 100%;
-    margin: 1 0;
-}
-
-#api-key-label {
-    color: #a8c7fa;
-    text-style: bold;
-    margin-bottom: 1;
-}
-
-#api-key-input-row {
-    width: 100%;
-    height: auto;
-    align: center middle;
-}
-
-#api-key-input {
-    width: 1fr;
-    border: solid #444746;
-    background: #131314;
-    color: #f2f2f2;
-}
-
-#api-key-input:focus {
-    border: solid #a8c7fa;
-}
-
-#btn-toggle-mask {
-    min-width: 12;
-    margin-left: 1;
-}
-
-#iap-info-card {
-    width: 100%;
-    margin: 1 0;
-}
-
-#oauth-status-label {
-    width: 100%;
-    content-align: center middle;
-    margin: 1 0;
-}
-
-.error-pill {
-    color: #f28b82;
-    text-style: bold;
-    background: #371b1d;
-    border: solid #f28b82;
-    padding: 0 1;
+    align: right middle;
     margin-top: 1;
-    display: none;
-}
-
-.error-pill.-visible {
-    display: block;
-}
-
-/* Buttons and Controls with Adequate Padding (Zero Label Bleed) */
-Button {
-    height: 3;
-    min-width: 18;
-    padding: 0 2;
-    content-align: center middle;
-}
-
-.auth-button-row {
-    width: 100%;
-    height: auto;
-    align: center middle;
-    margin: 1 0;
 }
 
 .action-button {
-    margin: 0 1;
+    margin-left: 1;
     background: #0842a0;
     color: #d3e3fd;
     border: solid #a8c7fa;
@@ -391,7 +269,7 @@ Button {
 }
 
 .secondary-button {
-    margin: 0 1;
+    margin-right: 1;
     background: #28292a;
     color: #e3e3e3;
     border: solid #444746;
@@ -404,72 +282,22 @@ Button {
     border: solid #8ab4f8;
 }
 
-/* Summary Screen */
-#summary-box {
-    width: 96;
-    height: auto;
-    max-height: 95%;
-    border: round #444746;
-    background: #1e1f20;
-    padding: 1 3;
-}
-
-#summary-card {
-    width: 100%;
-    margin: 0 0 1 0;
-    padding: 0;
-}
-
-#progress-container {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-#launch-progress-bar {
-    width: 100%;
-}
-
-#launch-progress-label {
-    color: #a8c7fa;
-    text-style: italic;
-    margin-top: 1;
-    content-align: center middle;
-}
-
-#celebration-container {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-#celebration-banner {
-    width: 100%;
-    background: #132219;
-    border: round #81c995;
-    padding: 1 2;
-    margin: 0;
-}
-
 /* Modals */
-.modal-dialog {
-    width: 78;
+#help-modal-container {
+    width: 80;
+    height: auto;
+    max-height: 90%;
+    background: #1e1f20;
+    border: round #a8c7fa;
+    padding: 1 2;
+}
+
+#exit-modal-container {
+    width: 60;
     height: auto;
     background: #1e1f20;
-    border: heavy #a8c7fa;
+    border: round #f28b82;
     padding: 1 2;
     align: center middle;
-}
-
-.modal-title {
-    color: #a8c7fa;
-    text-style: bold;
-    content-align: center middle;
-    margin-bottom: 1;
-}
-
-.modal-content {
-    color: #e3e3e3;
-    margin-bottom: 1;
 }
 """

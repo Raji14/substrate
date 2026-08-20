@@ -14,19 +14,20 @@ from substrate_onboarding.engine.commands import CommandRegistry
 from substrate_onboarding.theme import APP_CSS
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 from substrate_onboarding.screens.welcome_screen import WelcomeScreen
-from substrate_onboarding.screens.wizard_screen import QuestionnaireScreen
 from substrate_onboarding.screens.doctor_screen import DoctorScreen
+from substrate_onboarding.screens.wizard_screen import QuestionnaireScreen
 from substrate_onboarding.screens.auth_screen import AuthScreen
+from substrate_onboarding.screens.deploy_wp_screen import DeployWorkerPoolScreen
 from substrate_onboarding.screens.summary_screen import SummaryScreen
 from substrate_onboarding.screens.help_modal import HelpModal
 from substrate_onboarding.screens.exit_modal import ExitConfirmModal
 
 
 class SubstrateOnboardingApp(App[UserSetupState]):
-    """Delightful, high-taste Textual TUI for developer onboarding."""
+    """Delightful, high-taste Textual TUI for developer onboarding on GKE."""
 
     CSS = APP_CSS
-    TITLE = "Agent Substrate Onboarding"
+    TITLE = "Agent Substrate Onboarding on GKE"
 
     BINDINGS = [
         Binding("ctrl+c", "request_exit", "Exit", show=False, priority=True),
@@ -37,9 +38,16 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     ]
 
     SCREENS = {
+        "cluster": WelcomeScreen,
+        "control_plane": DoctorScreen,
+        "node_pool": QuestionnaireScreen,
+        "autoscaling": AuthScreen,
+        "deploy_wp": DeployWorkerPoolScreen,
+        "launchpad": SummaryScreen,
+        # Aliases for backward compatibility
         "welcome": WelcomeScreen,
-        "questionnaire": QuestionnaireScreen,
         "doctor": DoctorScreen,
+        "questionnaire": QuestionnaireScreen,
         "auth": AuthScreen,
         "summary": SummaryScreen,
     }
@@ -58,7 +66,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         initial_screen = (
             self.state.current_step.value
             if self.state.current_step.value in self.SCREENS
-            else "welcome"
+            else "cluster"
         )
         self.push_screen(initial_screen)
 
@@ -106,7 +114,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         elif cmd.action_key == "back":
             self.previous_step()
         elif cmd.action_key == "doctor":
-            self.state_machine.transition_to(OnboardingStep.DOCTOR)
+            self.state_machine.transition_to(OnboardingStep.CONTROL_PLANE)
         elif cmd.action_key == "exit":
             self.action_request_exit()
         return True

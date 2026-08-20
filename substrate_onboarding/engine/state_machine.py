@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with Option A PRFAQ sequencing."""
+"""State Machine for Onboarding Workflow with 6-step Day-0 GKE installer sequencing."""
 
 from __future__ import annotations
 
@@ -9,21 +9,23 @@ from substrate_onboarding.config import OnboardingStep, UserSetupState
 class OnboardingStateMachine:
     """Manages consecutive onboarding state transitions with history and rollback support.
     
-    Option A Step Order:
-      0. Welcome (Hero Splash)
-      1. Pre-Flight Doctor (GKE Context & Prereqs)
-      2. Platform Setup (WorkerPools & Isolation)
-      3. Agent Deployment (ActorTemplates & Credentials)
-      4. Launchpad (Summary, atectl top, precache & ready state)
-      5. Complete
+    6-Step Day-0 Sequencing:
+      1. Cluster Detection (Scanning active kubeconfig for GKE clusters)
+      2. Control Plane Installation (CRDs, Valkey, API Gateway, eBPF proxy)
+      3. Node Pool & Isolation (Custom Compute Class, n2-standard-48, nested-virt)
+      4. Autoscaling (OneHPA 10-100 replicas & fixed-replica-buffer 3 standby)
+      5. Deploy WorkerPool (default-worker-pool, microVM isolation, 10 ready)
+      6. Launchpad & Verification (Live atectl get workerpools inspection & first actor run)
+      7. Complete
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
-        OnboardingStep.WELCOME,
-        OnboardingStep.DOCTOR,
-        OnboardingStep.QUESTIONNAIRE,
-        OnboardingStep.AUTH,
-        OnboardingStep.SUMMARY,
+        OnboardingStep.CLUSTER,
+        OnboardingStep.CONTROL_PLANE,
+        OnboardingStep.NODE_POOL,
+        OnboardingStep.AUTOSCALING,
+        OnboardingStep.DEPLOY_WORKERPOOL,
+        OnboardingStep.LAUNCHPAD,
         OnboardingStep.COMPLETE,
     ]
 
@@ -71,7 +73,6 @@ class OnboardingStateMachine:
     def previous_step(self) -> Optional[OnboardingStep]:
         """Rollback to the previous onboarding step if history exists."""
         if not self.history:
-            # Fallback to previous in linear order
             try:
                 curr_idx = self.STEPS_ORDER.index(self.current_step)
                 if curr_idx > 0:
@@ -98,5 +99,5 @@ class OnboardingStateMachine:
             return 1
 
     def total_steps(self) -> int:
-        """Total number of visible interactive onboarding steps (4 core steps)."""
+        """Total number of visible interactive onboarding steps (6 steps)."""
         return len(self.STEPS_ORDER) - 1

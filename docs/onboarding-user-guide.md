@@ -1,16 +1,16 @@
-# ⚡ Agent Substrate: Onboarding Guide & UX Specifications
+# ⚡ Agent Substrate: Day-0 Onboarding Guide & Wizard UX Specifications
 
-> **Audience**: Platform Engineers, AI Application Developers, and SRE / Operations Teams  
-> **Supported Environments**: Google Kubernetes Engine (GKE) & Local Workstations  
+> **Target Platform**: Google Kubernetes Engine (GKE)  
+> **Audience**: Platform Engineers, AI Infrastructure Leads, and Autonomous Agent Developers  
 > **Available Interfaces**: Interactive Web Simulator (`./open_simulator.sh`), Terminal Application (`python3 onboard.py`), and CLI (`atectl`)
 
 ---
 
 ## 🧭 Section 1: Critical User Journeys (CUJs)
 
-Agent Substrate provides a **"pierceable abstraction"**—a system that gives AI developers a simple, cloud-native experience while giving infrastructure teams deep control over security, cost, and machine performance.
+Agent Substrate provides a **"pierceable abstraction"**—a system that gives AI developers a fast, no-YAML experience while giving infrastructure teams deep control over hardware virtualization, Spot economics, and sub-100ms cold-start latency.
 
-Below are the primary user journeys supported by the onboarding experience, explained in plain language.
+Below are the primary user journeys supported by the onboarding experience, explained in plain language:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -29,9 +29,9 @@ Below are the primary user journeys supported by the onboarding experience, expl
 
 - **The Challenge**: Traditional cloud setups take minutes to start a new computer for an AI agent. Keeping hundreds of computers running 24/7 is too expensive, but turning them off creates slow "cold starts" for users.
 - **How Onboarding Helps**:
-  1. Guides the engineer through selecting a **Worker Pool** size (e.g., 50 standby pods).
-  2. Enables **Hardware-Isolated Sandboxes** (MicroVMs) so untrusted agent code cannot access the host machine.
-  3. Turns on **Fast Image Caching** on local SSDs so multi-gigabyte AI models load instantly.
+  1. Detects compatible GKE clusters and bootstraps the Substrate control plane in `substrate-system`.
+  2. Provisions a **Custom Compute Class (CCC)** node pool with hardware nested virtualization (`--nested-virt`) for MicroVM isolation.
+  3. Configures **OneHPA autoscaling** (10–100 replicas) and a **CapacityBuffer** (3 standby replicas) so standby workers are ready instantly.
 - **Outcome**: A secure, cost-efficient compute fleet running on GKE that automatically sleeps idle agents to 0% CPU and wakes them in under 200 milliseconds.
 
 ---
@@ -43,7 +43,7 @@ Below are the primary user journeys supported by the onboarding experience, expl
 - **The Challenge**: AI developers want to build logic with LLMs (like Gemini, Claude, or OpenAI), not spend hours debugging 200-line Kubernetes YAML files, networking rules, and ingress routes.
 - **How Onboarding Helps**:
   1. Lets the developer register their container image directly (`atectl create template`).
-  2. Connects model API keys or enterprise single-sign-on (**Google Identity-Aware Proxy**) with masked password fields.
+  2. Connects model API keys or enterprise single-sign-on (**Google Identity-Aware Proxy**).
   3. Provides built-in **Request Parking** so incoming user messages wait safely in queue while sleeping agents wake up.
 - **Outcome**: The agent is live in seconds. When waiting for a human reply, it automatically frees up machine memory; when the human speaks, it resumes right where it left off.
 
@@ -55,195 +55,152 @@ Below are the primary user journeys supported by the onboarding experience, expl
 
 - **The Challenge**: Setting up local dependencies (Docker, Colima, Python runtimes, CLIs) often fails with cryptic error messages.
 - **How Onboarding Helps**:
-  1. Runs an automated **Pre-Flight Doctor** that tests all prerequisites in seconds.
-  2. When a tool is missing or stopped (e.g., Docker is not running), it displays an **Action Required card** with a 1-click **`[⚡ Fix Inline]`** button and a direct documentation link.
-  3. Allows typing **`/skip`** or clicking **`[Skip for Local Testing]`** to bypass production credentials during local testing.
+  1. Runs an automated environment scan testing all prerequisites in seconds.
+  2. When a node pool requires attention (e.g., nested virtualization is not enabled), it displays an **Action Required card** with a 1-click **`[⚡ Fix Inline]`** button and a direct documentation link.
+  3. Allows typing **`/skip`** or pressing **`b`** to navigate between wizard steps easily.
 - **Outcome**: A fully verified local development environment ready for testing within 60 seconds.
 
 ---
 
-### 📊 CUJ 4: SRE & Operations Lead — Health Monitoring & Day-2 Management
+## 🎨 Section 2: Wizard Architecture & 2-Column Layout
 
-**User Goal**: Inspect cluster health, monitor worker computer utilization, and prevent system bottlenecks.
+The updated onboarding interface features a **Left Navigation Sidebar** paired with the **Main Content Area**, designed according to **Google Material 3 principles**:
 
-- **How Onboarding Helps**:
-  1. Delivers a clean **3-Phase Operations Runbook** at the end of setup with exact CLI commands for everyday maintenance.
-  2. Provides commands to inspect active workers (`atectl top workers`) and pre-warm images on node disks (`atectl precache image`).
-- **Outcome**: Full visibility into cluster performance and predictable operating costs.
+```
+╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Google Cloud │ Agent Substrate on GKE                                 [ Cluster: demo-cluster ] [ ? Help ] │
+├──────────────────────────────┬──────────────────────────────────────────────────────────────────────────┤
+│ 🧭 ONBOARDING WIZARD         │ [3/6] NODE POOL & HARDWARE NESTED VIRTUALIZATION                         │
+│                              │ A Substrate WorkerPool requires a compatible GKE Node Pool with hardware  │
+│ ✓ 1. Cluster Detection       │ nested virtualization (--nested-virt) enabled for microVM sandboxing.     │
+│ ✓ 2. Control Plane           │                                                                          │
+│ ▶ 3. Node Pool & CCC         │ Scanning cluster [demo-cluster] node pools...                            │
+│ ○ 4. Autoscaling (HPA)       │ ▲ No node pool detected with hardware nested virtualization enabled.     │
+│ ○ 5. Deploy WorkerPool       │                                                                          │
+│ ○ 6. Launchpad & Verify      │ ┌─ 💡 Action Required ──────────────────────────────────────────────────┐│
+│                              │ │ Automatically create compatible Node Pool using Custom Compute Class   ││
+│ ──────────────────────────── │ │ 📋 atectl create ccc agent-spot-ccc --machine-type=n2-standard-48     ││
+│ 📊 CLUSTER CONTEXT           │ └────────────────────────────────────────────────────────────────────────┘│
+│ Cluster : demo-cluster       │                                                                          │
+│ Region  : us-central1-a      │ ▶ Automatically create a compatible Node Pool using CCC (Recommended)   │
+│ GKE K8s : v1.31.1-gke        │ ○ Create a compatible Node Pool manually via gcloud                      │
+│ Namespace: substrate-sys     │                                                                          │
+│ Status  : Connected          │                               [ ← Back (b) ]  [ Apply CCC & Proceed → ]  │
+├──────────────────────────────┴──────────────────────────────────────────────────────────────────────────┤
+│ [!] Select Node Pool configuration. CCC auto-provisions nested-virt N2 Spot instances.   [Enter] Confirm │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
 
 ---
 
-## 🎨 Section 2: UX Specifications & Screen Walkthrough
+### 🌐 Step 1: Cluster Detection & Environment Scan
 
-The onboarding interface follows **Google Material 3 design principles**, using clear visual hierarchy, accessible color contrast, and keyboard navigation.
+Step 1 automatically inspects your active `kubeconfig`, discovers active GKE clusters, verifies GKE version compatibility, and checks for existing Substrate instances.
 
-```
-╭────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ ⚡ Google Cloud │ Agent Substrate    [ 🩺 1. Pre-Flight ] › 🛠️ 2. Platform Setup › 🤖 3. Agent Deployment  │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-```
+![Step 1: Cluster Detection](../demos/onboarding-tui/screenshots/step1_cluster_detection.png)
 
----
-
-### 🚀 Step 0: Welcome Splash & Identity
-
-The entry screen welcomes the user with Google branding, an animated logo, and a clear matrix of core capabilities.
-
-![Step 0: Welcome Splash](../demos/onboarding-tui/screenshots/step0_welcome.png)
-
-#### Core Capabilities Matrix
-
-```
-╭── ⚡ CORE SUBSTRATE CAPABILITIES ────────────────────────────────────────────────╮
-│                                                                                  │
-│  🛠️  Platform Fleet  : Warm worker pools on GKE with MicroVM & Spot buffers      │
-│                                                                                  │
-│  🤖  Agent Workloads : No-YAML container templates, turn hooks & request parking │
-│                                                                                  │
-│  ⚡  Instant Resume  : Suspend idle actors to 0% CPU; restore state in <200ms    │
-│                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────╯
-```
-
-- **High-Contrast Title**: Highlighted in **`bold #ffffff on #0842a0`** with a bright Google Blue border (**`#8ab4f8`**).
-- **Generous Spacing**: Vertical spacing between capability rows provides clear breathing room.
-- **Instant Start**: Press **`[Enter]`** at any time to skip typewriter animations and start pre-flight checks.
+#### Features:
+- **Active Cluster Selection**: Choose between production, staging, and regional analytics clusters.
+- **Diagnostic Verification**: Confirms GKE version (e.g. `v1.31.1-gke`) and checks for pre-existing Substrate deployments in `substrate-system`.
+- **Keyboard Navigation**: Use `[↑ / ↓]` arrow keys or number shortcuts (`1`, `2`, `3`) to switch targets.
 
 ---
 
-### 🩺 Step 1: Pre-Flight Diagnostics & Actionable Remedies
+### 🚀 Step 2: Control Plane Installation
 
-Step 1 automatically checks your workstation and connected Google Cloud environment to ensure everything is ready before you configure your cluster.
+Step 2 installs the core Agent Substrate control plane components into your GKE cluster.
 
-![Step 1: Pre-Flight Diagnostics](../demos/onboarding-tui/screenshots/step1_preflight_doctor.png)
+![Step 2: Control Plane Installation](../demos/onboarding-tui/screenshots/step2_control_plane.png)
 
-#### Diagnostic Health Probes (Plain Language)
-
-| Health Check | Plain-Language Meaning | Why It Matters | Documentation |
-| :--- | :--- | :--- | :--- |
-| **Version Control (Git)** | Git identity & workspace tracking | Attaches your name and commit history to agent templates. | [Git Guide](https://git-scm.com/doc) |
-| **Python Environment** | Python runtime (version 3.10+) | Runs developer scripts and local agent testing tools. | [Python Docs](https://docs.python.org/3/) |
-| **Agent Sandbox Engine** | Docker / Podman / Colima | Runs agent code inside lightweight, secure sandboxes so it cannot harm your computer. | [Sandbox Guide](https://ate.dev/docs/sandboxes) |
-| **Connected Cloud Cluster** | GKE / Kubectl Cluster Context | Links your terminal to your Google Cloud cluster where worker computers live. | [GKE Cluster Access](https://cloud.google.com/kubernetes-engine/docs) |
-| **Substrate Helper Tools** | `atectl` Command-Line Tool | Manages worker pools and agent rollouts with simple commands (No Kubernetes YAML). | [atectl CLI Docs](https://ate.dev/docs/cli) |
-| **Cloud Connection & Memory** | Google Cloud Storage (GCS) | When agents are idle, memory is saved to cloud storage so they resume in milliseconds. | [Architecture Guide](https://ate.dev/docs/architecture) |
-
-#### 💡 The Actionable Remedy Component
-
-When a prerequisite requires attention (e.g., Docker Engine is stopped), the interface displays a structured **Action Required** card:
-
-```
-  ┌─ 💡 Action Required ───────────────────────────────────────────────────────────
-  │  ℹ️  Agent Substrate runs agents inside lightweight, secure sandboxes so code cannot harm your computer.
-  │  📋 Command: open -a Docker || colima start
-  │  📖 Docs:    https://ate.dev/docs/sandboxes
-  └─────────────────────────────────────────────────────────────────────────────────
-```
-
-- **📋 One-Click Copy**: Click **`[📋 Copy]`** in the Web Simulator or press **`c`** in the terminal to copy the fix command to your clipboard.
-- **⚡ Run Inline**: Click **`[⚡ Fix Inline]`** to run the resolution in the background. The check updates live to **`✓ [OK]`**.
-- **📖 Official Documentation**: Click **`[📖 Docs ↗]`** to open the relevant setup guide in your browser.
-- **Non-Blocking**: Diagnostics never freeze the wizard—press **`[Enter]`** to continue whenever you are ready.
+#### Installed Components:
+1. **Substrate CustomResourceDefinitions (CRDs)**: `WorkerPool`, `ActorTemplate`, `Actor` (`ate.dev/v1alpha1`).
+2. **Valkey Metadata & State Registry**: High-speed actor session state tracking.
+3. **Substrate Gateway & API Server**: Listening on `:8080` for actor turn hooks and request parking.
+4. **eBPF Network Controller**: Ingress/egress routing proxy and network security policy manager.
 
 ---
 
-### 🛠️ Step 2: Platform Setup & Worker Pool Topology
+### 🛡️ Step 3: Node Pool & CCC Hardware Isolation
 
-Step 2 is tailored for **Platform Engineers** configuring compute pools and isolation settings on GKE.
+Step 3 checks the cluster node pools for hardware nested virtualization (`--nested-virt`), which is required for high-density **MicroVM sandbox isolation**.
 
-![Step 2: Platform Setup](../demos/onboarding-tui/screenshots/step2_platform_setup.png)
+![Step 3: Node Pool & CCC](../demos/onboarding-tui/screenshots/step3_nodepool_ccc.png)
 
-#### 3-Substep Configuration
-
-1. **Workload Architecture & Role**:
-   - 🛠️ **Platform Engineer — Fleet WorkerPools** *(Recommended)*: Pre-warmed worker pools on GKE with Spot capacity buffers.
-   - 🤖 **AI Developer — Serverless ActorTemplates**: Deploy agent templates directly without managing compute pools.
-   - 🧪 **Local Standalone Evaluation**: Lightweight single-node local sandbox.
-2. **Traffic Router & State Storage**:
-   - ⚡ **Envoy Router + Valkey/Redis Cache** *(Recommended)*: Sub-millisecond suspend/resume request routing with Request Parking.
-   - 🪣 **Google Cloud Storage (GCS) Snapshots**: Deep memory persistence for agents sleeping longer than 10 minutes.
-3. **Isolation & Speed Optimization**:
-   - ⚡ **Local SSD Image Pre-caching** *(Recommended)*: Pre-downloads agent container images onto node disks to eliminate startup delays.
-   - 🛡️ **Hardware MicroVMs (`--isolation=microvm`)**: Hardware-virtualized security boundaries for untrusted code.
-   - 🔒 **gVisor Sandboxes (`--isolation=gvisor`)**: Lightweight user-space kernel sandboxing.
+#### 💡 The Actionable Remedy Component:
+When a node pool lacks nested virtualization, an **Action Required** remedy card is displayed:
+- **📋 Copy Command**: `atectl create ccc agent-spot-ccc --machine-type=n2-standard-48 --nested-virt`
+- **⚡ Fix Inline**: 1-click execution that provisions the Custom Compute Class and updates status to `✓ [OK]`.
+- **📖 Docs**: Direct link to the official MicroVM and sandbox documentation.
 
 ---
 
-### 🤖 Step 3: Agent Deployment & Enterprise Login
+### ⚙️ Step 4: WorkerPool Autoscaling & Capacity Buffers
 
-Step 3 is tailored for **AI Developers** registering agent container images and enterprise authentication.
+Step 4 configures horizontal autoscaling and pre-warmed standby capacity buffers so agents wake up in under 100ms.
 
-![Step 3: Agent Deployment](../demos/onboarding-tui/screenshots/step3_agent_deployment.png)
+![Step 4: Autoscaling & CapacityBuffer](../demos/onboarding-tui/screenshots/step4_autoscaling.png)
 
-#### Credentials & Login Options
-
-```
-╭── 🌐 ENTERPRISE AUTHENTICATION (GOOGLE CLOUD IAP) ───────────────────────────────╮
-│                                                                                  │
-│  Agent Substrate integrates with Google Identity-Aware Proxy (Port 8443)         │
-│  for zero-trust workforce single-sign-on and role-based actor access.            │
-│                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────╯
-```
-
-- **Model API Keys**: Securely enter keys for Gemini, Anthropic, or OpenAI with automatic password masking (`sb-l********5d3`) and an `[👁 Show] / [🔒 Hide]` toggle.
-- **Enterprise Google IAP Single-Sign-On**: Click **`[🌐 Authenticate via Google IAP]`** for zero-trust enterprise single-sign-on with Google Identity-Aware Proxy.
-- **Local Dev Bypass**: Click **`[Skip for Local Testing]`** or type **`/skip`** to test offline without cloud credentials.
+#### Policy Specifications:
+- **HorizontalPodAutoscaler (OneHPA)**: Min 10 replicas, Max 100 replicas based on agent queue depth and CPU utilization.
+- **CapacityBuffer (`fixed-replica-buffer`)**: Maintains 3 standby warm replicas via `buffer.gke.io/standby-capacity`.
+- **Instant Injection**: Guarantees sub-100ms cold boot and sub-40ms warm resume speeds.
 
 ---
 
-### 🛸 Step 4: Cluster Launchpad & Operations Runbook
+### 🛸 Step 5: Deploy Default WorkerPool (Execution Layer)
 
-Step 4 compiles all selected options into cluster resources, tests cold-start and resume latency, and delivers your everyday **Operations Runbook**.
+Step 5 applies the execution layer WorkerPool CRD and runs the data plane suspend-and-resume benchmark.
 
-![Step 4: Cluster Launchpad](../demos/onboarding-tui/screenshots/step4_cluster_launchpad.png)
+![Step 5: Deploy WorkerPool](../demos/onboarding-tui/screenshots/step5_deploy_workerpool.png)
 
-#### The 3-Phase Operational Lifecycle
+#### Data Plane Benchmark:
+- **Cold Boot Time**: ~890ms (from clean image to first token)
+- **Suspend Time**: 38ms (checkpointing memory state to NVMe SSD)
+- **Warm Resume Time**: 115ms (instant reactivation upon incoming user message)
 
-```mermaid
-flowchart LR
-    subgraph P1["Phase 1: Platform Setup"]
-        A["ate.dev/install.sh"] --> B["atectl create workerpools"]
-    end
-    subgraph P2["Phase 2: Agent Deployment"]
-        C["atectl create template"] --> D["Request Parking & Routing"]
-    end
-    subgraph P3["Phase 3: Operations & Monitoring"]
-        E["atectl top workers"] --> F["atectl precache image"]
-    end
-    P1 --> P2 --> P3
-```
+---
 
+### 📊 Step 6: Launchpad & Live Cluster Verification
+
+Step 6 executes live cluster inspection commands and provides your everyday **Operations Runbook**.
+
+![Step 6: Launchpad & Verification](../demos/onboarding-tui/screenshots/step6_launchpad_verify.png)
+
+#### Live Verification Table:
 ```bash
-# Phase 1: Platform Setup (Platform Engineers)
-curl -sSL ate.dev/install.sh | bash
-atectl create workerpools default-pool --isolation=microvm --min-ready=5
+$ atectl get workerpools
+WORKERPOOL           NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE
+default-worker-pool  substrate-system  microvm    10/10  10       4%   8%   0
+```
 
-# Phase 2: Agent Deployment (AI Developers - No YAML Needed)
-atectl create template code-reviewer \
-  --image=gcr.io/my-org/code-agent:v1.0 \
-  --worker-pool=workload=agent
+#### Quickstart Runbook:
+```bash
+# 1. Deploy your first agent session (No Kubernetes YAML):
+atectl actor create my-first-actor --template=default-agent --atespace=default-atespace
 
-# Phase 3: Monitoring & Fleet Optimization (SRE / Ops)
+# 2. Inspect standby workers and memory overcommit:
 atectl top workers
-atectl precache image gcr.io/rl-lab/env:v3.0 --workerpool=default-pool
+
+# 3. Pre-cache large AI container images to node SSDs:
+atectl precache image gcr.io/rl-lab/env:v3.0 --workerpool=default-worker-pool
 ```
 
 ---
 
-### ⚡ Global Slash Commands & Keyboard Shortcuts
+### ⚡ Global Shortcuts & Slash Commands
 
 Pressing **`F1`** or typing **`/help`** brings up the interactive command overlay:
 
-![Global Help Modal](../demos/onboarding-tui/screenshots/step5_help_modal.png)
+![Global Help Modal](../demos/onboarding-tui/screenshots/step7_help_modal.png)
 
-| Command | Aliases | What It Does (Plain Language) |
+| Shortcut | Command | Action |
 | :--- | :--- | :--- |
-| **`/help`** | `/?`, `/h`, `F1` | Opens the full help overlay and keyboard shortcut legend. |
-| **`/doctor`** | `/check`, `/diag` | Jumps straight to the Pre-Flight Diagnostics screen. |
-| **`/skip`** | `/s`, `/next` | Skips the current question using recommended defaults. |
-| **`/back`** | `/prev`, `/b` | Returns to the previous screen while saving your choices. |
-| **`/exit`** | `/quit`, `/q` | Opens the safe exit prompt to preserve session state. |
+| **`Enter`** | `/next` | Confirm selection and proceed to the next step |
+| **`↑ / ↓`** (or `k / j`) | — | Navigate options and cluster choices |
+| **`b`** | `/back` | Return to the previous step while saving your choices |
+| **`/skip`** | `/s` | Skip the current step using recommended defaults |
+| **`/doctor`** | `/diag` | Jump straight to the pre-flight diagnostic scan |
+| **`F1`** | `/help` | Toggle the global command overlay |
 
 ---
 
@@ -251,7 +208,7 @@ Pressing **`F1`** or typing **`/help`** brings up the interactive command overla
 
 | Asset | Location / Command | Description |
 | :--- | :--- | :--- |
-| **🌐 Interactive Web Simulator** | `./open_simulator.sh` *(or `open demos/onboarding-tui/index.html`)* | Hands-on clickable browser prototype with Autopilot mode, tab navigation, and live remedy buttons. |
-| **🎬 HD Video Demo (1080p MP4)** | `open demos/onboarding-tui/onboarding_demo.mp4` | High-definition screen recording walking through all CUJs and features. |
-| **💻 Native Terminal Application** | `cd /Users/rajithal/substrate && python3 onboard.py` | Full-fidelity interactive terminal onboarding application. |
+| **🌐 Interactive Web Simulator** | `./open_simulator.sh` *(or `open demos/onboarding-tui/index.html`)* | Hands-on clickable browser prototype with Left Sidebar Navigation, Autopilot mode, and live remedy buttons. |
+| **🎬 HD Video Demo (1080p MP4)** | `open demos/onboarding-tui/onboarding_demo.mp4` | High-definition screen recording walking through the 6-step Day-0 wizard. |
+| **💻 Native Terminal Application** | `cd /Users/rajithal/substrate && python3 onboard.py` | Full-fidelity Textual terminal onboarding application with persistent left navigation. |
 | **🖼️ High-Res Step Screenshots** | `demos/onboarding-tui/screenshots/` | High-resolution PNG step snapshots for presentations, documentation, and slides. |

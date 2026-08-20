@@ -1,165 +1,102 @@
-"""State 5: Summary and Launch Transition Screen with Google Material 3 Design."""
+"""Step 6: Launchpad & Live Cluster Verification Screen."""
 
 from __future__ import annotations
 
-import asyncio
-from typing import Optional
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Label, Button, ProgressBar, Static
-from rich.cells import cell_len
+from textual.widgets import Label, Static, Button
 from rich.text import Text
 from substrate_onboarding.config import OnboardingStep
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
+from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class SummaryScreen(Screen[None]):
-    """State 5: Summary card, workspace compilation progress, and launch celebration."""
+    """Step 6: Launchpad & Live Verification Screen."""
 
     BINDINGS = [
-        ("enter", "launch_workspace", "Launch Workspace"),
-        ("q", "finish_and_exit", "Exit"),
+        ("enter", "finish_onboarding", "Finish & Launch"),
+        ("q", "finish_onboarding", "Finish & Launch"),
         ("b", "previous_step", "Back"),
     ]
 
-    PROGRESS_STAGES = [
-        (0.20, "Generating substrate.yaml & WorkerPool CRD manifests..."),
-        (0.45, "Allocating GKE worker pool (50 pre-warmed idle standby pods)..."),
-        (0.70, "Testing data plane: Cold Boot (912ms) → Suspend (42ms) → Warm Resume (120ms)..."),
-        (0.90, "Configuring /idle turn-completion hooks & GCS snapshot storage..."),
-        (1.00, "Workspace configured successfully! Worker pool ready for high-density dispatch."),
-    ]
-
-    def __init__(self, name: str = "summary"):
+    def __init__(self, name: str = "launchpad"):
         super().__init__(name=name)
-        self._is_compiled = False
-        self._compile_task: Optional[asyncio.Task] = None
 
     def compose(self) -> ComposeResult:
-        yield TopHeader(initial_step=OnboardingStep.SUMMARY)
-        with Vertical(id="screen-container"):
-            with Vertical(id="summary-box"):
-                yield Label("🛸  STEP 4: CLUSTER LAUNCHPAD & 3-PHASE OPERATIONS RUNBOOK", classes="wizard-step-title")
-                yield Label(
-                    "Review your GKE Substrate profile before compiling manifests & starting worker pools:",
-                    classes="wizard-step-subtitle",
-                )
+        yield TopHeader(initial_step=OnboardingStep.LAUNCHPAD)
+        with Horizontal(id="workspace-layout"):
+            yield SidebarNav(current_step=OnboardingStep.LAUNCHPAD)
+            with Vertical(id="content-area"):
+                with Vertical(id="content-panel"):
+                    yield Label("[6/6] LAUNCHPAD & LIVE CLUSTER VERIFICATION", classes="wizard-step-title")
+                    yield Label(
+                        "✔ Agent Substrate on GKE Installation Complete! Cluster [demo-cluster] is ready for agent workloads.",
+                        classes="wizard-step-subtitle",
+                    )
 
-                # Summary Card
-                yield Static("", id="summary-card")
+                    # Live Verification Table
+                    yield Static(self._render_verification_card(), id="terminal-log-card")
 
-                # Compilation progress container
-                with Vertical(id="progress-container"):
-                    yield ProgressBar(total=100, show_eta=False, id="launch-progress-bar")
-                    yield Label("Preparing workspace compiler...", id="launch-progress-label")
+                    # Runbook Card
+                    yield Static(self._render_runbook_card(), id="remedy-card")
 
-                # Post-compilation celebration container
-                with Vertical(id="celebration-container"):
-                    yield Static("", id="celebration-banner")
+                    # Button Row
+                    with Horizontal(classes="action-button-row"):
+                        btn_back = Button("← Back (b)", id="btn-back", classes="secondary-button")
+                        btn_back.can_focus = False
+                        yield btn_back
 
-                with Horizontal(classes="auth-button-row"):
-                    btn_back = Button("← Modify Settings (b)", id="btn-summary-back", classes="secondary-button")
-                    btn_back.can_focus = False
-                    yield btn_back
+                        btn_finish = Button(
+                            "🚀 Finish & Launch CLI (Enter)",
+                            variant="primary",
+                            id="btn-finish",
+                            classes="action-button",
+                        )
+                        btn_finish.can_focus = False
+                        yield btn_finish
 
-                    btn_launch = Button("Launch Agent Substrate (Enter) 🚀", id="btn-launch-app", classes="action-button")
-                    yield btn_launch
         yield BottomBar(
-            initial_tip="Compiling substrate manifests and initializing worker pools...",
-            initial_hints="[Enter] Launch Agent Substrate  [/help] Help",
+            initial_tip="Agent Substrate installed successfully! Press [Enter] to exit to shell.",
+            initial_hints="[Enter] Finish  [b] Back  [/help] Help  [q] Quit",
         )
 
-    def on_mount(self) -> None:
-        self._render_summary_card()
-        cel = self.query_one("#celebration-container", Vertical)
-        cel.display = False
-        self._compile_task = asyncio.create_task(self._animate_compilation())
-
-    def _render_summary_card(self, width: int = 84) -> None:
-        if not hasattr(self.app, "state"):
-            return
-
-        summary_dict = self.app.state.to_summary_dict()
-        inner_w = width - 2
-        title = " ⚙ GKE SUBSTRATE PROFILE "
-        dashes_left = 2
-        dashes_right = max(2, inner_w - dashes_left - cell_len(title))
-
+    def _render_verification_card(self) -> Text:
         t = Text()
-        t.append("╭" + "─" * dashes_left, style="bold #a8c7fa")
-        t.append(title, style="bold #003062 on #a8c7fa")
-        t.append("─" * dashes_right + "╮\n", style="bold #a8c7fa")
+        t.append("╭── 📊 LIVE WORKERPOOL READINESS ($ atectl get workerpools) ───────────────────────╮\n", style="bold #8ab4f8")
+        t.append("│                                                                                  │\n", style="#8ab4f8")
+        t.append("│  ", style="#8ab4f8")
+        t.append("WORKERPOOL           NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE", style="bold #d3e3fd")
+        t.append("  │\n", style="#8ab4f8")
+        t.append("│  ", style="#8ab4f8")
+        t.append("default-worker-pool  substrate-system  microvm    10/10  10       4%   8%   0    ", style="bold #81c995")
+        t.append("  │\n", style="#8ab4f8")
+        t.append("│                                                                                  │\n", style="#8ab4f8")
+        t.append("╰──────────────────────────────────────────────────────────────────────────────────╯", style="bold #8ab4f8")
+        return t
 
-        for key, val in summary_dict.items():
-            line_text = f"  {key.ljust(22)}: {val}"
-            pad = max(0, inner_w - cell_len(line_text))
-            t.append("│  ", style="bold #a8c7fa")
-            t.append(f"{key.ljust(22)}: ", style="#9aa0a6")
-            t.append(f"{val}", style="bold #ffffff")
-            t.append(" " * pad + "│\n", style="bold #a8c7fa")
+    def _render_runbook_card(self) -> Text:
+        t = Text()
+        t.append("🚀 DAY-0 QUICKSTART RUNBOOK (NEXT STEPS):\n\n", style="bold #81c995")
+        t.append("  1. Deploy your first agent session (No-YAML):\n", style="bold #ffffff")
+        t.append("     $ atectl actor create my-first-actor --template=default-agent --atespace=default-atespace\n\n", style="bold #8ab4f8")
+        t.append("  2. Inspect live standby workers and memory overcommit:\n", style="bold #ffffff")
+        t.append("     $ atectl top workers\n\n", style="bold #8ab4f8")
+        t.append("  3. Pre-cache large AI container images to node SSDs:\n", style="bold #ffffff")
+        t.append("     $ atectl precache image gcr.io/rl-lab/env:v3.0 --workerpool=default-worker-pool", style="bold #8ab4f8")
+        return t
 
-        t.append("╰" + "─" * inner_w + "╯", style="bold #a8c7fa")
-
-        try:
-            card = self.query_one("#summary-card", Static)
-            card.update(t)
-        except Exception:
-            pass
-
-    async def _animate_compilation(self) -> None:
-        pbar = self.query_one("#launch-progress-bar", ProgressBar)
-        plabel = self.query_one("#launch-progress-label", Label)
-
-        try:
-            for pct, stage_text in self.PROGRESS_STAGES:
-                pbar.progress = int(pct * 100)
-                plabel.update(Text(f"⚙ {stage_text}", style="italic #a8c7fa"))
-                await asyncio.sleep(0.55)
-
-            self._is_compiled = True
-            prog_box = self.query_one("#progress-container", Vertical)
-            prog_box.display = False
-
-            # Display celebration
-            cel = self.query_one("#celebration-container", Vertical)
-            cel.display = True
-            banner = self.query_one("#celebration-banner", Static)
-
-            t = Text()
-            t.append("🎉 SUBSTRATE CONFIGURED — READY FOR PLATFORM & AI WORKLOADS!\n", style="bold #81c995")
-            t.append("🚀 Phase 1: Platform Setup : ", style="bold #a8c7fa")
-            t.append("curl -sSL ate.dev/install.sh | bash && atectl create workerpools ...\n", style="#ffffff")
-            t.append("🤖 Phase 2: Agent Deploy   : ", style="bold #81c995")
-            t.append("atectl create template my-agent --image gcr.io/repo/my-agent:v1 ...\n", style="#ffffff")
-            t.append("📊 Phase 3: Observability  : ", style="bold #fdd663")
-            t.append("atectl top workers | atectl precache image gcr.io/rl-lab/env:v3.0", style="#ffffff")
-
-            banner.update(t)
-
-            try:
-                bottom = self.query_one(BottomBar)
-                bottom.set_tip("Onboarding successfully finished! Press [Enter] or click Launch.")
-                bottom.set_hints("[Enter] Launch Agent Substrate  [/help] Help")
-            except Exception:
-                pass
-        except asyncio.CancelledError:
-            pass
-
-    def action_launch_workspace(self) -> None:
-        if hasattr(self.app, "advance_step"):
-            self.app.advance_step()
-
-    def action_finish_and_exit(self) -> None:
-        if hasattr(self.app, "exit"):
-            self.app.exit(self.app.state if hasattr(self.app, "state") else None)
+    def action_finish_onboarding(self) -> None:
+        if hasattr(self.app, "finish_onboarding"):
+            self.app.finish_onboarding()
 
     def action_previous_step(self) -> None:
         if hasattr(self.app, "previous_step"):
             self.app.previous_step()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "btn-launch-app":
-            self.action_launch_workspace()
-        elif event.button.id == "btn-summary-back":
+        if event.button.id == "btn-finish":
+            self.action_finish_onboarding()
+        elif event.button.id == "btn-back":
             self.action_previous_step()
