@@ -329,18 +329,21 @@ class GenericStepScreen(Screen):
     def _render_next_steps_card(self) -> Text:
         t = Text()
         t.append("🚀 NEXT STEPS — GET STARTED WITH YOUR FIRST AGENT:\n\n", style="bold #70d6ff")
+        t.append("0. Connect your local terminal to the Substrate Gateway:\n", style="bold #fdd663")
+        t.append("   kubectl port-forward svc/substrate-gateway 8080:8080 -n substrate-system\n", style="bold #8ab4f8")
+        t.append("   export SUBSTRATE_GATEWAY=localhost:8080\n\n", style="bold #8ab4f8")
         t.append("1. Deploy your first actor session:\n", style="bold #fdd663")
         t.append("   # Install developer CLI\n", style="#80868b")
         t.append("   curl -sSL https://ate.dev/atectl | sh\n\n", style="bold #8ab4f8")
         t.append("   # Deploy AI agent actor from template\n", style="#80868b")
-        t.append("   atectl actor create my-first-actor --template=default-agent --atespace=default-atespace\n\n", style="bold #8ab4f8")
+        t.append("   atectl actor create my-first-actor --template=default-agent --workerpool=default-worker-pool\n\n", style="bold #8ab4f8")
         t.append("   # Send an interactive prompt to your actor\n", style="#80868b")
         t.append("   atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"\n\n", style="bold #8ab4f8")
         t.append("2. Inspect your standby workers at any time:\n", style="bold #fdd663")
         t.append("   atectl get workerpools\n", style="bold #8ab4f8")
         t.append("   atectl logs workerpool/default-worker-pool --follow\n\n", style="bold #8ab4f8")
         t.append("3. Live Verification & Teardown Safety:\n", style="bold #fdd663")
-        t.append("   # Run 48ms live test turn: atectl test turn --atespace=default-atespace\n", style="bold #81c995")
+        t.append("   # Run 48ms live test turn: atectl test turn --workerpool=default-worker-pool\n", style="bold #81c995")
         t.append("   # Teardown anytime: kubectl delete -f manifests/substrate-control-plane.yaml\n", style="#80868b")
         return t
 

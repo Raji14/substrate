@@ -338,6 +338,20 @@
       font-family: monospace;
     }
 
+    /* Capacity Telemetry ROI Badge */
+    .capacity-telemetry-badge {
+      background: rgba(129, 201, 149, 0.08);
+      border: 1px solid rgba(129, 201, 149, 0.35);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--text-white);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     /* Teardown Footnote */
     .cleanup-footnote {
       background: rgba(22, 27, 34, 0.7);
@@ -1600,6 +1614,11 @@ spec:
             </div>
           </div>
 
+          <div class="capacity-telemetry-badge">
+            <span style="font-size: 14px;">📈</span>
+            <span><strong>Standby Efficiency:</strong> 3 standby replicas absorb up to 300 bursty agent sessions with 0% CPU idle waste.</span>
+          </div>
+
           <div class="yaml-alert-box">
             💡 <strong>Tip:</strong> You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. <code>manifests/workerpool-autoscaling.yaml</code>).
           </div>
@@ -1773,6 +1792,15 @@ spec:
 
           <!-- Next Steps with Runnable Code -->
           <div class="next-steps-container">
+            <div class="next-step-box" style="border-color: rgba(112, 214, 255, 0.4); background: #0c1018;">
+              <div class="next-step-title" style="color: var(--accent-cyan);">🔌 0. Connect your local workstation to the Substrate Gateway:</div>
+              <div class="code-block"># Port-forward the Substrate Gateway from your cluster to localhost
+kubectl port-forward svc/substrate-gateway 8080:8080 -n substrate-system
+
+# Configure local atectl CLI context
+export SUBSTRATE_GATEWAY=localhost:8080</div>
+            </div>
+
             <div class="next-step-box">
               <div class="next-step-title">🤖 1. Get started by deploying your first actor session:</div>
               <div class="code-block"># Install the developer CLI
@@ -1781,7 +1809,7 @@ curl -sSL https://ate.dev/atectl | sh
 # Deploy your first AI agent actor container from standard template
 atectl actor create my-first-actor \
   --template=default-agent \
-  --atespace=default-atespace
+  --workerpool=default-worker-pool
 
 # Send an interactive prompt to your running actor
 atectl actor execute my-first-actor \

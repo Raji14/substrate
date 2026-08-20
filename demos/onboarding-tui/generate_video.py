@@ -439,19 +439,18 @@ def render_step_frame(step_idx):
         draw.text((cx + 14, ey + 46), "{\"status\": \"ready\", \"worker\": \"default-worker-pool-8f4b\", \"cold_start\": \"0ms\"}", fill=GOOGLE_BLUE, font=font_xs)
         ey += 80
 
-        # Next Step 1: Deploy actor
+        # Next Step 1: Deploy actor & Port-forward
         draw.rounded_rectangle([cx, ey, cx + cw, ey + 92], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, ey + 8), "🤖 1. Deploy your first actor session (atectl actor create):", fill=ACCENT_YELLOW, font=font_xs)
-        draw.text((cx + 14, ey + 28), "curl -sSL https://ate.dev/atectl | sh", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 46), "atectl actor create my-first-actor --template=default-agent --atespace=default-atespace", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 64), "atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 8), "🔌 0. Connect local terminal: kubectl port-forward svc/substrate-gateway 8080:8080 -n substrate-system", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 28), "🤖 1. Deploy first actor: atectl actor create my-first-actor --workerpool=default-worker-pool", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((cx + 14, ey + 48), "      Execute turn     : atectl actor execute my-first-actor --prompt=\"Analyze logs\"", fill=TEXT_WHITE, font=font_xs)
+        draw.text((cx + 14, ey + 68), "📊 2. Stream telemetry : atectl logs workerpool/default-worker-pool --follow", fill=GOOGLE_BLUE, font=font_xs)
         ey += 100
 
-        # Next Step 2 & Teardown footnote
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 52], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, ey + 8), "📊 2. Inspect standby workers & teardown anytime:", fill=ACCENT_YELLOW, font=font_xs)
-        draw.text((cx + 14, ey + 28), "atectl get workerpools  │  Teardown: kubectl delete -f manifests/turn-on-substrate.yaml", fill=GOOGLE_BLUE, font=font_xs)
-        by = ey + 62
+        # Teardown footnote
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 32], radius=6, fill=BG_CMD, outline=BORDER_DARK, width=1)
+        draw.text((cx + 14, ey + 9), "💡 Clean up anytime: kubectl delete -f manifests/substrate-control-plane.yaml or atectl uninstall", fill=TEXT_MUTED, font=font_xs)
+        by = ey + 42
 
     else:
         # Step 1 (Clean Preflight Checklist) or Step 3 (GitOps Manifest + Checklist)
