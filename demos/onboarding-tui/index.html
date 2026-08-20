@@ -693,14 +693,8 @@
   <div class="toolbar">
     <div class="toolbar-title">
       <span>Agent Substrate</span>
-      <span class="badge">Interactive Onboarding Experience</span>
-      <span class="badge-ga">Private GA</span>
     </div>
     <div class="controls-group">
-      <button class="btn-tool" onclick="showWelcomeScreen()">🏠 Welcome <kbd>0</kbd></button>
-      <button class="btn-tool" id="btn-autopilot" onclick="toggleAutopilot()">
-        <span id="autopilot-icon">▶</span> <span id="autopilot-text">Autopilot Tour</span>
-      </button>
       <button class="btn-tool" onclick="resetWizard()">↺ Reset</button>
     </div>
   </div>
@@ -866,7 +860,7 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="showWelcomeScreen()">🏠 Welcome <kbd>0</kbd></button>
+            <button class="btn-secondary" onclick="showWelcomeScreen()">← Back <kbd>b</kbd></button>
             <button class="btn-primary" onclick="goToStep(1)">Connect your cluster <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
