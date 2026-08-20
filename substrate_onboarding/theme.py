@@ -196,20 +196,33 @@ Screen {
     height: auto;
 }
 
+Label {
+    width: 100%;
+    height: auto;
+}
+
+Static {
+    width: 100%;
+    height: auto;
+}
+
 .step-indicator-label {
     color: #80868b;
     margin-bottom: 0;
+    width: 100%;
 }
 
 .wizard-step-title {
     color: #ffffff;
     text-style: bold;
     margin-bottom: 1;
+    width: 100%;
 }
 
 .wizard-step-description {
     color: #e3e3e3;
     margin-bottom: 1;
+    width: 100%;
 }
 
 /* Real Command Callout */
