@@ -1,6 +1,8 @@
 """Configuration schemas, options, and state models for Agent Substrate Onboarding.
 
-Derived from the 8-Step Interactive Onboarding Journey:
+Includes:
+- Step 0: Welcome Screen (Hero ASCII Logo, Gradient Animation, Feature Highlights, Setup Tracks)
+- Steps 1-8: Interactive Getting Set Up Journey:
   1. Check your setup
   2. Create a cluster
   3. Turn on Substrate
@@ -18,6 +20,7 @@ from typing import Dict, List, Optional
 
 
 class OnboardingStep(str, Enum):
+    WELCOME = "welcome"                  # Step 0: Welcome & Setup Track Selection
     CHECK_SETUP = "check_setup"          # Step 1: Check your setup
     CREATE_CLUSTER = "create_cluster"    # Step 2: Create a cluster
     TURN_ON_SUBSTRATE = "turn_on_sub"    # Step 3: Turn on Substrate
@@ -35,11 +38,95 @@ class OnboardingStep(str, Enum):
     AUTOSCALING = "install_cli"
     DEPLOY_WORKERPOOL = "first_actor"
     LAUNCHPAD = "scale_up"
-    WELCOME = "check_setup"
     DOCTOR = "check_setup"
     QUESTIONNAIRE = "create_cluster"
     AUTH = "turn_on_sub"
     SUMMARY = "scale_up"
+
+
+@dataclass
+class OptionItem:
+    id: str
+    title: str
+    description: str
+    icon: str = "⚡"
+    tip: str = ""
+
+
+# Setup Tracks for Welcome Screen
+SETUP_TRACKS: List[OptionItem] = [
+    OptionItem(
+        id="track_local_sandbox",
+        title="Local Sandbox (Kind / Docker Desktop) (Recommended)",
+        description="Zero cloud costs. Spins up a local Kubernetes cluster on your machine in 30 seconds.",
+        icon="🧪",
+        tip="Perfect for quick prototyping and local agent development.",
+    ),
+    OptionItem(
+        id="track_gke_cluster",
+        title="Google Kubernetes Engine (GKE Production Fleet)",
+        description="High-density MicroVM isolation, Custom Compute Class (CCC), and Spot autoscaling.",
+        icon="⚡",
+        tip="For enterprise scale and production multi-tenant agent swarms.",
+    ),
+    OptionItem(
+        id="track_custom_k8s",
+        title="Custom Existing Kubernetes Cluster",
+        description="Installs Substrate onto your current active kubeconfig context.",
+        icon="🏢",
+        tip="Uses existing nodes and namespaces.",
+    ),
+]
+
+CLUSTER_OPTIONS: List[OptionItem] = [
+    OptionItem(
+        id="demo_cluster_us_central1",
+        title="gke_demo_project_us-central1-a_demo-cluster (Recommended)",
+        description="GKE v1.31.1-gke.1520000 in us-central1-a (Target: demo-cluster)",
+        icon="🌐",
+        tip="Connects to primary cluster.",
+    ),
+    OptionItem(
+        id="staging_cluster_us_west1",
+        title="gke_demo_project_us-west1-b_staging-cluster",
+        description="GKE v1.31.0 in us-west1-b (Target: staging-cluster)",
+        icon="🧪",
+        tip="Staging cluster.",
+    ),
+]
+
+NODEPOOL_OPTIONS: List[OptionItem] = [
+    OptionItem(
+        id="ccc_auto",
+        title="Automatically create a compatible Node Pool using Custom Compute Class (Recommended)",
+        description="Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
+        icon="⚡",
+        tip="Auto provisions node pool.",
+    ),
+]
+
+AUTOSCALING_OPTIONS: List[OptionItem] = [
+    OptionItem(
+        id="auto_hpa",
+        title="Automatically configure HPA & CapacityBuffer with sensible defaults",
+        description="OneHPA min=10, max=100 and fixed-replica-buffer 3 standby",
+        icon="⚡",
+    ),
+]
+
+DEPLOY_WP_OPTIONS: List[OptionItem] = [
+    OptionItem(
+        id="deploy_yes",
+        title="Yes, deploy default WorkerPool [default-worker-pool] (Recommended)",
+        description="10 standby replicas, microVM sandbox isolation",
+        icon="🚀",
+    ),
+]
+
+TRACK_OPTIONS = SETUP_TRACKS
+DATAPLANE_OPTIONS = NODEPOOL_OPTIONS
+SANDBOX_OPTIONS = AUTOSCALING_OPTIONS
+EDITOR_OPTIONS = DEPLOY_WP_OPTIONS
 
 
 @dataclass
@@ -53,9 +140,25 @@ class StepMetadata:
     checklist_items: List[str]
     done_message: str
     next_action_label: str
+    benchmark_text: Optional[str] = None
 
 
 STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
+    OnboardingStep.WELCOME: StepMetadata(
+        step_num=0,
+        title="Welcome",
+        heading="Agent Substrate — Getting Set Up",
+        description="High-density sandboxing and sub-100ms runtime for autonomous AI agents on Kubernetes.",
+        real_command="atectl onboard",
+        checklist_title="System Readiness Check",
+        checklist_items=[
+            "Docker / Containerd Engine: Active",
+            "Kubernetes API Connection: Verified",
+            "Substrate Control Plane: Ready for install",
+        ],
+        done_message="Ready to begin setup! Press [Enter] to start.",
+        next_action_label="Get Started (Enter) →",
+    ),
     OnboardingStep.CHECK_SETUP: StepMetadata(
         step_num=1,
         title="Check your setup",
@@ -146,6 +249,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         ],
         done_message="Great response! Now let's see how Substrate saves compute when idle.",
         next_action_label="Test Pause & Resume (Enter) →",
+        benchmark_text="Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     ),
     OnboardingStep.PAUSE_RESUME: StepMetadata(
         step_num=7,
@@ -161,6 +265,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         ],
         done_message="Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
         next_action_label="Scale it up (Enter) →",
+        benchmark_text="Cold Start (890ms)  ➔  Suspend (38ms, 0% CPU)  ➔  Warm Resume (115ms)",
     ),
     OnboardingStep.SCALE_UP: StepMetadata(
         step_num=8,
@@ -181,70 +286,10 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
 
 
 @dataclass
-class OptionItem:
-    id: str
-    title: str
-    description: str
-    icon: str = "⚡"
-    tip: str = ""
-
-
-CLUSTER_OPTIONS: List[OptionItem] = [
-    OptionItem(
-        id="demo_cluster_us_central1",
-        title="gke_demo_project_us-central1-a_demo-cluster (Recommended)",
-        description="GKE v1.31.1-gke.1520000 in us-central1-a (Target: demo-cluster)",
-        icon="🌐",
-        tip="Connects to primary cluster.",
-    ),
-    OptionItem(
-        id="staging_cluster_us_west1",
-        title="gke_demo_project_us-west1-b_staging-cluster",
-        description="GKE v1.31.0 in us-west1-b (Target: staging-cluster)",
-        icon="🧪",
-        tip="Staging cluster.",
-    ),
-]
-
-NODEPOOL_OPTIONS: List[OptionItem] = [
-    OptionItem(
-        id="ccc_auto",
-        title="Automatically create a compatible Node Pool using Custom Compute Class (Recommended)",
-        description="Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
-        icon="⚡",
-        tip="Auto provisions node pool.",
-    ),
-]
-
-AUTOSCALING_OPTIONS: List[OptionItem] = [
-    OptionItem(
-        id="auto_hpa",
-        title="Automatically configure HPA & CapacityBuffer with sensible defaults",
-        description="OneHPA min=10, max=100 and fixed-replica-buffer 3 standby",
-        icon="⚡",
-    ),
-]
-
-DEPLOY_WP_OPTIONS: List[OptionItem] = [
-    OptionItem(
-        id="deploy_yes",
-        title="Yes, deploy default WorkerPool [default-worker-pool] (Recommended)",
-        description="10 standby replicas, microVM sandbox isolation",
-        icon="🚀",
-    ),
-]
-
-TRACK_OPTIONS = CLUSTER_OPTIONS
-DATAPLANE_OPTIONS = NODEPOOL_OPTIONS
-SANDBOX_OPTIONS = AUTOSCALING_OPTIONS
-EDITOR_OPTIONS = DEPLOY_WP_OPTIONS
-
-
-@dataclass
 class CheckResult:
     name: str
     category: str = "System"
-    status: str = "pending"  # "pending", "running", "ok", "warning", "failed"
+    status: str = "pending"
     message: str = ""
     details: Optional[str] = None
     fix_command: Optional[str] = None
@@ -257,6 +302,7 @@ class CheckResult:
 
 @dataclass
 class UserSetupState:
-    current_step: OnboardingStep = OnboardingStep.CHECK_SETUP
+    current_step: OnboardingStep = OnboardingStep.WELCOME
+    selected_track: str = "track_local_sandbox"
     selected_cluster: str = "local-sandbox"
     is_complete: bool = False

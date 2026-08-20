@@ -1,8 +1,8 @@
-"""High-Definition (720p/1080p) Video Recording Generator for Agent Substrate 8-Step Onboarding.
+"""High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Onboarding.
 
-Renders each of the 8 steps matching the exact screenshot layout:
-- Left Sidebar: Substrate, Getting set up, progress line, X of 8 steps, 8 steps list.
-- Right Area: Step X of 8, heading, description, 'Show the real command' callout, execution checklist, and Done state.
+Renders:
+- Scene 0: Welcome Screen with ASCII Logo, Gradient, Wonder Highlights, and Track Selection
+- Scenes 1-8: 8-Step Getting Set Up Journey with Left Sidebar Navigation and Wonder Visualizations
 """
 
 import os
@@ -16,10 +16,10 @@ WIDTH = 1280
 HEIGHT = 720
 FPS = 30
 
-# Colors matching screenshot
+# Colors
 BG_CANVAS = (9, 13, 22)           # #090d16
 BG_CONTENT = (13, 17, 23)         # #0d1117
-BG_CARD = (9, 13, 22)             # #090d16
+BG_CARD = (22, 27, 34)            # #161b22
 BG_CMD = (17, 21, 28)             # #11151c
 BORDER_DARK = (33, 38, 45)        # #21262d
 BORDER_SUBTLE = (48, 54, 61)      # #30363d
@@ -27,6 +27,8 @@ BORDER_SUBTLE = (48, 54, 61)      # #30363d
 ACCENT_CYAN = (112, 214, 255)     # #70d6ff
 ACCENT_BLUE = (21, 101, 192)      # #1565c0
 ACCENT_GREEN = (129, 201, 149)    # #81c995
+ACCENT_YELLOW = (253, 214, 99)    # #fdd663
+ACCENT_RED = (242, 139, 130)      # #f28b82
 
 TEXT_WHITE = (255, 255, 255)
 TEXT_PRIMARY = (227, 227, 227)    # #e3e3e3
@@ -43,6 +45,15 @@ font_sm = ImageFont.truetype(FONT_PATH, 13)
 font_base = ImageFont.truetype(FONT_PATH, 15)
 font_md = ImageFont.truetype(FONT_PATH, 17)
 font_lg = ImageFont.truetype(FONT_PATH, 20)
+
+LOGO_LINES = [
+    "  ███████╗██╗   ██╗██████╗ ███████╗████████╗██████╗  █████╗ ████████╗███████╗",
+    "  ██╔════╝██║   ██║██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝",
+    "  ███████╗██║   ██║██████╔╝███████╗   ██║   ██████╔╝███████║   ██║   █████╗  ",
+    "  ╚════██║██║   ██║██╔══██╗╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  ",
+    "  ███████║╚██████╔╝██████╔╝███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗",
+    "  ╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝",
+]
 
 STEPS_DATA = [
     {
@@ -141,6 +152,7 @@ STEPS_DATA = [
         "done": "Done",
         "prompt": "Great response! Now let's see how Substrate saves compute when idle.",
         "btn": "Test Pause & Resume (Enter) →",
+        "benchmark": "Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     },
     {
         "num": 7,
@@ -157,6 +169,7 @@ STEPS_DATA = [
         "done": "Done",
         "prompt": "Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
         "btn": "Scale it up (Enter) →",
+        "benchmark": "Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)",
     },
     {
         "num": 8,
@@ -177,7 +190,82 @@ STEPS_DATA = [
 ]
 
 
-def render_step_frame(step_idx=1):
+def render_welcome_screen(frame_idx=0):
+    """Renders the Substrate Welcome Screen with ASCII Logo, Wonder Cards, and Tracks."""
+    img = Image.new("RGB", (WIDTH, HEIGHT), BG_CANVAS)
+    draw = ImageDraw.Draw(img)
+
+    wx, wy, ww, wh = 80, 40, 1120, 640
+    # Outer terminal window
+    draw.rounded_rectangle([wx, wy, wx + ww, wy + wh], radius=10, fill=BG_CANVAS, outline=BORDER_DARK, width=1)
+
+    # Titlebar
+    draw.rectangle([wx, wy, wx + ww, wy + 34], fill=(9, 13, 22))
+    draw.line([wx, wy + 34, wx + ww, wy + 34], fill=BORDER_DARK, width=1)
+    draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
+    draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
+    draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
+    draw.text((wx + 360, wy + 10), "broyal@broyal: ~/workspaces/ate-demos/demos — substrate onboard", fill=TEXT_MUTED, font=font_xs)
+
+    # ASCII Logo
+    ly = wy + 48
+    colors = [ACCENT_CYAN, ACCENT_BLUE, ACCENT_GREEN, ACCENT_YELLOW, ACCENT_RED, ACCENT_CYAN]
+    for i, line in enumerate(LOGO_LINES):
+        draw.text((wx + 120, ly), line, fill=colors[i % len(colors)], font=font_xs)
+        ly += 14
+
+    # Subtitle
+    draw.text((wx + 220, ly + 6), "⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
+
+    # 4 Wonder Cards
+    wy_cards = ly + 34
+    card_w = (ww - 80) // 4
+    wonders = [
+        ("<100ms Cold Start", "MicroVM standby pre-warming"),
+        ("0% Idle CPU", "Auto memory suspend/resume"),
+        ("Hardware Isolation", "GKE CCC nested virtualization"),
+        ("Zero-YAML CLI", "Direct atectl commands"),
+    ]
+    for i, (w_title, w_desc) in enumerate(wonders):
+        cx = wx + 40 + i * (card_w + 10)
+        draw.rounded_rectangle([cx, wy_cards, cx + card_w, wy_cards + 52], radius=6, fill=BG_CARD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 10, wy_cards + 8), f"* {w_title}", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 10, wy_cards + 26), w_desc, fill=TEXT_MUTED, font=font_xs)
+
+    # Track Selection
+    ty = wy_cards + 66
+    draw.text((wx + 40, ty), "Select your getting-started path:", fill=TEXT_WHITE, font=font_sm)
+
+    tracks = [
+        ("[1] Local Sandbox (Kind / Docker Desktop) (Recommended)", "Zero cloud costs. Spins up a local Kubernetes cluster on your machine in 30 seconds.", True),
+        ("[2] Google Kubernetes Engine (GKE Production Fleet)", "High-density MicroVM isolation, Custom Compute Class (CCC), and Spot autoscaling.", False),
+        ("[3] Custom Existing Kubernetes Cluster", "Installs Substrate onto your current active kubeconfig context.", False),
+    ]
+    toy = ty + 24
+    for title, desc, is_sel in tracks:
+        bg = ACCENT_BLUE if is_sel else BG_CARD
+        out = ACCENT_CYAN if is_sel else BORDER_SUBTLE
+        draw.rounded_rectangle([wx + 40, toy, wx + ww - 40, toy + 44], radius=6, fill=bg, outline=out, width=1)
+        draw.text((wx + 52, toy + 8), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
+        draw.text((wx + 72, toy + 6), title, fill=TEXT_WHITE, font=font_sm)
+        draw.text((wx + 72, toy + 24), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
+        toy += 50
+
+    # Diagnostics Badge
+    dy = toy + 6
+    draw.rounded_rectangle([wx + 40, dy, wx + ww - 40, dy + 28], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
+    diag_str = "✓ Container Runtime: Active   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Valkey: Standby"
+    draw.text((wx + 100, dy + 8), diag_str, fill=ACCENT_GREEN, font=font_xs)
+
+    # Call to Action Button
+    by = dy + 38
+    draw.rounded_rectangle([wx + ww - 340, by, wx + ww - 40, by + 36], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
+    draw.text((wx + ww - 315, by + 10), "Begin Getting Set Up (Enter) →", fill=TEXT_WHITE, font=font_sm)
+
+    return img
+
+
+def render_step_frame(step_idx=0):
     data = STEPS_DATA[step_idx]
     img = Image.new("RGB", (WIDTH, HEIGHT), (9, 13, 22))
     draw = ImageDraw.Draw(img)
@@ -244,23 +332,36 @@ def render_step_frame(step_idx=1):
 
     # Execution Checklist Card
     ey = cby + 86
-    draw.rounded_rectangle([cx, ey, cx + cw, ey + 240], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
-    draw.text((cx + 20, ey + 18), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
+    card_h = 210 if "benchmark" in data or data["num"] == 8 else 250
+    draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
+    draw.text((cx + 20, ey + 16), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
 
-    iy = ey + 48
+    iy = ey + 42
     for item in data["chk_items"]:
         draw.text((cx + 20, iy), "✓", fill=ACCENT_GREEN, font=font_sm)
         draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_sm)
-        iy += 30
+        iy += 26
 
-    draw.text((cx + 20, iy + 10), data["done"], fill=ACCENT_GREEN if data["num"] < 8 else ACCENT_CYAN, font=font_base)
-    draw.text((cx + 20, iy + 36), data["prompt"], fill=TEXT_PRIMARY, font=font_sm)
+    draw.text((cx + 20, iy + 6), data["done"], fill=ACCENT_GREEN if data["num"] < 8 else ACCENT_CYAN, font=font_base)
+    draw.text((cx + 20, iy + 30), data["prompt"], fill=TEXT_PRIMARY, font=font_sm)
+
+    # Visualization widgets if applicable
+    vy = ey + card_h + 10
+    if "benchmark" in data:
+        draw.rounded_rectangle([cx, vy, cx + cw, vy + 40], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, vy + 12), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
+        by = vy + 50
+    elif data["num"] == 8:
+        draw.rounded_rectangle([cx, vy, cx + cw, vy + 44], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, vy + 8), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, vy + 24), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
+        by = vy + 54
+    else:
+        by = ey + card_h + 14
 
     # Action Button Row
-    by = ey + 260
-    if step_idx > 0:
-        draw.rounded_rectangle([cx + cw - 360, by, cx + cw - 280, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + cw - 345, by + 8), "← Back", fill=TEXT_PRIMARY, font=font_sm)
+    draw.rounded_rectangle([cx + cw - 360, by, cx + cw - 280, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+    draw.text((cx + cw - 345, by + 8), "← Back", fill=TEXT_PRIMARY, font=font_sm)
 
     draw.rounded_rectangle([cx + cw - 270, by, cx + cw, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
     draw.text((cx + cw - 255, by + 8), data["btn"], fill=TEXT_WHITE, font=font_sm)
@@ -272,7 +373,13 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
     print(f"🎬 Generating HD Demo Video: {output_path}...")
     writer = imageio.get_writer(output_path, fps=FPS, codec="libx264", quality=8)
 
-    # Render each of the 8 steps
+    # Render Welcome scene (3.0s) + 8 steps
+    num_welcome_frames = int(3.0 * FPS)
+    welcome_img = render_welcome_screen()
+    welcome_np = np.array(welcome_img)
+    for _ in range(num_welcome_frames):
+        writer.append_data(welcome_np)
+
     durations = [2.2, 2.8, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
     for i in range(8):
         num_frames = int(durations[i] * FPS)
@@ -289,14 +396,18 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     os.makedirs(out_dir, exist_ok=True)
     print(f"📸 Exporting high-res screenshots to {out_dir}...")
     
+    # Save Welcome Screen
+    w_img = render_welcome_screen()
+    w_img.save(os.path.join(out_dir, "step0_welcome.png"))
+    print("  ✓ Saved step0_welcome.png")
+
     for i in range(8):
-        fname = f"step{i+1}_{STEPS_DATA[i]['title'].lower().replace(' ', '_')}.png"
+        fname = f"step{i+1}_{STEPS_DATA[i]['title'].lower().replace(' ', '_').replace('&', 'and')}.png"
         img = render_step_frame(i)
         img.save(os.path.join(out_dir, fname))
         print(f"  ✓ Saved {fname}")
 
     # Backward compatibility copies
-    render_step_frame(0).save(os.path.join(out_dir, "step0_welcome.png"))
     render_step_frame(0).save(os.path.join(out_dir, "step1_preflight_doctor.png"))
     render_step_frame(1).save(os.path.join(out_dir, "step2_platform_setup.png"))
     render_step_frame(4).save(os.path.join(out_dir, "step3_agent_deployment.png"))

@@ -1,4 +1,4 @@
-# ⚡ Agent Substrate: 8-Step Getting Set Up Guide & UX Specifications
+# ⚡ Agent Substrate: Interactive Onboarding Guide & UX Specifications
 
 > **Target Platform**: Local Sandbox & Kubernetes (GKE / Kind)  
 > **Audience**: Platform Engineers, AI Infrastructure Leads, and Autonomous Agent Developers  
@@ -43,7 +43,7 @@ Below are the primary user journeys supported by the onboarding experience, expl
 - **The Challenge**: AI developers want to build logic with LLMs (like Gemini, Claude, or OpenAI), not spend hours debugging 200-line Kubernetes YAML files, networking rules, and ingress routes.
 - **How Substrate Helps**:
   1. Lets the developer register their container image directly (`atectl actor create`).
-  2. Streams execution turns in real-time.
+  2. Streams execution turns in real-time with sub-100ms response benchmarks.
   3. Provides built-in **Request Parking** so incoming user messages wait safely in queue while sleeping agents wake up.
 - **Outcome**: The agent is live in seconds. When waiting for a human reply, it automatically frees up machine memory; when the human speaks, it resumes right where it left off.
 
@@ -62,7 +62,28 @@ Below are the primary user journeys supported by the onboarding experience, expl
 
 ---
 
-## 🎨 Section 2: The 8-Step Interactive Journey
+## 🎨 Section 2: The Substrate Welcome Screen & Wonder Visualizations
+
+### 🌟 Step 0: Welcome Screen (Hero Entrypoint)
+
+The Welcome Screen delivers an inspiring first impression featuring the glowing ASCII Art logo, Google Material 4-color gradient animation, wonder highlights, setup track selection, and pre-flight readiness badges.
+
+![Step 0: Substrate Welcome Screen](../demos/onboarding-tui/screenshots/step0_welcome.png)
+
+#### Wonder Features Displayed:
+- **⚡ <100ms Cold Start**: MicroVM standby pre-warming for instant wakeups.
+- **💤 0% Idle CPU**: Auto memory suspend and resume to disk.
+- **🛡️ Hardware Isolation**: GKE Custom Compute Class (CCC) nested virtualization sandboxing.
+- **🚀 Zero-YAML CLI**: Direct `atectl` commands for application engineers.
+
+#### Setup Tracks Available:
+1. **🧪 Local Sandbox (Kind / Docker Desktop) (Recommended)**: Zero cloud costs, instant 30-second bootstrap.
+2. **⚡ Google Kubernetes Engine (GKE Production Fleet)**: High-density MicroVM isolation, CCC, and Spot autoscaling.
+3. **🏢 Custom Existing Kubernetes Cluster**: Installs onto your current active kubeconfig context.
+
+---
+
+## 🧭 Section 3: The 8-Step Interactive Journey
 
 ```
 ╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -168,7 +189,7 @@ Launches your first AI agent container from a standard template into a pre-warme
 
 ### 6️⃣ Step 6: Send a request
 
-Communicates with your running actor through the Substrate Gateway with real-time response streaming.
+Communicates with your running actor through the Substrate Gateway with real-time response streaming and latency benchmarks.
 
 ![Step 6: Send a request](../demos/onboarding-tui/screenshots/step6_send_a_request.png)
 
@@ -177,7 +198,7 @@ Communicates with your running actor through the Substrate Gateway with real-tim
   - `✓ Routing turn request through Substrate Gateway`
   - `✓ Actor turn completed in 82ms (First token: 14ms)`
   - `✓ Response: "System operating normally. 0 errors detected."`
-- **Done Message**: *"Great response! Now let's see how Substrate saves compute when idle."*
+- **Persistent Latency Benchmark**: `Turn Latency: 82ms  │  TTFT: 14ms  │  Throughput: 120 tok/s`
 
 ---
 
@@ -185,20 +206,20 @@ Communicates with your running actor through the Substrate Gateway with real-tim
 
 Demonstrates Substrate's core compute efficiency: saving 90% compute when idle and waking in milliseconds.
 
-![Step 7: Pause & resume](../demos/onboarding-tui/screenshots/step7_pause_&_resume.png)
+![Step 7: Pause & resume](../demos/onboarding-tui/screenshots/step7_pause_and_resume.png)
 
 - **Real Command**: `atectl actor suspend my-first-actor && atectl actor resume my-first-actor`
 - **Checklist**:
   - `✓ Suspending idle actor memory state to disk (38ms, CPU drops to 0%)`
   - `✓ Request parking held incoming user message in queue`
   - `✓ Restoring actor memory state on wake event in 115ms`
-- **Done Message**: *"Sub-200ms instant resume confirmed! Finally, let's scale your fleet."*
+- **Persistent Benchmark**: `Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)`
 
 ---
 
-### 8️⃣ Step 8: Scale it up
+### 8️⃣ Step 8: Scale it up & Live Inspection
 
-Scales worker pools with pre-warmed standby capacity buffers for high-density agent workloads.
+Scales worker pools with pre-warmed standby capacity buffers and live fleet verification.
 
 ![Step 8: Scale it up](../demos/onboarding-tui/screenshots/step8_scale_it_up.png)
 
@@ -207,15 +228,20 @@ Scales worker pools with pre-warmed standby capacity buffers for high-density ag
   - `✓ Worker pool [production-fleet] scaled to 20 warm pods`
   - `✓ Standby CapacityBuffer configured (3 warm spares ready)`
   - `✓ Live inspection verified: atectl get workerpools (Ready: 20/20)`
-- **Done Message**: *"You're all set! Enjoy building high-density AI agents with Agent Substrate."*
+- **Persistent Readiness Table**:
+  ```bash
+  $ atectl get workerpools
+  WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE
+  production-fleet  substrate-system  microvm    20/20  3        4%   8%   0
+  ```
 
 ---
 
-## 📺 Section 3: Demo Assets & Verification
+## 📺 Section 4: Demo Assets & Verification
 
 | Asset | Location / Command | Description |
 | :--- | :--- | :--- |
-| **🌐 Interactive Web Simulator** | `./open_simulator.sh` *(or `open demos/onboarding-tui/index.html`)* | Hands-on clickable browser prototype with 8-step Left Sidebar Navigation, Autopilot mode, and command callouts. |
-| **🎬 HD Video Demo (1080p MP4)** | `open demos/onboarding-tui/onboarding_demo.mp4` | High-definition screen recording walking through all 8 steps of the onboarding journey. |
-| **💻 Native Terminal Application** | `cd /Users/rajithal/substrate && python3 onboard.py` | Full-fidelity Textual terminal onboarding application with persistent left navigation. |
-| **🖼️ High-Res Step Screenshots** | `demos/onboarding-tui/screenshots/` | High-resolution PNG step snapshots matching the exact reference design. |
+| **🌐 Interactive Web Simulator** | `./open_simulator.sh` *(or `open demos/onboarding-tui/index.html`)* | Clickable browser prototype featuring the Welcome Screen, 8-step Left Sidebar, Autopilot mode, and latency meters. |
+| **🎬 HD Video Demo (1080p MP4)** | `open demos/onboarding-tui/onboarding_demo.mp4` | High-definition screen recording walking through the Welcome Screen + all 8 onboarding steps. |
+| **💻 Native Terminal Application** | `cd /Users/rajithal/substrate && python3 onboard.py` | Full-fidelity Textual terminal onboarding application with Welcome Screen and left navigation. |
+| **🖼️ High-Res Step Screenshots** | `demos/onboarding-tui/screenshots/` | High-resolution PNG step snapshots including `step0_welcome.png` through `step8_scale_it_up.png`. |

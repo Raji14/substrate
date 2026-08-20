@@ -1,4 +1,4 @@
-"""Advanced interaction tests for slash commands, modals, and navigation in 8-step flow."""
+"""Advanced interaction tests for slash commands, modals, and navigation in Welcome + 8-step flow."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
@@ -21,25 +21,25 @@ async def test_slash_command_execution():
         await pilot.press("escape")
         await pilot.pause(0.05)
 
-        # Test /skip command (advances from CHECK_SETUP to CREATE_CLUSTER)
+        # Test /skip command (advances from WELCOME to CHECK_SETUP)
         handled_skip = app.execute_slash_command("/skip")
         assert handled_skip is True
-        assert app.state_machine.current_step == OnboardingStep.CREATE_CLUSTER
+        assert app.state_machine.current_step == OnboardingStep.CHECK_SETUP
 
-        # Test /skip command again (advances from CREATE_CLUSTER to TURN_ON_SUBSTRATE)
+        # Test /skip command again (advances from CHECK_SETUP to CREATE_CLUSTER)
         handled_skip2 = app.execute_slash_command("/skip")
         assert handled_skip2 is True
-        assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
+        assert app.state_machine.current_step == OnboardingStep.CREATE_CLUSTER
 
         # Test /doctor jump
         handled_doc = app.execute_slash_command("/doctor")
         assert handled_doc is True
         assert app.state_machine.current_step == OnboardingStep.CHECK_SETUP
 
-        # Test /back command (returns to previous step in history: TURN_ON_SUBSTRATE)
+        # Test /back command (returns to previous step in history: CREATE_CLUSTER)
         handled_back = app.execute_slash_command("/back")
         assert handled_back is True
-        assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
+        assert app.state_machine.current_step == OnboardingStep.CREATE_CLUSTER
 
 
 @pytest.mark.asyncio

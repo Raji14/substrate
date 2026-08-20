@@ -1,4 +1,4 @@
-"""Generic interactive StepScreen for the 8-Step Substrate Onboarding Journey."""
+"""Generic interactive StepScreen with persistent wonder visualizations."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class GenericStepScreen(Screen[None]):
-    """Generic high-fidelity step screen rendering the 2-column layout."""
+    """Generic high-fidelity step screen rendering the 2-column layout with rich visualizations."""
 
     BINDINGS = [
         ("enter", "proceed_next", "Proceed"),
@@ -48,12 +48,17 @@ class GenericStepScreen(Screen[None]):
                     # Live Execution Checklist Card
                     yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
+                    # Persistent Visualization Card (Benchmark or Live Fleet Table)
+                    if self.meta.benchmark_text:
+                        yield Static(self._render_benchmark_card(), id="benchmark-visualization-card")
+                    elif self.step_key == OnboardingStep.SCALE_UP:
+                        yield Static(self._render_fleet_table(), id="fleet-visualization-card")
+
                     # Action Button Row
                     with Horizontal(classes="action-button-row"):
-                        if self.meta.step_num > 1:
-                            btn_back = Button("← Back (b)", id="btn-back", classes="secondary-button")
-                            btn_back.can_focus = False
-                            yield btn_back
+                        btn_back = Button("← Back (b)", id="btn-back", classes="secondary-button")
+                        btn_back.can_focus = False
+                        yield btn_back
 
                         btn_proceed = Button(
                             self.meta.next_action_label,
@@ -71,7 +76,7 @@ class GenericStepScreen(Screen[None]):
 
     def on_mount(self) -> None:
         self._checklist_progress = 0
-        self._timer = self.set_interval(0.2, self._tick_checklist)
+        self._timer = self.set_interval(0.15, self._tick_checklist)
 
     def _tick_checklist(self) -> None:
         if self._checklist_progress < len(self.meta.checklist_items):
@@ -111,6 +116,19 @@ class GenericStepScreen(Screen[None]):
             t.append("\nDone\n\n", style="bold #81c995")
             t.append(self.meta.done_message, style="#e3e3e3")
 
+        return t
+
+    def _render_benchmark_card(self) -> Text:
+        t = Text()
+        t.append("⚡ LIVE DATA PLANE BENCHMARK:\n", style="bold #70d6ff")
+        t.append(f"  {self.meta.benchmark_text}\n", style="bold #81c995")
+        return t
+
+    def _render_fleet_table(self) -> Text:
+        t = Text()
+        t.append("$ atectl get workerpools\n", style="#70d6ff")
+        t.append("WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE\n", style="bold #80868b")
+        t.append("production-fleet  substrate-system  microvm    20/20  3        4%   8%   0\n", style="bold #81c995")
         return t
 
     def action_proceed_next(self) -> None:

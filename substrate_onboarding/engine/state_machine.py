@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with 8-Step Interactive Journey."""
+"""State Machine for Onboarding Workflow with Welcome Screen & 8-Step Interactive Journey."""
 
 from __future__ import annotations
 
@@ -9,19 +9,21 @@ from substrate_onboarding.config import OnboardingStep, UserSetupState
 class OnboardingStateMachine:
     """Manages consecutive onboarding state transitions with history and rollback support.
     
-    8-Step Sequence:
-      1. Check your setup
-      2. Create a cluster
-      3. Turn on Substrate
-      4. Install the CLI
-      5. First actor
-      6. Send a request
-      7. Pause & resume
-      8. Scale it up
-      9. Complete
+    Sequence:
+      0. Welcome & Track Selection (WELCOME)
+      1. Check your setup (CHECK_SETUP)
+      2. Create a cluster (CREATE_CLUSTER)
+      3. Turn on Substrate (TURN_ON_SUBSTRATE)
+      4. Install the CLI (INSTALL_CLI)
+      5. First actor (FIRST_ACTOR)
+      6. Send a request (SEND_REQUEST)
+      7. Pause & resume (PAUSE_RESUME)
+      8. Scale it up (SCALE_UP)
+      9. Complete (COMPLETE)
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
+        OnboardingStep.WELCOME,
         OnboardingStep.CHECK_SETUP,
         OnboardingStep.CREATE_CLUSTER,
         OnboardingStep.TURN_ON_SUBSTRATE,
@@ -96,12 +98,12 @@ class OnboardingStateMachine:
         return prev_step
 
     def step_number(self) -> int:
-        """Returns 1-based current step index (excluding complete)."""
+        """Returns 0-based or 1-based step index."""
         try:
-            return self.STEPS_ORDER.index(self.current_step) + 1
+            return self.STEPS_ORDER.index(self.current_step)
         except ValueError:
-            return 1
+            return 0
 
     def total_steps(self) -> int:
-        """Total number of visible interactive onboarding steps (8 steps)."""
-        return len(self.STEPS_ORDER) - 1
+        """Total number of interactive steps (8 steps following Welcome)."""
+        return 8

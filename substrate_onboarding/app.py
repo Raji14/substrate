@@ -1,4 +1,4 @@
-"""Main Textual Application orchestrating the Substrate 8-Step Onboarding TUI."""
+"""Main Textual Application orchestrating the Substrate Onboarding TUI with Welcome Screen."""
 
 from __future__ import annotations
 
@@ -11,13 +11,14 @@ from substrate_onboarding.config import OnboardingStep, UserSetupState
 from substrate_onboarding.engine.state_machine import OnboardingStateMachine
 from substrate_onboarding.engine.commands import CommandRegistry
 from substrate_onboarding.theme import APP_CSS
+from substrate_onboarding.screens.welcome_screen import WelcomeScreen
 from substrate_onboarding.screens.step_screen import GenericStepScreen
 from substrate_onboarding.screens.help_modal import HelpModal
 from substrate_onboarding.screens.exit_modal import ExitConfirmModal
 
 
 class SubstrateOnboardingApp(App[UserSetupState]):
-    """Delightful, high-taste Textual TUI for developer onboarding."""
+    """Delightful, high-taste Textual TUI for developer onboarding with Welcome Screen."""
 
     CSS = APP_CSS
     TITLE = "Substrate — Getting set up"
@@ -31,6 +32,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     ]
 
     SCREENS = {
+        "welcome": WelcomeScreen,
         "check_setup": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "create_cluster": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
         "turn_on_sub": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
@@ -46,7 +48,6 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "autoscaling": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
         "deploy_wp": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
         "launchpad": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
-        "welcome": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "doctor": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "questionnaire": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
         "auth": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
@@ -67,7 +68,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         initial_screen = (
             self.state.current_step.value
             if self.state.current_step.value in self.SCREENS
-            else "check_setup"
+            else "welcome"
         )
         self.push_screen(initial_screen)
 

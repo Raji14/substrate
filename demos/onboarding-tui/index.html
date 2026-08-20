@@ -17,6 +17,8 @@
       --accent-blue: #1565c0;
       --accent-blue-hover: #1976d2;
       --accent-green: #81c995;
+      --accent-yellow: #fdd663;
+      --accent-magenta: #f28b82;
       
       --text-white: #ffffff;
       --text-primary: #e3e3e3;
@@ -32,7 +34,7 @@
     }
 
     body {
-      background: radial-gradient(circle at 50% 20%, #161e2e 0%, var(--bg-canvas) 100%);
+      background: radial-gradient(circle at 50% 20%, #141c2b 0%, var(--bg-canvas) 100%);
       color: var(--text-primary);
       font-family: 'JetBrains Mono', 'Menlo', 'Fira Code', monospace;
       min-height: 100vh;
@@ -40,18 +42,18 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
     }
 
     /* Top Control Toolbar */
     .toolbar {
       width: 100%;
-      max-width: 1040px;
+      max-width: 1060px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
-      background: rgba(13, 17, 23, 0.9);
+      margin-bottom: 12px;
+      background: rgba(13, 17, 23, 0.92);
       backdrop-filter: blur(12px);
       padding: 10px 18px;
       border-radius: 12px;
@@ -107,12 +109,12 @@
     /* Terminal Container */
     .terminal-window {
       width: 100%;
-      max-width: 1040px;
-      min-height: 600px;
+      max-width: 1060px;
+      min-height: 640px;
       background: var(--bg-content);
       border-radius: 12px;
       border: 1px solid var(--border-dark);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -135,12 +137,145 @@
     .dot-max { background: #27c93f; }
     .window-title { margin-left: 12px; font-size: 11px; color: var(--text-muted); }
 
-    /* 2-Column Layout */
-    .workspace-grid {
+    /* ========================================================= */
+    /* WELCOME SCREEN (STEP 0) STYLES                            */
+    /* ========================================================= */
+    .welcome-screen-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 40px;
+      background: var(--bg-canvas);
+      flex: 1;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .welcome-screen-view.active {
+      display: flex;
+    }
+
+    .ascii-logo {
+      font-size: 9px;
+      line-height: 1.1;
+      letter-spacing: 0px;
+      font-weight: 800;
+      white-space: pre;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #8ab4f8, #f28b82, #fdd663, #81c995, #8ab4f8);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientFlow 6s linear infinite;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    .welcome-subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* 4 Wonder Highlights */
+    .wonder-grid {
       display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 22px;
+    }
+
+    .wonder-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .wonder-card:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+    .wonder-title { font-size: 12px; font-weight: 700; color: var(--accent-cyan); }
+    .wonder-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+
+    /* Track Option Cards */
+    .tracks-section {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+    .tracks-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 10px;
+    }
+    .tracks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .track-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.15s;
+    }
+    .track-card:hover {
+      background: #1c222d;
+      border-color: var(--accent-cyan);
+    }
+    .track-card.selected {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 14px rgba(21, 101, 192, 0.4);
+    }
+    .track-icon { font-size: 16px; }
+    .track-info { display: flex; flex-direction: column; gap: 2px; }
+    .track-title { font-size: 12px; font-weight: 700; color: var(--text-white); }
+    .track-desc { font-size: 11px; color: var(--text-muted); }
+    .track-card.selected .track-desc { color: rgba(255, 255, 255, 0.85); }
+
+    /* Diagnostics Badge */
+    .preflight-badge {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-around;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .badge-ok { color: var(--accent-green); font-weight: 700; }
+    .badge-warn { color: var(--accent-yellow); font-weight: 700; }
+
+    /* ========================================================= */
+    /* 2-COLUMN WIZARD (STEPS 1-8) STYLES                         */
+    /* ========================================================= */
+    .wizard-view {
+      display: none;
       grid-template-columns: 240px 1fr;
       flex: 1;
-      min-height: 540px;
+      min-height: 580px;
+    }
+    .wizard-view.active {
+      display: grid;
     }
 
     /* Left Sidebar */
@@ -151,21 +286,19 @@
       display: flex;
       flex-direction: column;
     }
-
     .sidebar-brand {
       font-size: 14px;
       font-weight: 700;
       color: var(--accent-cyan);
       margin-bottom: 2px;
+      cursor: pointer;
     }
-
     .sidebar-subtitle {
       font-size: 12px;
       color: var(--text-muted);
       margin-bottom: 16px;
     }
 
-    /* Thin Progress Line */
     .progress-bar-container {
       width: 100%;
       height: 3px;
@@ -202,29 +335,16 @@
       gap: 8px;
       transition: color 0.15s;
     }
-    .step-item:hover {
-      color: var(--text-primary);
-    }
-    .step-item.completed {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-    .step-item.completed .step-icon {
-      color: var(--accent-green);
-      font-weight: 700;
-    }
-    .step-item.active {
-      color: var(--accent-cyan);
-      font-weight: 700;
-    }
-    .step-item.active .step-icon {
-      color: var(--accent-cyan);
-    }
+    .step-item:hover { color: var(--text-primary); }
+    .step-item.completed { color: var(--text-primary); font-weight: 600; }
+    .step-item.completed .step-icon { color: var(--accent-green); font-weight: 700; }
+    .step-item.active { color: var(--accent-cyan); font-weight: 700; }
+    .step-item.active .step-icon { color: var(--accent-cyan); }
 
     /* Right Content Area */
     .content-area {
       background: var(--bg-content);
-      padding: 32px 36px;
+      padding: 28px 36px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
@@ -245,25 +365,9 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .step-counter {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .step-heading {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-white);
-      margin-bottom: 12px;
-    }
-
-    .step-description {
-      font-size: 13px;
-      color: var(--text-primary);
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
+    .step-counter { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 10px; }
+    .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 18px; }
 
     /* Collapsible Real Command Callout */
     .command-box {
@@ -271,9 +375,8 @@
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 12px 16px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
-
     .command-pill {
       display: inline-block;
       background: var(--accent-blue);
@@ -282,9 +385,8 @@
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 4px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-
     .command-text {
       font-size: 12px;
       color: var(--accent-cyan);
@@ -296,25 +398,22 @@
       background: #090d16;
       border: 1px solid var(--border-dark);
       border-radius: 8px;
-      padding: 20px 24px;
-      margin-bottom: 24px;
+      padding: 18px 22px;
+      margin-bottom: 18px;
       flex: 1;
     }
-
     .checklist-title {
       font-size: 13px;
       font-weight: 700;
       color: var(--accent-cyan);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
     .checklist-items {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
-
     .check-line {
       font-size: 12px;
       color: var(--text-white);
@@ -322,23 +421,32 @@
       align-items: center;
       gap: 10px;
     }
-    .check-icon {
-      color: var(--accent-green);
-      font-weight: 700;
-    }
+    .check-icon { color: var(--accent-green); font-weight: 700; }
+    .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 6px; }
+    .done-prompt { font-size: 12px; color: var(--text-primary); font-style: italic; }
 
-    .done-status {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent-green);
-      margin-bottom: 8px;
+    /* Benchmark Latency Gauge Visualization */
+    .benchmark-card {
+      background: #11151c;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
     }
+    .benchmark-title { font-size: 11px; font-weight: 700; color: var(--accent-yellow); margin-bottom: 4px; }
+    .benchmark-value { font-size: 12px; font-weight: 600; color: var(--accent-green); }
 
-    .done-prompt {
-      font-size: 12px;
-      color: var(--text-primary);
-      font-style: italic;
+    /* Live Fleet Readiness Table */
+    .fleet-table-card {
+      background: #11151c;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
     }
+    .table-cmd { font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
+    .table-head { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+    .table-row { font-size: 11px; color: var(--accent-green); font-weight: 600; }
 
     /* Action Buttons Row */
     .action-row {
@@ -347,7 +455,6 @@
       gap: 12px;
       margin-top: auto;
     }
-
     .btn-secondary {
       background: var(--bg-card);
       color: var(--text-primary);
@@ -364,7 +471,6 @@
       color: var(--accent-cyan);
       border-color: var(--accent-cyan);
     }
-
     .btn-primary {
       background: var(--accent-blue);
       color: #ffffff;
@@ -388,9 +494,10 @@
   <div class="toolbar">
     <div class="toolbar-title">
       <span>Substrate</span>
-      <span class="badge">Day-0 Onboarding Simulator</span>
+      <span class="badge">Interactive Onboarding Experience</span>
     </div>
     <div class="controls-group">
+      <button class="btn-tool" onclick="showWelcomeScreen()">🏠 Welcome Screen</button>
       <button class="btn-tool" id="btn-autopilot" onclick="toggleAutopilot()">
         <span id="autopilot-icon">▶</span> <span id="autopilot-text">Autopilot Tour</span>
       </button>
@@ -407,11 +514,90 @@
       <div class="window-title">broyal@broyal: ~/workspaces/ate-demos/demos — substrate onboard</div>
     </div>
 
-    <div class="workspace-grid">
+    <!-- ========================================================= -->
+    <!-- VIEW 0: WELCOME SCREEN                                    -->
+    <!-- ========================================================= -->
+    <div class="welcome-screen-view active" id="view-welcome">
+      <div class="ascii-logo">
+  ███████╗██╗   ██╗██████╗ ███████╗████████╗██████╗  █████╗ ████████╗███████╗
+  ██╔════╝██║   ██║██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝
+  ███████╗██║   ██║██████╔╝███████╗   ██║   ██████╔╝███████║   ██║   █████╗  
+  ╚════██║██║   ██║██╔══██╗╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  
+  ███████║╚██████╔╝██████╔╝███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗
+  ╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+      </div>
+
+      <div class="welcome-subtitle">⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime</div>
+
+      <!-- 4 Wonder Highlights -->
+      <div class="wonder-grid">
+        <div class="wonder-card">
+          <div class="wonder-title">⚡ <100ms Cold Start</div>
+          <div class="wonder-desc">MicroVM standby pre-warming for instant wakeups.</div>
+        </div>
+        <div class="wonder-card">
+          <div class="wonder-title">💤 0% Idle CPU</div>
+          <div class="wonder-desc">Auto memory suspend and resume to NVMe storage.</div>
+        </div>
+        <div class="wonder-card">
+          <div class="wonder-title">🛡️ Hardware Isolation</div>
+          <div class="wonder-desc">Nested virtualization sandboxing for multi-tenancy.</div>
+        </div>
+        <div class="wonder-card">
+          <div class="wonder-title">🚀 Zero-YAML CLI</div>
+          <div class="wonder-desc">Direct atectl commands for application engineers.</div>
+        </div>
+      </div>
+
+      <!-- Track Selection -->
+      <div class="tracks-section">
+        <div class="tracks-header">Select your getting-started path:</div>
+        <div class="tracks-list">
+          <div class="track-card selected" id="track-0" onclick="selectTrack(0)">
+            <div class="track-icon">🧪</div>
+            <div class="track-info">
+              <div class="track-title">Local Sandbox (Kind / Docker Desktop) (Recommended)</div>
+              <div class="track-desc">Zero cloud costs. Spins up a local Kubernetes cluster on your machine in 30 seconds.</div>
+            </div>
+          </div>
+          <div class="track-card" id="track-1" onclick="selectTrack(1)">
+            <div class="track-icon">⚡</div>
+            <div class="track-info">
+              <div class="track-title">Google Kubernetes Engine (GKE Production Fleet)</div>
+              <div class="track-desc">High-density MicroVM isolation, Custom Compute Class (CCC), and Spot autoscaling.</div>
+            </div>
+          </div>
+          <div class="track-card" id="track-2" onclick="selectTrack(2)">
+            <div class="track-icon">🏢</div>
+            <div class="track-info">
+              <div class="track-title">Custom Existing Kubernetes Cluster</div>
+              <div class="track-desc">Installs Substrate onto your current active kubeconfig context.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preflight Diagnostics Summary -->
+      <div class="preflight-badge">
+        <span><span class="badge-ok">✔</span> Container Runtime: Active</span>
+        <span><span class="badge-ok">✔</span> Python 3.10+: Ready</span>
+        <span><span class="badge-ok">⚡</span> MicroVM Sandbox: Ready</span>
+        <span><span class="badge-warn">★</span> Valkey: Standby</span>
+      </div>
+
+      <button class="btn-primary" style="font-size: 13px; padding: 10px 28px;" onclick="startWizardFromWelcome()">
+        ⚡ Begin Getting Set Up (Enter) →
+      </button>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-8)                       -->
+    <!-- ========================================================= -->
+    <div class="wizard-view" id="view-wizard">
       
       <!-- Left Sidebar Navigation -->
       <div class="sidebar-nav">
-        <div class="sidebar-brand">Substrate</div>
+        <div class="sidebar-brand" onclick="showWelcomeScreen()" title="Return to Welcome Screen">Substrate</div>
         <div class="sidebar-subtitle">Getting set up</div>
         
         <div class="progress-bar-container">
@@ -474,6 +660,7 @@
           </div>
 
           <div class="action-row">
+            <button class="btn-secondary" onclick="showWelcomeScreen()">🏠 Welcome</button>
             <button class="btn-primary" onclick="goToStep(1)">Create a cluster (Enter) →</button>
           </div>
         </div>
@@ -613,6 +800,12 @@
             <div class="done-prompt">Great response! Now let's see how Substrate saves compute when idle.</div>
           </div>
 
+          <!-- Benchmark Latency Gauge -->
+          <div class="benchmark-card">
+            <div class="benchmark-title">⚡ LIVE TURN BENCHMARK</div>
+            <div class="benchmark-value">Latency: 82ms  │  TTFT: 14ms  │  Throughput: 120 tok/s</div>
+          </div>
+
           <div class="action-row">
             <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
             <button class="btn-primary" onclick="goToStep(6)">Test Pause & Resume (Enter) →</button>
@@ -639,6 +832,12 @@
             </div>
             <div class="done-status">Done</div>
             <div class="done-prompt">Sub-200ms instant resume confirmed! Finally, let's scale your fleet.</div>
+          </div>
+
+          <!-- Latency Gauge Visualization -->
+          <div class="benchmark-card">
+            <div class="benchmark-title">⚡ DATA PLANE BENCHMARK</div>
+            <div class="benchmark-value">Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)</div>
           </div>
 
           <div class="action-row">
@@ -669,6 +868,13 @@
             <div class="done-prompt">You're all set! Enjoy building high-density AI agents with Agent Substrate.</div>
           </div>
 
+          <!-- Live Fleet Table -->
+          <div class="fleet-table-card">
+            <div class="table-cmd">$ atectl get workerpools</div>
+            <div class="table-head">WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE</div>
+            <div class="table-row">production-fleet  substrate-system  microvm    20/20  3        4%   8%   0</div>
+          </div>
+
           <div class="action-row">
             <button class="btn-secondary" onclick="goToStep(6)">← Back</button>
             <button class="btn-primary" onclick="alert('🎉 Substrate onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding (Enter)</button>
@@ -685,10 +891,38 @@
     let currentStep = 0;
     const totalSteps = 8;
     let autopilotInterval = null;
+    let selectedTrackIdx = 0;
+
+    function showWelcomeScreen() {
+      document.getElementById('view-welcome').classList.add('active');
+      document.getElementById('view-wizard').classList.remove('active');
+    }
+
+    function startWizardFromWelcome() {
+      document.getElementById('view-welcome').classList.remove('active');
+      document.getElementById('view-wizard').classList.add('active');
+      goToStep(0);
+    }
+
+    function selectTrack(idx) {
+      selectedTrackIdx = idx;
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`track-${i}`);
+        if (i === idx) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      }
+    }
 
     function goToStep(idx) {
       if (idx < 0 || idx >= totalSteps) return;
       currentStep = idx;
+
+      // Ensure wizard view is active
+      document.getElementById('view-welcome').classList.remove('active');
+      document.getElementById('view-wizard').classList.add('active');
 
       // Update sidebar nav items
       for (let i = 0; i < totalSteps; i++) {
@@ -723,7 +957,7 @@
 
     function resetWizard() {
       if (autopilotInterval) toggleAutopilot();
-      goToStep(0);
+      showWelcomeScreen();
     }
 
     function toggleAutopilot() {
@@ -742,22 +976,43 @@
         icon.textContent = '⏸';
         text.textContent = 'Pause Autopilot';
         
+        let inWelcome = true;
+        showWelcomeScreen();
+
         autopilotInterval = setInterval(() => {
-          let next = (currentStep + 1) % totalSteps;
-          goToStep(next);
-        }, 2800);
+          if (inWelcome) {
+            inWelcome = false;
+            startWizardFromWelcome();
+          } else {
+            let next = (currentStep + 1);
+            if (next >= totalSteps) {
+              inWelcome = true;
+              showWelcomeScreen();
+            } else {
+              goToStep(next);
+            }
+          }
+        }, 3000);
       }
     }
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        if (currentStep < totalSteps - 1) {
+        const welcomeView = document.getElementById('view-welcome');
+        if (welcomeView.classList.contains('active')) {
+          startWizardFromWelcome();
+        } else if (currentStep < totalSteps - 1) {
           goToStep(currentStep + 1);
         }
       } else if (e.key === 'b' || e.key === 'Backspace') {
-        if (currentStep > 0) {
-          goToStep(currentStep - 1);
+        const wizardView = document.getElementById('view-wizard');
+        if (wizardView.classList.contains('active')) {
+          if (currentStep === 0) {
+            showWelcomeScreen();
+          } else {
+            goToStep(currentStep - 1);
+          }
         }
       }
     });

@@ -77,6 +77,86 @@ Screen {
     layout: vertical;
 }
 
+/* Welcome Screen Hero & Cards */
+#welcome-main-container {
+    width: 100%;
+    height: 1fr;
+    background: #090d16;
+    padding: 1 3;
+    overflow-y: auto;
+    align: center top;
+}
+
+#welcome-hero-logo {
+    width: 100%;
+    height: auto;
+    text-align: center;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+#welcome-hero-subtitle {
+    width: 100%;
+    text-align: center;
+    color: #70d6ff;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#welcome-features-row {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1;
+}
+
+.wonder-feature-card {
+    width: 1fr;
+    height: auto;
+    background: #161b22;
+    border: solid #30363d;
+    padding: 1 2;
+    margin: 0 1;
+}
+
+#welcome-tracks-title {
+    color: #ffffff;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
+#welcome-tracks-list {
+    width: 100%;
+    height: auto;
+}
+
+.track-option-card {
+    width: 100%;
+    height: auto;
+    background: #161b22;
+    border: solid #30363d;
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+#welcome-preflight-badge {
+    width: 100%;
+    height: auto;
+    background: #0d1117;
+    border: solid #21262d;
+    padding: 1 2;
+    margin-top: 1;
+    text-align: center;
+}
+
+#welcome-action-row {
+    width: 100%;
+    height: auto;
+    align: right middle;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
 /* Workspace 2-Column Grid Layout */
 #workspace-layout {
     width: 100%;
