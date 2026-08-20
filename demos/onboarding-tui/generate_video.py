@@ -1,8 +1,10 @@
 """High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Onboarding.
 
-Addresses:
-1. Pre-existing Cluster Requirement (Portability across GKE, EKS, AKS, On-Prem)
-2. Gated Access for Private GA (Customer registration & Support terms agreement)
+Features:
+- Restored classic Google 4-color gradient Substrate ASCII Logo
+- Animated typewriter description
+- Core capabilities feature card
+- Pre-existing cluster portability & Private GA gated agreement flow
 """
 
 import os
@@ -30,6 +32,11 @@ ACCENT_GREEN = (129, 201, 149)    # #81c995
 ACCENT_YELLOW = (253, 214, 99)    # #fdd663
 ACCENT_RED = (242, 139, 130)      # #f28b82
 
+GOOGLE_BLUE = (138, 180, 248)     # #8ab4f8
+GOOGLE_RED = (242, 139, 130)      # #f28b82
+GOOGLE_YELLOW = (253, 214, 99)    # #fdd663
+GOOGLE_GREEN = (129, 201, 149)    # #81c995
+
 TEXT_WHITE = (255, 255, 255)
 TEXT_PRIMARY = (227, 227, 227)    # #e3e3e3
 TEXT_MUTED = (128, 134, 139)      # #80868b
@@ -47,13 +54,14 @@ font_md = ImageFont.truetype(FONT_PATH, 17)
 font_lg = ImageFont.truetype(FONT_PATH, 20)
 
 LOGO_LINES = [
-    "  ███████╗██╗   ██╗██████╗ ███████╗████████╗██████╗  █████╗ ████████╗███████╗",
-    "  ██╔════╝██║   ██║██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝",
-    "  ███████╗██║   ██║██████╔╝███████╗   ██║   ██████╔╝███████║   ██║   █████╗  ",
-    "  ╚════██║██║   ██║██╔══██╗╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  ",
-    "  ███████║╚██████╔╝██████╔╝███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗",
-    "  ╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝",
+    "   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
+    "  / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
+    "  \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
+    "   ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
+    "  |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
+
+INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA)."
 
 STEPS_DATA = [
     {
@@ -208,8 +216,8 @@ STEPS_DATA = [
 ]
 
 
-def render_welcome_screen():
-    """Renders the Substrate Welcome Screen with ASCII Logo, Wonder Cards, and Tracks."""
+def render_welcome_screen(typewriter_progress=1.0):
+    """Renders the Substrate Welcome Screen with the iconic Google 4-color gradient ASCII logo & animated typewriter description."""
     img = Image.new("RGB", (WIDTH, HEIGHT), BG_CANVAS)
     draw = ImageDraw.Draw(img)
 
@@ -225,60 +233,72 @@ def render_welcome_screen():
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
-    # ASCII Logo
-    ly = wy + 48
-    colors = [ACCENT_CYAN, ACCENT_BLUE, ACCENT_GREEN, ACCENT_YELLOW, ACCENT_RED, ACCENT_CYAN]
+    # Classic Google 4-Color Gradient ASCII Logo
+    ly = wy + 42
+    logo_colors = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN, GOOGLE_BLUE]
     for i, line in enumerate(LOGO_LINES):
-        draw.text((wx + 120, ly), line, fill=colors[i % len(colors)], font=font_xs)
-        ly += 14
+        draw.text((wx + 260, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_base)
+        ly += 16
 
     # Subtitle
-    draw.text((wx + 190, ly + 6), "⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)", fill=ACCENT_CYAN, font=font_sm)
+    draw.text((wx + 390, ly + 4), "⚡ A G E N T   S U B S T R A T E ⚡", fill=ACCENT_CYAN, font=font_sm)
 
-    # 4 Wonder Cards
-    wy_cards = ly + 34
-    card_w = (ww - 80) // 4
-    wonders = [
-        ("<100ms Cold Start", "MicroVM standby pre-warming"),
-        ("0% Idle CPU", "Auto memory suspend/resume"),
-        ("Cluster Portability", "Runs on any pre-configured K8s"),
-        ("Private GA Gated", "Registration & support terms"),
-    ]
-    for i, (w_title, w_desc) in enumerate(wonders):
-        cx = wx + 40 + i * (card_w + 10)
-        draw.rounded_rectangle([cx, wy_cards, cx + card_w, wy_cards + 52], radius=6, fill=BG_CARD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 10, wy_cards + 8), f"* {w_title}", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 10, wy_cards + 26), w_desc, fill=TEXT_MUTED, font=font_xs)
+    # Animated Typewriter Description
+    num_chars = int(len(INTRO_TEXT) * typewriter_progress)
+    typed_str = INTRO_TEXT[:num_chars]
+    cursor = " ▌" if typewriter_progress < 1.0 else ""
+    
+    # Split into 2 centered lines
+    if len(typed_str) > 78:
+        split_pt = typed_str[:78].rfind(" ")
+        line1 = typed_str[:split_pt]
+        line2 = typed_str[split_pt+1:] + cursor
+        draw.text((wx + 180, ly + 26), line1, fill=TEXT_PRIMARY, font=font_xs)
+        draw.text((wx + 180, ly + 42), line2, fill=TEXT_PRIMARY, font=font_xs)
+    else:
+        draw.text((wx + 180, ly + 26), typed_str + cursor, fill=TEXT_PRIMARY, font=font_xs)
+
+    # Core Capabilities Feature Card
+    fy = ly + 80
+    draw.rounded_rectangle([wx + 100, fy, wx + ww - 100, fy + 88], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
+    # Badge
+    draw.rounded_rectangle([wx + 116, fy - 10, wx + 360, fy + 10], radius=4, fill=ACCENT_BLUE, outline=ACCENT_CYAN)
+    draw.text((wx + 126, fy - 6), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
+
+    draw.text((wx + 120, fy + 16), "* Platform Fleet   : Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", fill=GOOGLE_BLUE, font=font_xs)
+    draw.text((wx + 120, fy + 32), "* Agent Workloads  : No-YAML container templates, turn hooks & request parking", fill=GOOGLE_GREEN, font=font_xs)
+    draw.text((wx + 120, fy + 48), "* Instant Resume   : Suspend idle actors to 0% CPU; restore state in <200ms", fill=GOOGLE_YELLOW, font=font_xs)
+    draw.text((wx + 120, fy + 64), "* Private GA Gated : Customer registration & explicit Google support terms acknowledgment", fill=GOOGLE_RED, font=font_xs)
 
     # Track Selection
-    ty = wy_cards + 66
-    draw.text((wx + 40, ty), "Select your getting-started path:", fill=TEXT_WHITE, font=font_sm)
+    ty = fy + 100
+    draw.text((wx + 100, ty), "Select your getting-started path:", fill=TEXT_WHITE, font=font_sm)
 
     tracks = [
         ("[1] Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)", "Connect your pre-configured cluster. Ensures total infrastructure portability with zero lock-in.", True),
         ("[2] Local Sandbox Cluster (Kind / Minikube / Docker)", "Connect to an existing local development cluster on your workstation.", False),
         ("[3] Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)", "Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.", False),
     ]
-    toy = ty + 24
+    toy = ty + 20
     for title, desc, is_sel in tracks:
         bg = ACCENT_BLUE if is_sel else BG_CARD
         out = ACCENT_CYAN if is_sel else BORDER_SUBTLE
-        draw.rounded_rectangle([wx + 40, toy, wx + ww - 40, toy + 44], radius=6, fill=bg, outline=out, width=1)
-        draw.text((wx + 52, toy + 8), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
-        draw.text((wx + 72, toy + 6), title, fill=TEXT_WHITE, font=font_sm)
-        draw.text((wx + 72, toy + 24), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
-        toy += 50
+        draw.rounded_rectangle([wx + 100, toy, wx + ww - 100, toy + 38], radius=6, fill=bg, outline=out, width=1)
+        draw.text((wx + 112, toy + 6), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
+        draw.text((wx + 130, toy + 5), title, fill=TEXT_WHITE, font=font_xs)
+        draw.text((wx + 130, toy + 20), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
+        toy += 44
 
     # Diagnostics Badge
     dy = toy + 6
-    draw.rounded_rectangle([wx + 40, dy, wx + ww - 40, dy + 28], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
+    draw.rounded_rectangle([wx + 100, dy, wx + ww - 100, dy + 26], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
     diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Private GA: Gated"
-    draw.text((wx + 100, dy + 8), diag_str, fill=ACCENT_GREEN, font=font_xs)
+    draw.text((wx + 130, dy + 7), diag_str, fill=ACCENT_GREEN, font=font_xs)
 
     # Call to Action Button
-    by = dy + 38
-    draw.rounded_rectangle([wx + ww - 340, by, wx + ww - 40, by + 36], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((wx + ww - 315, by + 10), "Begin Getting Set Up (Enter) →", fill=TEXT_WHITE, font=font_sm)
+    by = dy + 34
+    draw.rounded_rectangle([wx + ww - 440, by, wx + ww - 100, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
+    draw.text((wx + ww - 420, by + 9), "▶ Press [ENTER] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
 
     return img
 
@@ -404,12 +424,12 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
     print(f"🎬 Generating HD Demo Video: {output_path}...")
     writer = imageio.get_writer(output_path, fps=FPS, codec="libx264", quality=8)
 
-    # Render Welcome scene (3.0s) + 9 steps
+    # Render Welcome scene with streaming typewriter animation (3.0s = 90 frames)
     num_welcome_frames = int(3.0 * FPS)
-    welcome_img = render_welcome_screen()
-    welcome_np = np.array(welcome_img)
-    for _ in range(num_welcome_frames):
-        writer.append_data(welcome_np)
+    for f in range(num_welcome_frames):
+        progress = min(1.0, (f + 1) / (FPS * 1.5))
+        w_img = render_welcome_screen(typewriter_progress=progress)
+        writer.append_data(np.array(w_img))
 
     durations = [2.2, 2.5, 2.8, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
     for i in range(9):
@@ -427,8 +447,8 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     os.makedirs(out_dir, exist_ok=True)
     print(f"📸 Exporting high-res screenshots to {out_dir}...")
     
-    # Save Welcome Screen
-    w_img = render_welcome_screen()
+    # Save Welcome Screen with full typewriter text
+    w_img = render_welcome_screen(typewriter_progress=1.0)
     w_img.save(os.path.join(out_dir, "step0_welcome.png"))
     print("  ✓ Saved step0_welcome.png")
 

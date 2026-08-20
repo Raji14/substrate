@@ -1,4 +1,4 @@
-"""Welcome Screen with ASCII Logo, Gradient Animation, Wonder Highlights, and Track Selection."""
+"""Welcome Screen with the iconic static Google 4-color gradient ASCII logo, animated typewriter description, and feature capabilities card."""
 
 from __future__ import annotations
 
@@ -11,24 +11,24 @@ from textual.widgets import Button, Label, Static
 from rich.text import Text
 
 from substrate_onboarding.config import OnboardingStep, SETUP_TRACKS, OptionItem
-from substrate_onboarding.theme import get_gradient_color
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 
 LOGO_LINES = [
-    "  ███████╗██╗   ██╗██████╗ ███████╗████████╗██████╗  █████╗ ████████╗███████╗",
-    "  ██╔════╝██║   ██║██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝",
-    "  ███████╗██║   ██║██████╔╝███████╗   ██║   ██████╔╝███████║   ██║   █████╗  ",
-    "  ╚════██║██║   ██║██╔══██╗╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  ",
-    "  ███████║╚██████╔╝██████╔╝███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗",
-    "  ╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝",
+    "   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
+    "  / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
+    "  \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
+    "   ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
+    "  |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
+
+INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA)."
 
 
 class WelcomeScreen(Screen[None]):
-    """The iconic, wonder-filled welcome screen introducing Agent Substrate."""
+    """The iconic, wonder-filled welcome screen with classic Google 4-color gradient and streaming typewriter description."""
 
     selected_index: reactive[int] = reactive(0)
-    gradient_offset: reactive[float] = reactive(0.0)
+    typewriter_idx: reactive[int] = reactive(0)
 
     BINDINGS = [
         ("enter", "confirm_selection", "Get Started"),
@@ -37,34 +37,34 @@ class WelcomeScreen(Screen[None]):
         ("k", "navigate_up", "Previous Track"),
         ("down", "navigate_down", "Next Track"),
         ("j", "navigate_down", "Next Track"),
-        ("1", "select_track_1", "Local Sandbox"),
-        ("2", "select_track_2", "GKE Fleet"),
-        ("3", "select_track_3", "Custom K8s"),
+        ("1", "select_track_1", "Pre-configured K8s"),
+        ("2", "select_track_2", "Local Sandbox"),
+        ("3", "select_track_3", "Enterprise Fleet"),
     ]
 
     def __init__(self, name: Optional[str] = "welcome"):
         super().__init__(name=name)
         self.tracks = SETUP_TRACKS
-        self._timer = None
+        self._typewriter_timer = None
 
     def compose(self) -> ComposeResult:
         yield TopHeader(initial_step=OnboardingStep.WELCOME)
         with Vertical(id="welcome-main-container"):
-            # Animated Hero Logo
+            # Static 4-Color Gradient Hero Logo
             yield Static(self._render_hero_logo(), id="welcome-hero-logo")
 
-            # Subtitle
+            # Subtitle with letter spacing style
             yield Label(
-                "⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime",
+                "⚡ A G E N T   S U B S T R A T E ⚡",
                 id="welcome-hero-subtitle",
             )
 
-            # 4 Wonder Cards
-            with Horizontal(id="welcome-features-row"):
-                yield Static(self._render_feature_card("⚡ <100ms Cold Start", "MicroVM standby pre-warming"), classes="wonder-feature-card")
-                yield Static(self._render_feature_card("💤 0% Idle CPU", "Auto memory suspend & resume"), classes="wonder-feature-card")
-                yield Static(self._render_feature_card("🛡️ Hardware Isolation", "GKE CCC nested virtualization"), classes="wonder-feature-card")
-                yield Static(self._render_feature_card("🚀 Zero-YAML CLI", "Direct agent developer workflows"), classes="wonder-feature-card")
+            # Animated Typewriter Description
+            yield Static(self._render_typewriter(), id="welcome-typewriter-box")
+
+            # Core Capabilities Feature Card
+            with Vertical(id="welcome-features-card"):
+                yield Static(self._render_features_card(), id="welcome-features-content")
 
             # Mode / Track Selection Title
             yield Label("Select your getting-started path:", id="welcome-tracks-title")
@@ -80,7 +80,7 @@ class WelcomeScreen(Screen[None]):
             # Action Button
             with Horizontal(id="welcome-action-row"):
                 btn_start = Button(
-                    "⚡ Begin Getting Set Up (Enter) →",
+                    "▶ Press [ENTER] to Begin Getting Set Up →",
                     variant="primary",
                     id="btn-start-onboarding",
                     classes="action-button",
@@ -89,34 +89,60 @@ class WelcomeScreen(Screen[None]):
                 yield btn_start
 
         yield BottomBar(
-            initial_tip="Welcome to Agent Substrate! Select your setup path and press [Enter] to begin.",
+            initial_tip="Welcome to Agent Substrate! Press [Enter] to begin Getting Set Up.",
             initial_hints="[↑/↓] Select Path  [Enter] Start  [/help] Shortcuts  [Ctrl+C] Exit",
         )
 
     def on_mount(self) -> None:
-        self._timer = self.set_interval(0.08, self._animate_gradient)
+        self.typewriter_idx = 0
+        self._typewriter_timer = self.set_interval(0.02, self._tick_typewriter)
 
-    def _animate_gradient(self) -> None:
-        self.gradient_offset = (self.gradient_offset + 0.03) % 1.0
-        try:
-            logo = self.query_one("#welcome-hero-logo", Static)
-            logo.update(self._render_hero_logo())
-        except Exception:
-            pass
+    def _tick_typewriter(self) -> None:
+        if self.typewriter_idx < len(INTRO_TEXT):
+            self.typewriter_idx += 1
+            try:
+                box = self.query_one("#welcome-typewriter-box", Static)
+                box.update(self._render_typewriter())
+            except Exception:
+                pass
+        else:
+            if self._typewriter_timer:
+                self._typewriter_timer.stop()
 
     def _render_hero_logo(self) -> Text:
         t = Text()
-        num_lines = len(LOGO_LINES)
+        # Classic Google 4-Color Gradient lines
+        line_styles = [
+            "#8ab4f8",  # Google Blue
+            "#f28b82",  # Google Red
+            "#fdd663",  # Google Yellow
+            "#81c995",  # Google Green
+            "#a8c7fa",  # Google Light Blue
+        ]
         for y, line in enumerate(LOGO_LINES):
-            line_progress = (self.gradient_offset + (y / num_lines) * 0.3) % 1.0
-            r, g, b = get_gradient_color(line_progress)
-            t.append(line + "\n", style=f"bold rgb({r},{g},{b})")
+            style_color = line_styles[y % len(line_styles)]
+            t.append(line + "\n", style=f"bold {style_color}")
         return t
 
-    def _render_feature_card(self, title: str, desc: str) -> Text:
+    def _render_typewriter(self) -> Text:
         t = Text()
-        t.append(f"{title}\n", style="bold #70d6ff")
-        t.append(desc, style="#80868b")
+        typed_str = INTRO_TEXT[: self.typewriter_idx]
+        t.append(typed_str, style="#e3e3e3")
+        if self.typewriter_idx < len(INTRO_TEXT):
+            t.append(" ▌", style="bold #8ab4f8")
+        return t
+
+    def _render_features_card(self) -> Text:
+        t = Text()
+        t.append("⚡ CORE SUBSTRATE CAPABILITIES:\n", style="bold #70d6ff")
+        t.append("  🛠️ Platform Fleet   : ", style="bold #8ab4f8")
+        t.append("Warm worker pools on pre-existing K8s with MicroVM & capacity buffers\n", style="#ffffff")
+        t.append("  🤖 Agent Workloads  : ", style="bold #81c995")
+        t.append("No-YAML container templates, turn hooks & request parking\n", style="#ffffff")
+        t.append("  ⚡ Instant Resume   : ", style="bold #fdd663")
+        t.append("Suspend idle actors to 0% CPU; restore state in <200ms\n", style="#ffffff")
+        t.append("  🔒 Private GA Gated : ", style="bold #f28b82")
+        t.append("Customer registration & explicit Google support terms acknowledgment", style="#ffffff")
         return t
 
     def _render_track_card(self, idx: int) -> Text:
@@ -139,43 +165,49 @@ class WelcomeScreen(Screen[None]):
 
     def _render_preflight_badge(self) -> Text:
         t = Text()
-        t.append("✔ Container Runtime: Active   ", style="bold #81c995")
-        t.append("│   ✔ Python 3.10+: Ready   ", style="bold #81c995")
-        t.append("│   ⚡ MicroVM Sandbox: Ready   ", style="bold #70d6ff")
-        t.append("│   ★ Valkey: Standby", style="bold #fdd663")
+        t.append(" ✔ ", style="bold #81c995")
+        t.append("Pre-configured K8s: Connected  │  ", style="#e3e3e3")
+        t.append("✔ ", style="bold #81c995")
+        t.append("Python 3.10+: Ready  │  ", style="#e3e3e3")
+        t.append("⚡ ", style="bold #81c995")
+        t.append("MicroVM Sandbox: Ready  │  ", style="#e3e3e3")
+        t.append("★ ", style="bold #fdd663")
+        t.append("Private GA: Gated", style="#fdd663")
         return t
 
-    def watch_selected_index(self, index: int) -> None:
+    def action_confirm_selection(self) -> None:
+        if hasattr(self.app, "advance_step"):
+            self.app.advance_step()
+
+    def action_navigate_up(self) -> None:
+        if self.selected_index > 0:
+            self.selected_index -= 1
+            self._refresh_tracks()
+
+    def action_navigate_down(self) -> None:
+        if self.selected_index < len(self.tracks) - 1:
+            self.selected_index += 1
+            self._refresh_tracks()
+
+    def action_select_track_1(self) -> None:
+        self.selected_index = 0
+        self._refresh_tracks()
+
+    def action_select_track_2(self) -> None:
+        self.selected_index = 1
+        self._refresh_tracks()
+
+    def action_select_track_3(self) -> None:
+        self.selected_index = 2
+        self._refresh_tracks()
+
+    def _refresh_tracks(self) -> None:
         for idx in range(len(self.tracks)):
             try:
                 card = self.query_one(f"#track-card-{idx}", Static)
                 card.update(self._render_track_card(idx))
             except Exception:
                 pass
-
-    def action_navigate_up(self) -> None:
-        if self.selected_index > 0:
-            self.selected_index -= 1
-
-    def action_navigate_down(self) -> None:
-        if self.selected_index < len(self.tracks) - 1:
-            self.selected_index += 1
-
-    def action_select_track_1(self) -> None:
-        self.selected_index = 0
-
-    def action_select_track_2(self) -> None:
-        self.selected_index = 1
-
-    def action_select_track_3(self) -> None:
-        self.selected_index = 2
-
-    def action_confirm_selection(self) -> None:
-        chosen_track = self.tracks[self.selected_index]
-        if hasattr(self.app, "state"):
-            self.app.state.selected_track = chosen_track.id
-        if hasattr(self.app, "advance_step"):
-            self.app.advance_step()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn-start-onboarding":
