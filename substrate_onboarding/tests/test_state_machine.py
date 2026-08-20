@@ -1,4 +1,4 @@
-"""Unit tests for OnboardingStateMachine with 6-step Day-0 sequencing."""
+"""Unit tests for OnboardingStateMachine with 8-Step Interactive Journey."""
 
 import pytest
 from substrate_onboarding.config import OnboardingStep, UserSetupState
@@ -7,7 +7,7 @@ from substrate_onboarding.engine.state_machine import OnboardingStateMachine
 
 def test_state_machine_initialization():
     sm = OnboardingStateMachine()
-    assert sm.current_step == OnboardingStep.CLUSTER
+    assert sm.current_step == OnboardingStep.CHECK_SETUP
     assert sm.step_number() == 1
     assert not sm.state.is_complete
 
@@ -18,55 +18,46 @@ def test_state_machine_sequential_transitions():
 
     sm.add_listener(lambda old_s, new_s: transitions.append((old_s, new_s)))
 
-    step = sm.next_step()
-    assert step == OnboardingStep.CONTROL_PLANE
-    assert sm.current_step == OnboardingStep.CONTROL_PLANE
-    assert sm.step_number() == 2
+    expected_steps = [
+        OnboardingStep.CREATE_CLUSTER,
+        OnboardingStep.TURN_ON_SUBSTRATE,
+        OnboardingStep.INSTALL_CLI,
+        OnboardingStep.FIRST_ACTOR,
+        OnboardingStep.SEND_REQUEST,
+        OnboardingStep.PAUSE_RESUME,
+        OnboardingStep.SCALE_UP,
+        OnboardingStep.COMPLETE,
+    ]
 
-    step = sm.next_step()
-    assert step == OnboardingStep.NODE_POOL
-    assert sm.current_step == OnboardingStep.NODE_POOL
+    for expected in expected_steps:
+        step = sm.next_step()
+        assert step == expected
 
-    step = sm.next_step()
-    assert step == OnboardingStep.AUTOSCALING
-    assert sm.current_step == OnboardingStep.AUTOSCALING
-
-    step = sm.next_step()
-    assert step == OnboardingStep.DEPLOY_WORKERPOOL
-    assert sm.current_step == OnboardingStep.DEPLOY_WORKERPOOL
-
-    step = sm.next_step()
-    assert step == OnboardingStep.LAUNCHPAD
-    assert sm.current_step == OnboardingStep.LAUNCHPAD
-
-    step = sm.next_step()
-    assert step == OnboardingStep.COMPLETE
     assert sm.state.is_complete
-
-    assert len(transitions) == 6
+    assert len(transitions) == 8
 
 
 def test_state_machine_previous_step():
     sm = OnboardingStateMachine()
-    sm.next_step()  # To CONTROL_PLANE
-    sm.next_step()  # To NODE_POOL
+    sm.next_step()  # To CREATE_CLUSTER
+    sm.next_step()  # To TURN_ON_SUBSTRATE
 
-    assert sm.current_step == OnboardingStep.NODE_POOL
+    assert sm.current_step == OnboardingStep.TURN_ON_SUBSTRATE
     prev = sm.previous_step()
-    assert prev == OnboardingStep.CONTROL_PLANE
-    assert sm.current_step == OnboardingStep.CONTROL_PLANE
+    assert prev == OnboardingStep.CREATE_CLUSTER
+    assert sm.current_step == OnboardingStep.CREATE_CLUSTER
 
     prev = sm.previous_step()
-    assert prev == OnboardingStep.CLUSTER
-    assert sm.current_step == OnboardingStep.CLUSTER
+    assert prev == OnboardingStep.CHECK_SETUP
+    assert sm.current_step == OnboardingStep.CHECK_SETUP
 
 
 def test_state_machine_direct_transition():
     sm = OnboardingStateMachine()
-    res = sm.transition_to(OnboardingStep.CONTROL_PLANE)
+    res = sm.transition_to(OnboardingStep.CREATE_CLUSTER)
     assert res is True
-    assert sm.current_step == OnboardingStep.CONTROL_PLANE
+    assert sm.current_step == OnboardingStep.CREATE_CLUSTER
 
     # Transitioning to same step returns False
-    res2 = sm.transition_to(OnboardingStep.CONTROL_PLANE)
+    res2 = sm.transition_to(OnboardingStep.CREATE_CLUSTER)
     assert res2 is False

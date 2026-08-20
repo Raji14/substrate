@@ -1,14 +1,9 @@
-"""End-to-end headless Textual test suite for Substrate Onboarding TUI with 6-step Day-0 sequencing."""
+"""End-to-end headless Textual test suite for Substrate Onboarding TUI with 8-step journey."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
 from substrate_onboarding.config import OnboardingStep, UserSetupState
-from substrate_onboarding.screens.welcome_screen import WelcomeScreen
-from substrate_onboarding.screens.doctor_screen import DoctorScreen
-from substrate_onboarding.screens.wizard_screen import QuestionnaireScreen
-from substrate_onboarding.screens.auth_screen import AuthScreen
-from substrate_onboarding.screens.deploy_wp_screen import DeployWorkerPoolScreen
-from substrate_onboarding.screens.summary_screen import SummaryScreen
+from substrate_onboarding.screens.step_screen import GenericStepScreen
 
 
 @pytest.mark.asyncio
@@ -17,54 +12,48 @@ async def test_tui_full_flow():
     app = SubstrateOnboardingApp(initial_state=state)
 
     async with app.run_test() as pilot:
-        # 1. Verify Step 1: Cluster Detection Screen
-        assert app.state_machine.current_step == OnboardingStep.CLUSTER
-        assert isinstance(app.screen, WelcomeScreen)
+        # Step 1: Check your setup
+        assert app.state_machine.current_step == OnboardingStep.CHECK_SETUP
+        assert isinstance(app.screen, GenericStepScreen)
 
-        # Press Enter to select cluster -> goes to Step 2: Control Plane
+        # Step 2: Create a cluster
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.CREATE_CLUSTER
 
-        # 2. Verify Step 2: Control Plane Screen
-        assert app.state_machine.current_step == OnboardingStep.CONTROL_PLANE
-        assert isinstance(app.screen, DoctorScreen)
-
-        # Advance to Step 3: Node Pool & CCC
+        # Step 3: Turn on Substrate
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
 
-        # 3. Verify Step 3: Node Pool Screen
-        assert app.state_machine.current_step == OnboardingStep.NODE_POOL
-        assert isinstance(app.screen, QuestionnaireScreen)
-
-        # Select option and advance to Step 4: Autoscaling
+        # Step 4: Install the CLI
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.INSTALL_CLI
 
-        # 4. Verify Step 4: Autoscaling Screen
-        assert app.state_machine.current_step == OnboardingStep.AUTOSCALING
-        assert isinstance(app.screen, AuthScreen)
-
-        # Advance to Step 5: Deploy WorkerPool
+        # Step 5: First actor
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.FIRST_ACTOR
 
-        # 5. Verify Step 5: Deploy WorkerPool Screen
-        assert app.state_machine.current_step == OnboardingStep.DEPLOY_WORKERPOOL
-        assert isinstance(app.screen, DeployWorkerPoolScreen)
-
-        # Advance to Step 6: Launchpad & Verification
+        # Step 6: Send a request
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.SEND_REQUEST
 
-        # 6. Verify Step 6: Launchpad Screen
-        assert app.state_machine.current_step == OnboardingStep.LAUNCHPAD
-        assert isinstance(app.screen, SummaryScreen)
-
-        # Complete onboarding
+        # Step 7: Pause & resume
         await pilot.press("enter")
         await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.PAUSE_RESUME
 
+        # Step 8: Scale it up
+        await pilot.press("enter")
+        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.SCALE_UP
+
+        # Finish onboarding
+        await pilot.press("enter")
+        await pilot.pause(0.1)
         assert app.state.is_complete is True
 
 

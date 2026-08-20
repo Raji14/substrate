@@ -1,7 +1,14 @@
 """Configuration schemas, options, and state models for Agent Substrate Onboarding.
 
-Derived from the Agent Substrate Onboarding Specification & Day-0 Script.
-Structured as a 6-step wizard with left-sidebar navigation on Google Kubernetes Engine (GKE).
+Derived from the 8-Step Interactive Onboarding Journey:
+  1. Check your setup
+  2. Create a cluster
+  3. Turn on Substrate
+  4. Install the CLI
+  5. First actor
+  6. Send a request
+  7. Pause & resume
+  8. Scale it up
 """
 
 from __future__ import annotations
@@ -11,20 +18,166 @@ from typing import Dict, List, Optional
 
 
 class OnboardingStep(str, Enum):
-    CLUSTER = "cluster"                  # Step 1: Cluster Detection & Verification
-    CONTROL_PLANE = "control_plane"      # Step 2: Control Plane Installation
-    NODE_POOL = "node_pool"              # Step 3: Node Pool & CCC Hardware Nested-Virt
-    AUTOSCALING = "autoscaling"          # Step 4: WorkerPool Autoscaling & CapacityBuffer
-    DEPLOY_WORKERPOOL = "deploy_wp"      # Step 5: Deploy Default WorkerPool
-    LAUNCHPAD = "launchpad"              # Step 6: Live Verification & Operations Runbook
+    CHECK_SETUP = "check_setup"          # Step 1: Check your setup
+    CREATE_CLUSTER = "create_cluster"    # Step 2: Create a cluster
+    TURN_ON_SUBSTRATE = "turn_on_sub"    # Step 3: Turn on Substrate
+    INSTALL_CLI = "install_cli"          # Step 4: Install the CLI
+    FIRST_ACTOR = "first_actor"          # Step 5: First actor
+    SEND_REQUEST = "send_request"        # Step 6: Send a request
+    PAUSE_RESUME = "pause_resume"        # Step 7: Pause & resume
+    SCALE_UP = "scale_up"                # Step 8: Scale it up
+    COMPLETE = "complete"
 
     # Backward compatibility aliases
-    WELCOME = "cluster"
-    DOCTOR = "control_plane"
-    QUESTIONNAIRE = "node_pool"
-    AUTH = "autoscaling"
-    SUMMARY = "launchpad"
-    COMPLETE = "complete"
+    CLUSTER = "check_setup"
+    CONTROL_PLANE = "create_cluster"
+    NODE_POOL = "turn_on_sub"
+    AUTOSCALING = "install_cli"
+    DEPLOY_WORKERPOOL = "first_actor"
+    LAUNCHPAD = "scale_up"
+    WELCOME = "check_setup"
+    DOCTOR = "check_setup"
+    QUESTIONNAIRE = "create_cluster"
+    AUTH = "turn_on_sub"
+    SUMMARY = "scale_up"
+
+
+@dataclass
+class StepMetadata:
+    step_num: int
+    title: str
+    heading: str
+    description: str
+    real_command: str
+    checklist_title: str
+    checklist_items: List[str]
+    done_message: str
+    next_action_label: str
+
+
+STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
+    OnboardingStep.CHECK_SETUP: StepMetadata(
+        step_num=1,
+        title="Check your setup",
+        heading="Check your environment",
+        description="We'll check if you have everything needed to run Substrate locally — a container runtime, Python, and cluster tools.",
+        real_command="which docker && which kubectl && which python3",
+        checklist_title="Checking prerequisites...",
+        checklist_items=[
+            "Container runtime detected (Docker / Podman / Colima)",
+            "Python 3.10+ runtime available",
+            "Kubectl command utility ready in PATH",
+        ],
+        done_message="Everything's ready. Let's create your cluster next.",
+        next_action_label="Create a cluster (Enter) →",
+    ),
+    OnboardingStep.CREATE_CLUSTER: StepMetadata(
+        step_num=2,
+        title="Create a cluster",
+        heading="Create a local cluster",
+        description="This spins up a small Kubernetes cluster right on your machine — a private sandbox that's fully yours.",
+        real_command="hack/create-kind-cluster.sh",
+        checklist_title="Creating your cluster...",
+        checklist_items=[
+            "Creating your local cluster",
+            "Setting up a place to store container images",
+            "Your cluster is up and ready",
+        ],
+        done_message="Cluster's ready. Now let's install Substrate itself.",
+        next_action_label="Turn on Substrate (Enter) →",
+    ),
+    OnboardingStep.TURN_ON_SUBSTRATE: StepMetadata(
+        step_num=3,
+        title="Turn on Substrate",
+        heading="Turn on Substrate Control Plane",
+        description="Installing the Substrate core controllers, state registry, and high-speed networking into your cluster.",
+        real_command="kubectl apply -f manifests/substrate-control-plane.yaml",
+        checklist_title="Installing Substrate components...",
+        checklist_items=[
+            "Applying CustomResourceDefinitions (WorkerPool, ActorTemplate, Actor)",
+            "Deploying Valkey Metadata & State Registry",
+            "Bootstrapping Substrate Gateway & API Server (listening on :8080)",
+            "Initializing eBPF network routing controller in [substrate-system]",
+        ],
+        done_message="Substrate is active! Next, let's install the CLI.",
+        next_action_label="Install the CLI (Enter) →",
+    ),
+    OnboardingStep.INSTALL_CLI: StepMetadata(
+        step_num=4,
+        title="Install the CLI",
+        heading="Install the atectl CLI",
+        description="The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
+        real_command="go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh",
+        checklist_title="Configuring developer CLI...",
+        checklist_items=[
+            "Downloading atectl binary for your architecture (macOS / Linux)",
+            "Registering shell autocompletions and PATH bindings",
+            "CLI verified: atectl version v0.2.1-ga",
+        ],
+        done_message="CLI is installed and ready. Let's deploy your first actor!",
+        next_action_label="Deploy first actor (Enter) →",
+    ),
+    OnboardingStep.FIRST_ACTOR: StepMetadata(
+        step_num=5,
+        title="First actor",
+        heading="Deploy your first actor",
+        description="Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
+        real_command="atectl actor create my-first-actor --template=default-agent --atespace=default-atespace",
+        checklist_title="Launching actor session...",
+        checklist_items=[
+            "Resolving agent container image (gcr.io/ate-platform/agent:v1)",
+            "Injecting into pre-warmed worker sandbox",
+            "Actor [my-first-actor] is live and listening on port 8080",
+        ],
+        done_message="Actor is running! Let's send it an interactive request.",
+        next_action_label="Send a request (Enter) →",
+    ),
+    OnboardingStep.SEND_REQUEST: StepMetadata(
+        step_num=6,
+        title="Send a request",
+        heading="Send a request to your actor",
+        description="Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
+        real_command='atectl actor execute my-first-actor --prompt="Analyze recent logs and report status"',
+        checklist_title="Streaming execution turn...",
+        checklist_items=[
+            "Routing turn request through Substrate Gateway",
+            "Actor turn completed in 82ms (First token: 14ms)",
+            'Response received: "System operating normally. 0 errors detected."',
+        ],
+        done_message="Great response! Now let's see how Substrate saves compute when idle.",
+        next_action_label="Test Pause & Resume (Enter) →",
+    ),
+    OnboardingStep.PAUSE_RESUME: StepMetadata(
+        step_num=7,
+        title="Pause & resume",
+        heading="Pause & resume (0% idle CPU)",
+        description="When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
+        real_command="atectl actor suspend my-first-actor && atectl actor resume my-first-actor",
+        checklist_title="Testing data plane suspend/resume...",
+        checklist_items=[
+            "Suspending idle actor memory state to disk (38ms, CPU drops to 0%)",
+            "Request parking held incoming user message in queue",
+            "Restoring actor memory state on wake event in 115ms",
+        ],
+        done_message="Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
+        next_action_label="Scale it up (Enter) →",
+    ),
+    OnboardingStep.SCALE_UP: StepMetadata(
+        step_num=8,
+        title="Scale it up",
+        heading="Scale worker fleet & Day-2 Operations",
+        description="Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
+        real_command="atectl create workerpools production-fleet --workers=20 --isolation=microvm",
+        checklist_title="Scaling worker pool capacity...",
+        checklist_items=[
+            "Worker pool [production-fleet] scaled to 20 warm pods",
+            "Standby CapacityBuffer configured (3 warm spares ready)",
+            "Live inspection verified: atectl get workerpools (Ready: 20/20)",
+        ],
+        done_message="You're all set! Enjoy building high-density AI agents with Agent Substrate.",
+        next_action_label="🚀 Finish Onboarding (Enter)",
+    ),
+}
 
 
 @dataclass
@@ -32,102 +185,59 @@ class OptionItem:
     id: str
     title: str
     description: str
-    icon: str
-    tip: str
+    icon: str = "⚡"
+    tip: str = ""
 
 
-# Step 1: Available GKE Clusters in Kubeconfig
 CLUSTER_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="demo_cluster_us_central1",
         title="gke_demo_project_us-central1-a_demo-cluster (Recommended)",
         description="GKE v1.31.1-gke.1520000 in us-central1-a (Target: demo-cluster)",
         icon="🌐",
-        tip="Connects to the primary GKE development cluster in us-central1-a.",
+        tip="Connects to primary cluster.",
     ),
     OptionItem(
         id="staging_cluster_us_west1",
         title="gke_demo_project_us-west1-b_staging-cluster",
         description="GKE v1.31.0 in us-west1-b (Target: staging-cluster)",
         icon="🧪",
-        tip="Staging cluster with multi-zone standby nodes.",
-    ),
-    OptionItem(
-        id="analytics_cluster_eu_west1",
-        title="gke_demo_project_europe-west1-c_analytics-cluster",
-        description="GKE v1.30.4 in europe-west1-c (Target: analytics-cluster)",
-        icon="📊",
-        tip="Europe analytics cluster with high-memory nodes.",
+        tip="Staging cluster.",
     ),
 ]
 
-# Step 3: Node Pool & Hardware Isolation (Custom Compute Class)
 NODEPOOL_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="ccc_auto",
         title="Automatically create a compatible Node Pool using Custom Compute Class (Recommended)",
-        description="Applies Custom Compute Class manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
+        description="Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
         icon="⚡",
-        tip="Provisions an optimal GKE node pool with hardware nested virtualization (KVM) for microVM isolation.",
-    ),
-    OptionItem(
-        id="gcloud_manual",
-        title="Create a compatible Node Pool manually via gcloud",
-        description="Run 'gcloud container node-pools create --enable-nested-virtualization' in another terminal",
-        icon="🛠️",
-        tip="Manual gcloud CLI configuration for custom VPCs and security policies.",
-    ),
-    OptionItem(
-        id="switch_cluster",
-        title="Choose a different cluster",
-        description="Return to Step 1 and select another active Kubernetes cluster",
-        icon="🔄",
-        tip="Switch cluster context without losing installation progress.",
+        tip="Auto provisions node pool.",
     ),
 ]
 
-# Step 4: Autoscaling & Capacity Buffer Configuration
 AUTOSCALING_OPTIONS: List[OptionItem] = [
     OptionItem(
-        id="auto_hpa_buffer",
-        title="Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)",
-        description="Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby pods via buffer.gke.io)",
+        id="auto_hpa",
+        title="Automatically configure HPA & CapacityBuffer with sensible defaults",
+        description="OneHPA min=10, max=100 and fixed-replica-buffer 3 standby",
         icon="⚡",
-        tip="Maintains pre-warmed standby worker pods for instant (<100ms) agent session injection.",
-    ),
-    OptionItem(
-        id="kubectl_manual",
-        title="Configure Autoscaling manually via kubectl",
-        description="Apply custom HorizontalPodAutoscaler and CapacityBuffer manifests later",
-        icon="📄",
-        tip="Use custom metrics or external Prometheus triggers for scaling.",
-    ),
-    OptionItem(
-        id="skip_autoscaling",
-        title="Skip autoscaling configuration",
-        description="Run fixed worker pool size without automatic pod scaling",
-        icon="⏭️",
-        tip="Suitable for local development or fixed-capacity evaluation.",
     ),
 ]
 
-# Step 5: Deploy Default WorkerPool
 DEPLOY_WP_OPTIONS: List[OptionItem] = [
     OptionItem(
-        id="deploy_default_yes",
+        id="deploy_yes",
         title="Yes, deploy default WorkerPool [default-worker-pool] (Recommended)",
-        description="10 standby replicas, microVM sandbox isolation, 10% warm headroom in namespace [substrate-system]",
+        description="10 standby replicas, microVM sandbox isolation",
         icon="🚀",
-        tip="Deploys the production execution layer ready for agent container injection.",
-    ),
-    OptionItem(
-        id="deploy_default_no",
-        title="No, skip default WorkerPool deployment",
-        description="Only install the control plane; configure worker pools later via atectl CLI",
-        icon="⏹️",
-        tip="Control plane will be deployed without worker instances.",
     ),
 ]
+
+TRACK_OPTIONS = CLUSTER_OPTIONS
+DATAPLANE_OPTIONS = NODEPOOL_OPTIONS
+SANDBOX_OPTIONS = AUTOSCALING_OPTIONS
+EDITOR_OPTIONS = DEPLOY_WP_OPTIONS
 
 
 @dataclass
@@ -147,32 +257,6 @@ class CheckResult:
 
 @dataclass
 class UserSetupState:
-    current_step: OnboardingStep = OnboardingStep.CLUSTER
-    installation_mode: str = "quickstart"  # "quickstart", "advanced"
-    selected_cluster: str = "demo-cluster"
-    cluster_context: str = "gke_demo_project_us-central1-a_demo-cluster"
-    cluster_location: str = "us-central1-a"
-    cluster_version: str = "v1.31.1-gke.1520000"
-    namespace: str = "substrate-system"
-    nodepool_mode: str = "ccc_auto"
-    machine_type: str = "n2-standard-48"
-    nested_virt: bool = True
-    autoscaling_mode: str = "auto_hpa_buffer"
-    min_replicas: int = 10
-    max_replicas: int = 100
-    standby_replicas: int = 3
-    deploy_workerpool: bool = True
-    workerpool_name: str = "default-worker-pool"
-    isolation_type: str = "microvm"
+    current_step: OnboardingStep = OnboardingStep.CHECK_SETUP
+    selected_cluster: str = "local-sandbox"
     is_complete: bool = False
-
-    def to_summary_dict(self) -> Dict[str, str]:
-        return {
-            "Target Cluster": f"{self.selected_cluster} ({self.cluster_location})",
-            "GKE Version": self.cluster_version,
-            "Control Plane Namespace": self.namespace,
-            "Node Pool Compute": f"{self.machine_type} (Nested-Virt: {'Enabled' if self.nested_virt else 'Disabled'})",
-            "Autoscaling Policy": f"OneHPA ({self.min_replicas}–{self.max_replicas} pods) + {self.standby_replicas} Standby Buffer",
-            "Default WorkerPool": f"{self.workerpool_name} ({self.isolation_type} sandbox, 10 ready)",
-            "Control Plane Status": "Healthy (Gateway listening on :8080)",
-        }

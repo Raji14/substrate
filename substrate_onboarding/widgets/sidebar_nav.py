@@ -1,59 +1,51 @@
-"""Left Navigation Sidebar Widget for the Substrate Onboarding Wizard.
+"""Left Navigation Sidebar Widget for the Substrate Onboarding Journey.
 
-Provides a persistent 6-step progress indicator and live cluster metadata panel.
+Renders the clean, minimal sidebar matching the design reference:
+- Substrate (bold cyan header)
+- Getting set up (muted cyan subtext)
+- Progress bar
+- X of 8 steps
+- 8 numbered steps with ✓, active cyan number, and muted upcoming steps.
 """
 
 from __future__ import annotations
-from typing import Optional
+
+from typing import List, Tuple
 from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import Label, Static
+from textual.widgets import Static
 from rich.text import Text
-from substrate_onboarding.config import OnboardingStep
+from substrate_onboarding.config import OnboardingStep, STEP_CONFIGS
 
 
-STEP_ORDER = [
-    (OnboardingStep.CLUSTER, "1. Cluster Detection"),
-    (OnboardingStep.CONTROL_PLANE, "2. Control Plane"),
-    (OnboardingStep.NODE_POOL, "3. Node Pool & CCC"),
-    (OnboardingStep.AUTOSCALING, "4. Autoscaling (HPA)"),
-    (OnboardingStep.DEPLOY_WORKERPOOL, "5. Deploy WorkerPool"),
-    (OnboardingStep.LAUNCHPAD, "6. Launchpad & Verify"),
+STEPS_LIST: List[Tuple[OnboardingStep, str]] = [
+    (OnboardingStep.CHECK_SETUP, "Check your setup"),
+    (OnboardingStep.CREATE_CLUSTER, "Create a cluster"),
+    (OnboardingStep.TURN_ON_SUBSTRATE, "Turn on Substrate"),
+    (OnboardingStep.INSTALL_CLI, "Install the CLI"),
+    (OnboardingStep.FIRST_ACTOR, "First actor"),
+    (OnboardingStep.SEND_REQUEST, "Send a request"),
+    (OnboardingStep.PAUSE_RESUME, "Pause & resume"),
+    (OnboardingStep.SCALE_UP, "Scale it up"),
 ]
 
-STEP_INDEX_MAP = {
-    OnboardingStep.CLUSTER: 1,
-    OnboardingStep.CONTROL_PLANE: 2,
-    OnboardingStep.NODE_POOL: 3,
-    OnboardingStep.AUTOSCALING: 4,
-    OnboardingStep.DEPLOY_WORKERPOOL: 5,
-    OnboardingStep.LAUNCHPAD: 6,
-    OnboardingStep.COMPLETE: 6,
-}
+STEP_MAP = {step: idx + 1 for idx, (step, _) in enumerate(STEPS_LIST)}
 
 
 class SidebarNav(Widget):
-    """Left navigation sidebar showing onboarding steps and live cluster context."""
+    """Left navigation sidebar showing 8 onboarding steps and active progress."""
 
-    current_step: reactive[OnboardingStep] = reactive(OnboardingStep.CLUSTER)
+    current_step: reactive[OnboardingStep] = reactive(OnboardingStep.CHECK_SETUP)
 
     def __init__(
         self,
-        current_step: OnboardingStep = OnboardingStep.CLUSTER,
-        cluster_name: str = "demo-cluster",
-        location: str = "us-central1-a",
-        version: str = "v1.31.1-gke",
-        namespace: str = "substrate-system",
+        current_step: OnboardingStep = OnboardingStep.CHECK_SETUP,
         id: str = "sidebar-nav",
     ):
         super().__init__(id=id)
         self.current_step = current_step
-        self.cluster_name = cluster_name
-        self.location = location
-        self.version = version
-        self.namespace = namespace
 
     def compose(self) -> ComposeResult:
         with Vertical(id="sidebar-container"):
@@ -61,61 +53,39 @@ class SidebarNav(Widget):
 
     def _render_sidebar_content(self) -> Text:
         t = Text()
+        curr_idx = STEP_MAP.get(self.current_step, 1)
 
-        # Sidebar Header
-        t.append("╭─ 🧭 WIZARD STEPS ──────────╮\n", style="bold #8ab4f8")
-        t.append("│                            │\n", style="#8ab4f8")
+        # Header Title
+        t.append("Substrate\n", style="bold #70d6ff")
+        t.append("Getting set up\n\n", style="#80868b")
 
-        curr_idx = STEP_INDEX_MAP.get(self.current_step, 1)
+        # Thin Progress Bar
+        bar_len = 24
+        filled = max(1, int((curr_idx / len(STEPS_LIST)) * bar_len))
+        t.append("━" * filled, style="#70d6ff")
+        t.append("─" * (bar_len - filled), style="#3c4043")
+        t.append("\n\n")
 
-        for step_enum, step_label in STEP_ORDER:
-            step_num = STEP_INDEX_MAP[step_enum]
+        # Step Count Indicator
+        completed_count = max(0, curr_idx - 1)
+        t.append(f"{completed_count} of 8 steps\n\n", style="#80868b")
+
+        # 8 Steps List
+        for i, (step_enum, title) in enumerate(STEPS_LIST):
+            step_num = i + 1
             if step_num < curr_idx:
-                icon = "✓"
-                style_icon = "bold #81c995"
-                style_text = "#81c995"
-                prefix = f"  {icon} {step_label}"
+                # Completed
+                t.append("✓ ", style="bold #81c995")
+                t.append(f"{title}\n", style="bold #e3e3e3")
             elif step_num == curr_idx:
-                icon = "▶"
-                style_icon = "bold #a8c7fa"
-                style_text = "bold #ffffff on #0842a0"
-                prefix = f"  {icon} {step_label}"
+                # Active
+                t.append(f"{step_num} ", style="bold #70d6ff")
+                t.append(f"{title}\n", style="bold #70d6ff")
             else:
-                icon = "○"
-                style_icon = "#9aa0a6"
-                style_text = "#9aa0a6"
-                prefix = f"  {icon} {step_label}"
+                # Upcoming
+                t.append(f"{step_num} ", style="#5f6368")
+                t.append(f"{title}\n", style="#5f6368")
 
-            t.append("│", style="#8ab4f8")
-            if step_num == curr_idx:
-                t.append(f" {icon} ", style=style_icon)
-                t.append(f"{step_label.ljust(22)}", style=style_text)
-            else:
-                t.append(f" {icon} ", style=style_icon)
-                t.append(f"{step_label.ljust(22)}", style=style_text)
-            t.append("│\n", style="#8ab4f8")
-
-        t.append("│                            │\n", style="#8ab4f8")
-        t.append("├─ 📊 CLUSTER CONTEXT ───────┤\n", style="bold #8ab4f8")
-        t.append("│                            │\n", style="#8ab4f8")
-
-        meta_rows = [
-            ("Cluster", self.cluster_name),
-            ("Region", self.location),
-            ("GKE K8s", self.version),
-            ("Namespace", "substrate-sys"),
-            ("Status", "Connected"),
-        ]
-
-        for k, v in meta_rows:
-            t.append("│  ", style="#8ab4f8")
-            t.append(f"{k.ljust(10)}: ", style="#9aa0a6")
-            val_style = "bold #81c995" if k == "Status" else ("bold #8ab4f8" if k == "Cluster" else "#e3e3e3")
-            t.append(f"{v.ljust(12)}", style=val_style)
-            t.append("│\n", style="#8ab4f8")
-
-        t.append("│                            │\n", style="#8ab4f8")
-        t.append("╰────────────────────────────╯", style="bold #8ab4f8")
         return t
 
     def watch_current_step(self, step: OnboardingStep) -> None:

@@ -1,4 +1,4 @@
-"""Main Textual Application orchestrating the Substrate Onboarding TUI."""
+"""Main Textual Application orchestrating the Substrate 8-Step Onboarding TUI."""
 
 from __future__ import annotations
 
@@ -6,28 +6,21 @@ import sys
 from typing import Optional
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from rich.text import Text
 
 from substrate_onboarding.config import OnboardingStep, UserSetupState
 from substrate_onboarding.engine.state_machine import OnboardingStateMachine
 from substrate_onboarding.engine.commands import CommandRegistry
 from substrate_onboarding.theme import APP_CSS
-from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
-from substrate_onboarding.screens.welcome_screen import WelcomeScreen
-from substrate_onboarding.screens.doctor_screen import DoctorScreen
-from substrate_onboarding.screens.wizard_screen import QuestionnaireScreen
-from substrate_onboarding.screens.auth_screen import AuthScreen
-from substrate_onboarding.screens.deploy_wp_screen import DeployWorkerPoolScreen
-from substrate_onboarding.screens.summary_screen import SummaryScreen
+from substrate_onboarding.screens.step_screen import GenericStepScreen
 from substrate_onboarding.screens.help_modal import HelpModal
 from substrate_onboarding.screens.exit_modal import ExitConfirmModal
 
 
 class SubstrateOnboardingApp(App[UserSetupState]):
-    """Delightful, high-taste Textual TUI for developer onboarding on GKE."""
+    """Delightful, high-taste Textual TUI for developer onboarding."""
 
     CSS = APP_CSS
-    TITLE = "Agent Substrate Onboarding on GKE"
+    TITLE = "Substrate — Getting set up"
 
     BINDINGS = [
         Binding("ctrl+c", "request_exit", "Exit", show=False, priority=True),
@@ -38,18 +31,26 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     ]
 
     SCREENS = {
-        "cluster": WelcomeScreen,
-        "control_plane": DoctorScreen,
-        "node_pool": QuestionnaireScreen,
-        "autoscaling": AuthScreen,
-        "deploy_wp": DeployWorkerPoolScreen,
-        "launchpad": SummaryScreen,
-        # Aliases for backward compatibility
-        "welcome": WelcomeScreen,
-        "doctor": DoctorScreen,
-        "questionnaire": QuestionnaireScreen,
-        "auth": AuthScreen,
-        "summary": SummaryScreen,
+        "check_setup": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
+        "create_cluster": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
+        "turn_on_sub": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
+        "install_cli": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
+        "first_actor": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
+        "send_request": lambda: GenericStepScreen(OnboardingStep.SEND_REQUEST, name="send_request"),
+        "pause_resume": lambda: GenericStepScreen(OnboardingStep.PAUSE_RESUME, name="pause_resume"),
+        "scale_up": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
+        # Backward compatibility aliases
+        "cluster": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
+        "control_plane": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
+        "node_pool": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
+        "autoscaling": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
+        "deploy_wp": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
+        "launchpad": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
+        "welcome": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
+        "doctor": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
+        "questionnaire": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
+        "auth": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
+        "summary": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
     }
 
     def __init__(self, initial_state: Optional[UserSetupState] = None):
@@ -66,7 +67,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         initial_screen = (
             self.state.current_step.value
             if self.state.current_step.value in self.SCREENS
-            else "cluster"
+            else "check_setup"
         )
         self.push_screen(initial_screen)
 
@@ -114,7 +115,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         elif cmd.action_key == "back":
             self.previous_step()
         elif cmd.action_key == "doctor":
-            self.state_machine.transition_to(OnboardingStep.CONTROL_PLANE)
+            self.state_machine.transition_to(OnboardingStep.CHECK_SETUP)
         elif cmd.action_key == "exit":
             self.action_request_exit()
         return True

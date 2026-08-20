@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with 6-step Day-0 GKE installer sequencing."""
+"""State Machine for Onboarding Workflow with 8-Step Interactive Journey."""
 
 from __future__ import annotations
 
@@ -9,23 +9,27 @@ from substrate_onboarding.config import OnboardingStep, UserSetupState
 class OnboardingStateMachine:
     """Manages consecutive onboarding state transitions with history and rollback support.
     
-    6-Step Day-0 Sequencing:
-      1. Cluster Detection (Scanning active kubeconfig for GKE clusters)
-      2. Control Plane Installation (CRDs, Valkey, API Gateway, eBPF proxy)
-      3. Node Pool & Isolation (Custom Compute Class, n2-standard-48, nested-virt)
-      4. Autoscaling (OneHPA 10-100 replicas & fixed-replica-buffer 3 standby)
-      5. Deploy WorkerPool (default-worker-pool, microVM isolation, 10 ready)
-      6. Launchpad & Verification (Live atectl get workerpools inspection & first actor run)
-      7. Complete
+    8-Step Sequence:
+      1. Check your setup
+      2. Create a cluster
+      3. Turn on Substrate
+      4. Install the CLI
+      5. First actor
+      6. Send a request
+      7. Pause & resume
+      8. Scale it up
+      9. Complete
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
-        OnboardingStep.CLUSTER,
-        OnboardingStep.CONTROL_PLANE,
-        OnboardingStep.NODE_POOL,
-        OnboardingStep.AUTOSCALING,
-        OnboardingStep.DEPLOY_WORKERPOOL,
-        OnboardingStep.LAUNCHPAD,
+        OnboardingStep.CHECK_SETUP,
+        OnboardingStep.CREATE_CLUSTER,
+        OnboardingStep.TURN_ON_SUBSTRATE,
+        OnboardingStep.INSTALL_CLI,
+        OnboardingStep.FIRST_ACTOR,
+        OnboardingStep.SEND_REQUEST,
+        OnboardingStep.PAUSE_RESUME,
+        OnboardingStep.SCALE_UP,
         OnboardingStep.COMPLETE,
     ]
 
@@ -99,5 +103,5 @@ class OnboardingStateMachine:
             return 1
 
     def total_steps(self) -> int:
-        """Total number of visible interactive onboarding steps (6 steps)."""
+        """Total number of visible interactive onboarding steps (8 steps)."""
         return len(self.STEPS_ORDER) - 1
