@@ -552,7 +552,7 @@
     .cluster-info-header { font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 2px; }
     .cluster-info-line { font-size: 11px; color: var(--text-primary); line-height: 1.4; }
 
-    /* Conditional GKE Private GA Box */
+    /* Interactive GKE Private GA Box with Toggle Checkbox */
     .gke-agreement-box {
       background: #191c14;
       border: 1px solid var(--accent-yellow);
@@ -560,11 +560,52 @@
       padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .gke-agreement-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .gke-agreement-title { font-size: 11px; font-weight: 700; color: var(--accent-yellow); }
+    .gke-token-pill {
+      font-size: 10px;
+      background: rgba(129, 201, 149, 0.15);
+      color: var(--accent-green);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(129, 201, 149, 0.3);
+      font-weight: 600;
+    }
     .gke-agreement-sub { font-size: 10px; color: var(--text-white); }
-    .gke-agreement-terms { font-size: 10px; color: var(--accent-cyan); font-weight: 600; }
+    
+    .gke-agreement-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(253, 214, 99, 0.4);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .gke-agreement-checkbox-row:hover {
+      background: rgba(253, 214, 99, 0.1);
+      border-color: var(--accent-yellow);
+    }
+    .gke-checkbox-box {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+    .gke-checkbox-text {
+      font-size: 10px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      line-height: 1.3;
+    }
 
     .compact-checklist-box {
       background: #090d16;
@@ -576,7 +617,7 @@
       gap: 6px;
     }
 
-    /* Execution Checklist Card */
+    /* Execution Checklist Card with Real-time Animation */
     .execution-card {
       background: #090d16;
       border: 1px solid var(--border-dark);
@@ -596,6 +637,7 @@
       flex-direction: column;
       gap: 8px;
       margin-bottom: 12px;
+      min-height: 72px;
     }
     .check-line {
       font-size: 12px;
@@ -603,10 +645,42 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: opacity 0.2s ease;
     }
-    .check-icon { color: var(--accent-green); font-weight: 700; }
-    .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 4px; }
-    .done-prompt { font-size: 12px; color: var(--text-primary); font-style: italic; }
+    .check-line.pending {
+      color: var(--text-dim);
+    }
+    .check-line.running {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+    .check-line.done {
+      color: var(--text-white);
+    }
+
+    .check-icon {
+      font-weight: 700;
+      width: 14px;
+      display: inline-block;
+      text-align: center;
+    }
+    .check-icon.done { color: var(--accent-green); }
+    .check-icon.running { color: var(--accent-cyan); }
+    .check-icon.pending { color: var(--text-dim); }
+
+    .done-status {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-green);
+      margin-bottom: 4px;
+      transition: opacity 0.3s;
+    }
+    .done-prompt {
+      font-size: 12px;
+      color: var(--text-primary);
+      font-style: italic;
+      transition: opacity 0.3s;
+    }
 
     /* Benchmark Latency Gauge Visualization */
     .benchmark-card {
@@ -774,7 +848,7 @@
     <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-11) -->
     <div class="wizard-view" id="view-wizard">
       
-      <!-- Left Sidebar Navigation -->
+      <!-- Left Sidebar Navigation (11 numbered steps) -->
       <div class="sidebar-nav">
         <div class="sidebar-brand" onclick="showWelcomeScreen()">Substrate</div>
         <div class="sidebar-subtitle">Getting set up</div>
@@ -814,15 +888,11 @@
             <div class="command-text">which docker && which kubectl && which python3</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-0">
             <div class="checklist-title">Checking prerequisites...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Container runtime detected (Docker / Podman / Containerd)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Python 3.10+ runtime available</div>
-              <div class="check-line"><span class="check-icon">✓</span> Kubectl command utility ready in PATH</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Prerequisites verified. Let's connect your pre-configured cluster next.</div>
+            <div class="checklist-items" id="check-items-0"></div>
+            <div class="done-status" id="done-status-0" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-0" style="opacity: 0;">Prerequisites verified. Let's connect your pre-configured cluster next.</div>
           </div>
 
           <div class="action-row">
@@ -831,7 +901,7 @@
           </div>
         </div>
 
-        <!-- STEP 2: Connect your cluster (SIDE-BY-SIDE + REGION + CONDITIONAL GKE GA AGREEMENT) -->
+        <!-- STEP 2: Connect your cluster (SIDE-BY-SIDE + REGION + INTERACTIVE GKE GA AGREEMENT) -->
         <div class="step-screen" id="screen-1">
           <div class="step-counter">Step 2 of 11</div>
           <div class="step-heading">Select Cluster & Verify Substrate Control Plane</div>
@@ -893,17 +963,22 @@
                 <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>Substrate Probe:</strong> [substrate-system] ➔ Not Installed (Clean Ready)</div>
               </div>
 
-              <!-- Conditional GKE Private GA Agreement (Shown ONLY for GKE) -->
+              <!-- Interactive GKE Private GA Agreement (Shown ONLY for GKE) -->
               <div class="gke-agreement-box" id="gke-agreement-box">
-                <div class="gke-agreement-title">📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):</div>
-                <div class="gke-agreement-sub">Customer: Acme Corp │ License Token: ga-sub-8f92a-live-contract <span style="color: var(--accent-green);">[✓]</span></div>
-                <div class="gke-agreement-terms">[✓] I acknowledge that production support requires an explicit agreement with Google Cloud.</div>
+                <div class="gke-agreement-header">
+                  <span class="gke-agreement-title">📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):</span>
+                  <span class="gke-token-pill">Token: ga-sub-8f92a [Verified ✓]</span>
+                </div>
+                <div class="gke-agreement-sub">Organization: Acme Corp • Contact: rajithal@enterprise.com</div>
+                <div class="gke-agreement-checkbox-row" id="gke-agreement-toggle" onclick="toggleGkeAgreement()">
+                  <span class="gke-checkbox-box" id="gke-checkbox-icon">☑</span>
+                  <span class="gke-checkbox-text" id="gke-checkbox-label">I acknowledge that production support requires an explicit agreement with Google Cloud.</span>
+                  <span class="kbd-key" style="margin-left: auto;">Press [a]</span>
+                </div>
               </div>
 
               <div class="compact-checklist-box">
-                <div class="check-line"><span class="check-icon">✓</span> API Reachability: Connected to active context</div>
-                <div class="check-line"><span class="check-icon">✓</span> Provider & Region Compatibility: Kubernetes v1.28+ verified</div>
-                <div class="check-line"><span class="check-icon">✓</span> Clean cluster ready for Substrate install</div>
+                <div class="checklist-items" id="check-items-1" style="min-height: auto; gap: 5px;"></div>
               </div>
             </div>
           </div>
@@ -925,16 +1000,11 @@
             <div class="command-text">kubectl apply -f manifests/substrate-control-plane.yaml</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-2">
             <div class="checklist-title">Installing Substrate components...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Applying CustomResourceDefinitions (WorkerPool, ActorTemplate, Actor)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Deploying Valkey Metadata & State Registry</div>
-              <div class="check-line"><span class="check-icon">✓</span> Bootstrapping Substrate Gateway & API Server (listening on :8080)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Initializing eBPF network routing controller in [substrate-system]</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Substrate control plane is active! Next, let's configure the worker pool node fleet.</div>
+            <div class="checklist-items" id="check-items-2"></div>
+            <div class="done-status" id="done-status-2" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-2" style="opacity: 0;">Substrate control plane is active! Next, let's configure the worker pool node fleet.</div>
           </div>
 
           <div class="action-row">
@@ -980,16 +1050,11 @@
             💡 <strong>Tip:</strong> You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. <code>manifests/workerpool-ccc.yaml</code>).
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-3">
             <div class="checklist-title">Configuring compatible node pool...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Scanning existing node pools: No hardware nested-virt pool detected</div>
-              <div class="check-line"><span class="check-icon">✓</span> Applying Custom Compute Class manifest [agent-spot-ccc] (n2-standard-48, KVM enabled)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Configuring Spot fallback & capacity reservation</div>
-              <div class="check-line"><span class="check-icon">✓</span> Compatible node pool ready for high-density agent sandboxing</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Compatible node pool configured! Now let's set up autoscaling.</div>
+            <div class="checklist-items" id="check-items-3"></div>
+            <div class="done-status" id="done-status-3" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-3" style="opacity: 0;">Compatible node pool configured! Now let's set up autoscaling.</div>
           </div>
 
           <div class="action-row">
@@ -1035,15 +1100,11 @@
             💡 <strong>Tip:</strong> You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. <code>manifests/workerpool-autoscaling.yaml</code>).
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-4">
             <div class="checklist-title">Applying autoscaling & capacity buffer...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Applying HorizontalPodAutoscaler (OneHPA: minReplicas=10, maxReplicas=100)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Applying CapacityBuffer (fixed-replica-buffer: 3 standby replicas via buffer.gke.io/standby-capacity)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Standby buffer verified: Ready for instant (&lt;100ms) agent session injection</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Autoscaling active! Now let's deploy the default Substrate WorkerPool.</div>
+            <div class="checklist-items" id="check-items-4"></div>
+            <div class="done-status" id="done-status-4" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-4" style="opacity: 0;">Autoscaling active! Now let's deploy the default Substrate WorkerPool.</div>
           </div>
 
           <div class="action-row">
@@ -1077,16 +1138,11 @@
             </div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-5">
             <div class="checklist-title">Deploying default Substrate WorkerPool...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Resolving worker sandbox image (gcr.io/ate-platform/worker:v1)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Deploying WorkerPool CR [default-worker-pool] in namespace [substrate-system]</div>
-              <div class="check-line"><span class="check-icon">✓</span> Provisioning 10 warm worker sandboxes (3 standby buffer replicas active)</div>
-              <div class="check-line"><span class="check-icon">✓</span> WorkerPool is ready: 10/10 warm pods listening for agent execution turns</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Default WorkerPool deployed! Now let's install the developer CLI.</div>
+            <div class="checklist-items" id="check-items-5"></div>
+            <div class="done-status" id="done-status-5" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-5" style="opacity: 0;">Default WorkerPool deployed! Now let's install the developer CLI.</div>
           </div>
 
           <div class="action-row">
@@ -1106,15 +1162,11 @@
             <div class="command-text">go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-6">
             <div class="checklist-title">Configuring developer CLI...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Downloading atectl binary for your architecture (macOS / Linux)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Registering shell autocompletions and PATH bindings</div>
-              <div class="check-line"><span class="check-icon">✓</span> CLI verified: atectl version v0.2.1-ga</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">CLI is installed and ready. Let's deploy your first actor!</div>
+            <div class="checklist-items" id="check-items-6"></div>
+            <div class="done-status" id="done-status-6" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-6" style="opacity: 0;">CLI is installed and ready. Let's deploy your first actor!</div>
           </div>
 
           <div class="action-row">
@@ -1134,15 +1186,11 @@
             <div class="command-text">atectl actor create my-first-actor --template=default-agent --atespace=default-atespace</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-7">
             <div class="checklist-title">Launching actor session...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Resolving agent container image (gcr.io/ate-platform/agent:v1)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Injecting into pre-warmed worker sandbox</div>
-              <div class="check-line"><span class="check-icon">✓</span> Actor [my-first-actor] is live and listening on port 8080</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Actor is running! Let's send it an interactive request.</div>
+            <div class="checklist-items" id="check-items-7"></div>
+            <div class="done-status" id="done-status-7" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-7" style="opacity: 0;">Actor is running! Let's send it an interactive request.</div>
           </div>
 
           <div class="action-row">
@@ -1162,15 +1210,11 @@
             <div class="command-text">atectl actor execute my-first-actor --prompt="Analyze recent logs and report status"</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-8">
             <div class="checklist-title">Streaming execution turn...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Routing turn request through Substrate Gateway</div>
-              <div class="check-line"><span class="check-icon">✓</span> Actor turn completed in 82ms (First token: 14ms)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Response: "System operating normally. 0 errors detected."</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Great response! Now let's see how Substrate saves compute when idle.</div>
+            <div class="checklist-items" id="check-items-8"></div>
+            <div class="done-status" id="done-status-8" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-8" style="opacity: 0;">Great response! Now let's see how Substrate saves compute when idle.</div>
           </div>
 
           <div class="benchmark-card">
@@ -1195,15 +1239,11 @@
             <div class="command-text">atectl actor suspend my-first-actor && atectl actor resume my-first-actor</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-9">
             <div class="checklist-title">Testing data plane suspend/resume...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Suspending idle actor memory state to disk (38ms, CPU drops to 0%)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Request parking held incoming user message in queue</div>
-              <div class="check-line"><span class="check-icon">✓</span> Restoring actor memory state on wake event in 115ms</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Sub-200ms instant resume confirmed! Finally, let's scale your fleet.</div>
+            <div class="checklist-items" id="check-items-9"></div>
+            <div class="done-status" id="done-status-9" style="opacity: 0;">Done</div>
+            <div class="done-prompt" id="done-prompt-9" style="opacity: 0;">Sub-200ms instant resume confirmed! Finally, let's scale your fleet.</div>
           </div>
 
           <div class="benchmark-card">
@@ -1228,15 +1268,11 @@
             <div class="command-text">atectl create workerpools production-fleet --workers=20 --isolation=microvm</div>
           </div>
 
-          <div class="execution-card">
+          <div class="execution-card" id="exec-card-10">
             <div class="checklist-title">Scaling worker pool capacity...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Worker pool [production-fleet] scaled to 20 warm pods</div>
-              <div class="check-line"><span class="check-icon">✓</span> Standby CapacityBuffer configured (3 warm spares ready)</div>
-              <div class="check-line"><span class="check-icon">✓</span> Live inspection verified: atectl get workerpools (Ready: 20/20)</div>
-            </div>
-            <div class="done-status" style="color: var(--accent-cyan);">Complete 🎉</div>
-            <div class="done-prompt">You're all set! Enjoy building high-density AI agents with Agent Substrate.</div>
+            <div class="checklist-items" id="check-items-10"></div>
+            <div class="done-status" id="done-status-10" style="opacity: 0; color: var(--accent-cyan);">Complete 🎉</div>
+            <div class="done-prompt" id="done-prompt-10" style="opacity: 0;">You're all set! Enjoy building high-density AI agents with Agent Substrate.</div>
           </div>
 
           <div class="fleet-table-card">
@@ -1265,6 +1301,7 @@
     let selectedNodepoolIdx = 0;
     let selectedHpaIdx = 0;
     let selectedWpIdx = 0;
+    let gkeAgreementAccepted = true;
 
     const clustersData = [
       { provider: "Google Kubernetes Engine (GKE v1.31.1)", region: "us-central1 (Iowa)", capacity: "12 ready nodes (Hardware virtualization ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: true },
@@ -1272,6 +1309,135 @@
       { provider: "Azure Kubernetes Service (AKS v1.30.3)", region: "eastus (Virginia)", capacity: "6 ready nodes (Hyper-V isolation ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false },
       { provider: "Kind Local Sandbox (Kubernetes v1.31.0)", region: "local (localhost)", capacity: "3 ready nodes (Docker container sandbox)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false }
     ];
+
+    const stepChecklistItems = {
+      0: [
+        "Container runtime detected (Docker / Podman / Containerd)",
+        "Python 3.10+ runtime available",
+        "Kubectl command utility ready in PATH"
+      ],
+      1: [
+        "API Reachability: Connected to active context",
+        "Provider & Region Compatibility: Kubernetes v1.28+ verified",
+        "Clean cluster ready for Substrate install"
+      ],
+      2: [
+        "Applying CustomResourceDefinitions (WorkerPool, ActorTemplate, Actor)",
+        "Deploying Valkey Metadata & State Registry",
+        "Bootstrapping Substrate Gateway & API Server (listening on :8080)",
+        "Initializing eBPF network routing controller in [substrate-system]"
+      ],
+      3: [
+        "Scanning existing node pools: No hardware nested-virt pool detected",
+        "Applying Custom Compute Class manifest [agent-spot-ccc] (n2-standard-48, KVM)",
+        "Configuring Spot fallback & capacity reservation",
+        "Compatible node pool ready for high-density agent sandboxing"
+      ],
+      4: [
+        "Applying HorizontalPodAutoscaler (OneHPA: minReplicas=10, maxReplicas=100)",
+        "Applying CapacityBuffer (fixed-replica-buffer: 3 standby replicas via buffer.gke.io/standby-capacity)",
+        "Standby buffer verified: Ready for instant (<100ms) agent session injection"
+      ],
+      5: [
+        "Resolving worker sandbox image (gcr.io/ate-platform/worker:v1)",
+        "Deploying WorkerPool CR [default-worker-pool] in namespace [substrate-system]",
+        "Provisioning 10 warm worker sandboxes (3 standby buffer replicas active)",
+        "WorkerPool is ready: 10/10 warm pods listening for agent execution turns"
+      ],
+      6: [
+        "Downloading atectl binary for your architecture (macOS / Linux)",
+        "Registering shell autocompletions and PATH bindings",
+        "CLI verified: atectl version v0.2.1-ga"
+      ],
+      7: [
+        "Resolving agent container image (gcr.io/ate-platform/agent:v1)",
+        "Injecting into pre-warmed worker sandbox",
+        "Actor [my-first-actor] is live and listening on port 8080"
+      ],
+      8: [
+        "Routing turn request through Substrate Gateway",
+        "Actor turn completed in 82ms (First token: 14ms)",
+        "Response received: \"System operating normally. 0 errors detected.\""
+      ],
+      9: [
+        "Suspending idle actor memory state to disk (38ms, CPU drops to 0%)",
+        "Request parking held incoming user message in queue",
+        "Restoring actor memory state on wake event in 115ms"
+      ],
+      10: [
+        "Worker pool [production-fleet] scaled to 20 warm pods",
+        "Standby CapacityBuffer configured (3 warm spares ready)",
+        "Live inspection verified: atectl get workerpools (Ready: 20/20)"
+      ]
+    };
+
+    const spinnerChars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    let activeAnimationIntervals = [];
+
+    function clearAllAnimations() {
+      activeAnimationIntervals.forEach(clearInterval);
+      activeAnimationIntervals = [];
+    }
+
+    function animateChecklistForStep(stepIdx) {
+      clearAllAnimations();
+      const container = document.getElementById(`check-items-${stepIdx}`);
+      const doneStatus = document.getElementById(`done-status-${stepIdx}`);
+      const donePrompt = document.getElementById(`done-prompt-${stepIdx}`);
+      
+      if (!container) return;
+
+      const items = stepChecklistItems[stepIdx] || [];
+      container.innerHTML = '';
+
+      if (doneStatus) doneStatus.style.opacity = '0';
+      if (donePrompt) donePrompt.style.opacity = '0';
+
+      // Create placeholders
+      items.forEach((itemText, i) => {
+        const line = document.createElement('div');
+        line.className = 'check-line pending';
+        line.id = `step-${stepIdx}-item-${i}`;
+        line.innerHTML = `<span class="check-icon pending" id="step-${stepIdx}-icon-${i}">○</span> <span>${itemText}</span>`;
+        container.appendChild(line);
+      });
+
+      // Stagger sequential item resolution
+      let currentItemIdx = 0;
+      let spinnerIdx = 0;
+
+      function startItemSpinner(itemIdx) {
+        if (itemIdx >= items.length) {
+          if (doneStatus) doneStatus.style.opacity = '1';
+          if (donePrompt) donePrompt.style.opacity = '1';
+          return;
+        }
+
+        const line = document.getElementById(`step-${stepIdx}-item-${itemIdx}`);
+        const icon = document.getElementById(`step-${stepIdx}-icon-${itemIdx}`);
+        if (!line || !icon) return;
+
+        line.className = 'check-line running';
+        icon.className = 'check-icon running';
+
+        const spinInterval = setInterval(() => {
+          spinnerIdx = (spinnerIdx + 1) % spinnerChars.length;
+          icon.textContent = spinnerChars[spinnerIdx];
+        }, 50);
+        activeAnimationIntervals.push(spinInterval);
+
+        // Resolve to green checkmark after delay
+        setTimeout(() => {
+          clearInterval(spinInterval);
+          icon.textContent = '✓';
+          icon.className = 'check-icon done';
+          line.className = 'check-line done';
+          startItemSpinner(itemIdx + 1);
+        }, 160);
+      }
+
+      startItemSpinner(0);
+    }
 
     const INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers.";
     let typeIdx = 0;
@@ -1296,6 +1462,7 @@
     }
 
     function showWelcomeScreen() {
+      clearAllAnimations();
       document.getElementById('view-welcome').classList.add('active');
       document.getElementById('view-wizard').classList.remove('active');
       runTypewriter();
@@ -1342,6 +1509,26 @@
           gkeBox.style.display = 'none';
         }
       }
+
+      // Re-trigger live probe check animation
+      animateChecklistForStep(1);
+    }
+
+    function toggleGkeAgreement() {
+      gkeAgreementAccepted = !gkeAgreementAccepted;
+      const icon = document.getElementById('gke-checkbox-icon');
+      const label = document.getElementById('gke-checkbox-label');
+      if (gkeAgreementAccepted) {
+        icon.textContent = '☑';
+        icon.style.color = 'var(--accent-green)';
+        label.style.color = 'var(--accent-cyan)';
+        label.textContent = 'I acknowledge that production support requires an explicit agreement with Google Cloud. [Verified ✓]';
+      } else {
+        icon.textContent = '☐';
+        icon.style.color = 'var(--accent-yellow)';
+        label.style.color = 'var(--accent-yellow)';
+        label.textContent = '[!] Press [a] to acknowledge Google Cloud Private GA support agreement';
+      }
     }
 
     function selectNodepoolOpt(idx) {
@@ -1353,7 +1540,11 @@
           else card.classList.remove('selected');
         }
       }
-      if (idx === 2) goToStep(1); // Return to cluster selection
+      if (idx === 2) {
+        goToStep(1); // Return to cluster selection
+      } else {
+        animateChecklistForStep(3);
+      }
     }
 
     function selectHpaOpt(idx) {
@@ -1365,6 +1556,7 @@
           else card.classList.remove('selected');
         }
       }
+      animateChecklistForStep(4);
     }
 
     function selectWpOpt(idx) {
@@ -1376,6 +1568,7 @@
           else card.classList.remove('selected');
         }
       }
+      animateChecklistForStep(5);
     }
 
     function goToStep(idx) {
@@ -1410,6 +1603,9 @@
       const fillPct = Math.round(((currentStep + 1) / totalSteps) * 100);
       document.getElementById('progress-fill').style.width = `${fillPct}%`;
       document.getElementById('sidebar-count').textContent = `${currentStep} of ${totalSteps} steps`;
+
+      // Trigger realistic progressive terminal checklist animation
+      animateChecklistForStep(currentStep);
     }
 
     function resetWizard() {
@@ -1434,6 +1630,7 @@
           else if (e.key === '2') selectCluster(1);
           else if (e.key === '3') selectCluster(2);
           else if (e.key === '4') selectCluster(3);
+          else if (e.key === 'a' || e.key === 'A') toggleGkeAgreement();
         } else if (currentStep === 3) {
           if (e.key === '1') selectNodepoolOpt(0);
           else if (e.key === '2') selectNodepoolOpt(1);

@@ -33,6 +33,7 @@ class GenericStepScreen(Screen[None]):
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
         ("b", "previous_step", "Back"),
+        ("a", "toggle_agreement", "Acknowledge"),
         ("1", "select_opt_1", "Select 1"),
         ("2", "select_opt_2", "Select 2"),
         ("3", "select_opt_3", "Select 3"),
@@ -52,6 +53,7 @@ class GenericStepScreen(Screen[None]):
         self.nodepool_opts = NODEPOOL_OPTIONS
         self.autoscaling_opts = AUTOSCALING_OPTIONS
         self.deploy_wp_opts = DEPLOY_WP_OPTIONS
+        self.gke_agreement_accepted = True
         self._checklist_progress = 0
         self._timer = None
 
@@ -243,7 +245,10 @@ class GenericStepScreen(Screen[None]):
         if cluster.is_gke:
             t.append("📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):\n", style="bold #fdd663")
             t.append("  • Org: Acme Corp  │  Token: ga-sub-8f92a [Verified ✓]\n", style="#e3e3e3")
-            t.append("  [✓] I acknowledge production support requires an explicit agreement with Google.", style="bold #70d6ff")
+            if self.gke_agreement_accepted:
+                t.append("  [✓] I acknowledge production support requires an explicit agreement with Google. [Accepted]", style="bold #70d6ff")
+            else:
+                t.append("  [ ] Press [a] to accept Google Cloud Private GA support agreement", style="bold #fdd663")
         return t
 
     def _render_compact_checklist(self) -> Text:
@@ -318,6 +323,15 @@ class GenericStepScreen(Screen[None]):
     def action_select_opt_4(self) -> None:
         self.selected_option_idx = 3
         self._refresh_screen_options()
+
+    def action_toggle_agreement(self) -> None:
+        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
+            self.gke_agreement_accepted = not self.gke_agreement_accepted
+            try:
+                gke_box = self.query_one("#cluster-gke-agreement-box", Static)
+                gke_box.update(self._render_gke_agreement_box())
+            except Exception:
+                pass
 
     def action_navigate_up(self) -> None:
         if self.selected_option_idx > 0:
