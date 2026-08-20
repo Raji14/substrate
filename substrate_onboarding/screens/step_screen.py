@@ -276,17 +276,24 @@ class GenericStepScreen(Screen[None]):
 
     def _render_checklist_box(self) -> Text:
         t = Text()
-        title = self.meta.checklist_title
-        items = self.meta.checklist_items
 
         if self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
             if self.selected_option_idx == 1:
-                title = "Configuring manual gcloud node pool..."
-                items = [
-                    "Generated command: gcloud container node-pools create substrate-pool --enable-nested-virtualization",
-                    "Polling for node pool provisioning... (n2-standard-48 ready)",
-                    "Compatible node pool ready for high-density agent sandboxing",
-                ]
+                t.append("🛠️  MANUAL GCLOUD NODE POOL PROVISIONING:\n\n", style="bold #70d6ff")
+                t.append("  gcloud container node-pools create substrate-worker-pool \\\n", style="bold #e3e3e3")
+                t.append("    --cluster=gke_enterprise_us-central1_prod \\\n", style="bold #e3e3e3")
+                t.append("    --machine-type=n2-standard-48 \\\n", style="bold #e3e3e3")
+                t.append("    --enable-nested-virtualization \\\n", style="bold #e3e3e3")
+                t.append("    --num-nodes=3\n\n", style="bold #e3e3e3")
+                t.append("  💡 Run this command in your cloud terminal, then press [Enter ↵] to continue.\n", style="italic #fdd663")
+                return t
+            elif self.selected_option_idx == 2:
+                t.append("🔄  CHOOSE A DIFFERENT CLUSTER:\n\n", style="bold #70d6ff")
+                t.append("  Press [Enter ↵] or [3] to return to Step 2 and select another cluster from your kubeconfig.\n", style="#e3e3e3")
+                return t
+
+        title = self.meta.checklist_title
+        items = self.meta.checklist_items
 
         t.append(f"{title}\n\n", style="bold #70d6ff")
 
