@@ -40,8 +40,11 @@ class GenericStepScreen(Screen):
         ("4", "select_opt_4", "Select 4"),
         ("up", "navigate_up", "Previous"),
         ("down", "navigate_down", "Next"),
+        ("tab", "navigate_down", "Focus Next"),
+        ("shift+tab", "navigate_up", "Focus Prev"),
         ("k", "navigate_up", "Previous"),
         ("j", "navigate_down", "Next"),
+        ("t", "run_test_turn", "Test Turn"),
     ]
 
     def __init__(self, step_key: OnboardingStep, name: Optional[str] = None):
@@ -469,3 +472,7 @@ class GenericStepScreen(Screen):
                 chk.update(self._render_checklist_box())
             except Exception:
                 pass
+
+    def action_run_test_turn(self) -> None:
+        """Trigger in-TUI test turn on completion step."""
+        pass
