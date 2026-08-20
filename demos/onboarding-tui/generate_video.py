@@ -196,13 +196,28 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
-    ly = wy + 48
-    logo_colors = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN, GOOGLE_BLUE]
-    for i, line in enumerate(LOGO_LINES):
-        draw.text((wx + 180, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_xs)
-        ly += 14
+    # Top Badge Pills
+    by_top = wy + 48
+    draw.rounded_rectangle([wx + 340, by_top, wx + 470, by_top + 20], radius=10, fill=(15, 30, 45), outline=ACCENT_CYAN, width=1)
+    draw.text((wx + 350, by_top + 4), "⚡ AGENT RUNTIME", fill=ACCENT_CYAN, font=font_xs)
 
-    tag_y = ly + 8
+    draw.rounded_rectangle([wx + 480, by_top, wx + 615, by_top + 20], radius=10, fill=(15, 25, 40), outline=GOOGLE_BLUE, width=1)
+    draw.text((wx + 490, by_top + 4), "GOOGLE CLOUD GKE", fill=GOOGLE_BLUE, font=font_xs)
+
+    draw.rounded_rectangle([wx + 625, by_top, wx + 720, by_top + 20], radius=10, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
+    draw.text((wx + 638, by_top + 4), "PRIVATE GA", fill=ACCENT_GREEN, font=font_xs)
+
+    # Large Polished Title: AGENT SUBSTRATE
+    ty_main = by_top + 28
+    draw.text((wx + 350, ty_main), "AGENT", fill=TEXT_WHITE, font=font_lg)
+    draw.text((wx + 435, ty_main), "SUBSTRATE", fill=ACCENT_CYAN, font=font_lg)
+    draw.rounded_rectangle([wx + 605, ty_main + 2, wx + 695, ty_main + 22], radius=4, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+    draw.text((wx + 612, ty_main + 5), "v0.2.1-ga", fill=ACCENT_CYAN, font=font_xs)
+
+    # Glowing Cyan Divider Line
+    draw.line([wx + 280, ty_main + 32, wx + 840, ty_main + 32], fill=ACCENT_CYAN, width=2)
+
+    tag_y = ty_main + 40
     draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
 
     tw_y = tag_y + 24
@@ -212,7 +227,7 @@ def render_welcome_screen(typewriter_progress=1.0):
         disp_text += "▌"
     draw.text((wx + 130, tw_y), disp_text, fill=TEXT_PRIMARY, font=font_xs)
 
-    fx, fy, fw, fh = wx + 130, tw_y + 28, 860, 118
+    fx, fy, fw, fh = wx + 130, tw_y + 26, 860, 118
     draw.rounded_rectangle([fx, fy, fx + fw, fy + fh], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
     draw.rounded_rectangle([fx + 16, fy - 10, fx + 260, fy + 8], radius=4, fill=ACCENT_BLUE)
     draw.text((fx + 24, fy - 8), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
