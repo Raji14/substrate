@@ -1,33 +1,42 @@
-"""Generic interactive StepScreen with side-by-side cluster selection and verification."""
+"""Generic interactive StepScreen with side-by-side cluster selection, Node Pool CCC, Autoscaling, and WorkerPool deployment."""
 
 from __future__ import annotations
 
 import asyncio
-from typing import Optional
+from typing import List, Optional
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.screen import Screen
 from textual.widgets import Label, Static, Button
 from rich.text import Text
-from substrate_onboarding.config import OnboardingStep, STEP_CONFIGS, AVAILABLE_CLUSTERS, StepMetadata
+from substrate_onboarding.config import (
+    OnboardingStep,
+    STEP_CONFIGS,
+    AVAILABLE_CLUSTERS,
+    NODEPOOL_OPTIONS,
+    AUTOSCALING_OPTIONS,
+    DEPLOY_WP_OPTIONS,
+    OptionItem,
+    StepMetadata,
+)
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class GenericStepScreen(Screen[None]):
-    """Generic high-fidelity step screen rendering 2-column layout with side-by-side cluster inspection."""
+    """Generic high-fidelity step screen rendering 2-column layout with options, probe checklists, and YAML notices."""
 
-    selected_cluster_idx: reactive[int] = reactive(0)
+    selected_option_idx: reactive[int] = reactive(0)
 
     BINDINGS = [
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
         ("b", "previous_step", "Back"),
-        ("1", "select_cluster_1", "Select Cluster 1"),
-        ("2", "select_cluster_2", "Select Cluster 2"),
-        ("3", "select_cluster_3", "Select Cluster 3"),
-        ("4", "select_cluster_4", "Select Cluster 4"),
+        ("1", "select_opt_1", "Select 1"),
+        ("2", "select_opt_2", "Select 2"),
+        ("3", "select_opt_3", "Select 3"),
+        ("4", "select_opt_4", "Select 4"),
         ("up", "navigate_up", "Previous"),
         ("down", "navigate_down", "Next"),
         ("k", "navigate_up", "Previous"),
@@ -40,6 +49,9 @@ class GenericStepScreen(Screen[None]):
         self.step_key = step_key
         self.meta: StepMetadata = STEP_CONFIGS[step_key]
         self.clusters = AVAILABLE_CLUSTERS
+        self.nodepool_opts = NODEPOOL_OPTIONS
+        self.autoscaling_opts = AUTOSCALING_OPTIONS
+        self.deploy_wp_opts = DEPLOY_WP_OPTIONS
         self._checklist_progress = 0
         self._timer = None
 
@@ -50,7 +62,7 @@ class GenericStepScreen(Screen[None]):
             with Vertical(id="content-area"):
                 with Vertical(id="content-panel"):
                     # Step Number & Title
-                    yield Label(f"Step {self.meta.step_num} of 9", classes="step-indicator-label")
+                    yield Label(f"Step {self.meta.step_num} of 12", classes="step-indicator-label")
                     yield Label(self.meta.heading, classes="wizard-step-title")
                     yield Label(self.meta.description, classes="wizard-step-description")
 
@@ -73,8 +85,48 @@ class GenericStepScreen(Screen[None]):
                                 yield Static(self._render_cluster_verification_box(), id="cluster-verification-box")
                                 yield Static(self._render_compact_checklist(), id="cluster-compact-checklist")
 
+                    elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+                        # Step 5: Compatible Node Pool (CCC Selection)
+                        yield Label("Choose node pool configuration (Press [1-3]):", classes="column-header-label")
+                        with Vertical(id="nodepool-options-list"):
+                            for idx in range(len(self.nodepool_opts)):
+                                yield Static(
+                                    self._render_option_card(self.nodepool_opts, idx),
+                                    id=f"nodepool-opt-{idx}",
+                                    classes="compact-cluster-card",
+                                )
+                        if self.meta.yaml_notice:
+                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
+                        yield Static(self._render_checklist_box(), id="execution-checklist-card")
+
+                    elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
+                        # Step 6: WorkerPool Autoscaling (HPA & CapacityBuffer)
+                        yield Label("Choose autoscaling configuration (Press [1-3]):", classes="column-header-label")
+                        with Vertical(id="autoscaling-options-list"):
+                            for idx in range(len(self.autoscaling_opts)):
+                                yield Static(
+                                    self._render_option_card(self.autoscaling_opts, idx),
+                                    id=f"autoscaling-opt-{idx}",
+                                    classes="compact-cluster-card",
+                                )
+                        if self.meta.yaml_notice:
+                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
+                        yield Static(self._render_checklist_box(), id="execution-checklist-card")
+
+                    elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
+                        # Step 7: Confirm & Deploy WorkerPool
+                        yield Label("Deploy default Substrate WorkerPool (Press [1-2]):", classes="column-header-label")
+                        with Vertical(id="deploy-wp-options-list"):
+                            for idx in range(len(self.deploy_wp_opts)):
+                                yield Static(
+                                    self._render_option_card(self.deploy_wp_opts, idx),
+                                    id=f"deploy-wp-opt-{idx}",
+                                    classes="compact-cluster-card",
+                                )
+                        yield Static(self._render_checklist_box(), id="execution-checklist-card")
+
                     else:
-                        # For other steps: Sleek command callout
+                        # Other steps: Sleek command callout
                         yield Static(self._render_command_callout(), id="command-callout-card")
 
                         # Specialized Interactive Box (Private GA Agreement)
@@ -136,9 +188,15 @@ class GenericStepScreen(Screen[None]):
         t.append(f"  {self.meta.real_command}", style="#70d6ff")
         return t
 
+    def _render_yaml_notice(self) -> Text:
+        t = Text()
+        t.append("💡 Note: ", style="bold #fdd663")
+        t.append(self.meta.yaml_notice or "", style="#e3e3e3")
+        return t
+
     def _render_cluster_row(self, idx: int) -> Text:
         cluster = self.clusters[idx]
-        is_selected = idx == self.selected_cluster_idx
+        is_selected = idx == self.selected_option_idx
         t = Text()
 
         keycap = f" [{idx + 1}] "
@@ -153,8 +211,27 @@ class GenericStepScreen(Screen[None]):
 
         return t
 
+    def _render_option_card(self, opt_list: List[OptionItem], idx: int) -> Text:
+        opt = opt_list[idx]
+        is_selected = idx == self.selected_option_idx
+        t = Text()
+
+        keycap = f" [{idx + 1}] "
+        if is_selected:
+            t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
+            t.append(f" {opt.icon} {opt.title}\n", style="bold #70d6ff on #1565c0")
+            t.append(f"        {opt.description}\n", style="#e3e3e3 on #1565c0")
+            t.append(f"        💡 {opt.tip}", style="italic #81c995 on #1565c0")
+        else:
+            t.append(f" ○ {keycap}", style="#80868b")
+            t.append(f" {opt.icon} {opt.title}\n", style="bold #e3e3e3")
+            t.append(f"        {opt.description}\n", style="#80868b")
+            t.append(f"        💡 {opt.tip}", style="italic #5f6368")
+
+        return t
+
     def _render_cluster_verification_box(self) -> Text:
-        cluster = self.clusters[self.selected_cluster_idx]
+        cluster = self.clusters[self.selected_option_idx if self.selected_option_idx < len(self.clusters) else 0]
         t = Text()
         t.append("🌐 CLUSTER VERIFICATION:\n", style="bold #70d6ff")
         t.append(f"  Provider : {cluster.provider}\n", style="bold #ffffff")
@@ -229,48 +306,76 @@ class GenericStepScreen(Screen[None]):
         if hasattr(self.app, "previous_step"):
             self.app.previous_step()
 
-    def action_select_cluster_1(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-            self.selected_cluster_idx = 0
-            self._refresh_cluster_view()
+    def action_select_opt_1(self) -> None:
+        self.selected_option_idx = 0
+        self._refresh_screen_options()
 
-    def action_select_cluster_2(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-            self.selected_cluster_idx = 1
-            self._refresh_cluster_view()
+    def action_select_opt_2(self) -> None:
+        self.selected_option_idx = 1
+        self._refresh_screen_options()
 
-    def action_select_cluster_3(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-            self.selected_cluster_idx = 2
-            self._refresh_cluster_view()
+    def action_select_opt_3(self) -> None:
+        self.selected_option_idx = 2
+        self._refresh_screen_options()
 
-    def action_select_cluster_4(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-            self.selected_cluster_idx = 3
-            self._refresh_cluster_view()
+    def action_select_opt_4(self) -> None:
+        self.selected_option_idx = 3
+        self._refresh_screen_options()
 
     def action_navigate_up(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER and self.selected_cluster_idx > 0:
-            self.selected_cluster_idx -= 1
-            self._refresh_cluster_view()
+        if self.selected_option_idx > 0:
+            self.selected_option_idx -= 1
+            self._refresh_screen_options()
 
     def action_navigate_down(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER and self.selected_cluster_idx < len(self.clusters) - 1:
-            self.selected_cluster_idx += 1
-            self._refresh_cluster_view()
+        max_len = 4
+        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
+            max_len = len(self.clusters)
+        elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+            max_len = len(self.nodepool_opts)
+        elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
+            max_len = len(self.autoscaling_opts)
+        elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
+            max_len = len(self.deploy_wp_opts)
 
-    def _refresh_cluster_view(self) -> None:
-        for idx in range(len(self.clusters)):
+        if self.selected_option_idx < max_len - 1:
+            self.selected_option_idx += 1
+            self._refresh_screen_options()
+
+    def _refresh_screen_options(self) -> None:
+        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
+            for idx in range(len(self.clusters)):
+                try:
+                    row = self.query_one(f"#cluster-item-{idx}", Static)
+                    row.update(self._render_cluster_row(idx))
+                except Exception:
+                    pass
             try:
-                row = self.query_one(f"#cluster-item-{idx}", Static)
-                row.update(self._render_cluster_row(idx))
+                ver_box = self.query_one("#cluster-verification-box", Static)
+                ver_box.update(self._render_cluster_verification_box())
             except Exception:
                 pass
-        try:
-            ver_box = self.query_one("#cluster-verification-box", Static)
-            ver_box.update(self._render_cluster_verification_box())
-        except Exception:
-            pass
+        elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+            for idx in range(len(self.nodepool_opts)):
+                try:
+                    row = self.query_one(f"#nodepool-opt-{idx}", Static)
+                    row.update(self._render_option_card(self.nodepool_opts, idx))
+                except Exception:
+                    pass
+        elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
+            for idx in range(len(self.autoscaling_opts)):
+                try:
+                    row = self.query_one(f"#autoscaling-opt-{idx}", Static)
+                    row.update(self._render_option_card(self.autoscaling_opts, idx))
+                except Exception:
+                    pass
+        elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
+            for idx in range(len(self.deploy_wp_opts)):
+                try:
+                    row = self.query_one(f"#deploy-wp-opt-{idx}", Static)
+                    row.update(self._render_option_card(self.deploy_wp_opts, idx))
+                except Exception:
+                    pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn-proceed":

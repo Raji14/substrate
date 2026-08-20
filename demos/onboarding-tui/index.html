@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚡ Agent Substrate — Getting set up (Private GA)</title>
+  <title>⚡ Agent Substrate — Getting set up</title>
   <style>
     :root {
       --bg-canvas: #090d16;
@@ -74,26 +74,6 @@
       gap: 12px;
     }
 
-    .badge {
-      background: rgba(112, 214, 255, 0.15);
-      color: var(--accent-cyan);
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .badge-ga {
-      background: rgba(253, 214, 99, 0.18);
-      color: var(--accent-yellow);
-      border: 1px solid var(--accent-yellow);
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
     .controls-group {
       display: flex;
       align-items: center;
@@ -116,11 +96,6 @@
       background: #21262d;
       border-color: var(--accent-cyan);
       color: #ffffff;
-    }
-    .btn-tool.active {
-      background: var(--accent-blue);
-      color: #ffffff;
-      border-color: var(--accent-cyan);
     }
 
     /* Keycap styling for tactile shortcut badges */
@@ -269,7 +244,7 @@
       color: var(--text-white);
     }
 
-    /* Track Option Cards (2 Streamlined Tracks) */
+    /* Track Option Cards */
     .tracks-section {
       width: 100%;
       max-width: 800px;
@@ -342,7 +317,7 @@
     .badge-warn { color: var(--accent-yellow); font-weight: 700; margin-right: 4px; }
 
     /* ========================================================= */
-    /* 2-COLUMN WIZARD (STEPS 1-9) STYLES                         */
+    /* 2-COLUMN WIZARD (STEPS 1-12) STYLES                        */
     /* ========================================================= */
     .wizard-view {
       display: none;
@@ -358,9 +333,10 @@
     .sidebar-nav {
       background: var(--bg-sidebar);
       border-right: 1px solid var(--border-dark);
-      padding: 24px 20px;
+      padding: 20px 18px;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;
     }
     .sidebar-brand {
       font-size: 14px;
@@ -372,7 +348,7 @@
     .sidebar-subtitle {
       font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .progress-bar-container {
@@ -380,35 +356,36 @@
       height: 3px;
       background: #21262d;
       border-radius: 2px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       overflow: hidden;
     }
     .progress-bar-fill {
       height: 100%;
       background: var(--accent-cyan);
-      width: 25%;
+      width: 15%;
       transition: width 0.3s ease;
     }
 
     .sidebar-step-count {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .step-list {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 5px;
     }
 
     .step-item {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      padding: 2px 0;
       transition: color 0.15s;
     }
     .step-item:hover { color: var(--text-primary); }
@@ -445,7 +422,7 @@
     .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 6px; }
     .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 14px; }
 
-    /* Collapsible Real Command Callout (For Steps 1, 3-9) */
+    /* Command Callout */
     .command-box {
       background: #11151c;
       border: 1px solid var(--border-subtle);
@@ -469,9 +446,50 @@
       font-family: inherit;
     }
 
-    /* ========================================================= */
-    /* STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR & VERIFICATION      */
-    /* ========================================================= */
+    /* Option Selection Cards (Steps 5, 6, 7) */
+    .option-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .option-card-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+    }
+    .option-card-row:hover {
+      background: #1c222d;
+      border-color: var(--accent-cyan);
+    }
+    .option-card-row.selected {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 3px 10px rgba(21, 101, 192, 0.35);
+    }
+    .option-title { font-size: 12px; font-weight: 700; color: var(--text-white); }
+    .option-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .option-card-row.selected .option-desc { color: rgba(255, 255, 255, 0.9); }
+
+    /* YAML Notice Alert Box */
+    .yaml-alert-box {
+      background: #191c14;
+      border: 1px solid var(--accent-yellow);
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-size: 11px;
+      color: var(--text-white);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    /* Side-by-Side Container (Step 2) */
     .cluster-side-by-side {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -479,7 +497,6 @@
       margin-bottom: 16px;
       flex: 1;
     }
-
     .column-title {
       font-size: 12px;
       font-weight: 700;
@@ -489,13 +506,11 @@
       align-items: center;
       justify-content: space-between;
     }
-
     .cluster-compact-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
-
     .cluster-compact-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -520,13 +535,11 @@
     .cluster-name-desc { font-size: 10px; color: var(--text-muted); }
     .cluster-compact-card.selected .cluster-name-desc { color: rgba(255, 255, 255, 0.9); }
 
-    /* Right Inspection Column */
     .inspection-panel {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-
     .cluster-info-box {
       background: #11151c;
       border: 1px solid var(--accent-cyan);
@@ -538,7 +551,6 @@
     }
     .cluster-info-header { font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 2px; }
     .cluster-info-line { font-size: 11px; color: var(--text-primary); line-height: 1.4; }
-
     .compact-checklist-box {
       background: #090d16;
       border: 1px solid var(--border-dark);
@@ -549,7 +561,7 @@
       gap: 6px;
     }
 
-    /* Execution Checklist Card (Other Steps) */
+    /* Execution Checklist Card */
     .execution-card {
       background: #090d16;
       border: 1px solid var(--border-dark);
@@ -708,9 +720,7 @@
       <div class="window-title">rajithal@rajithal: ~/workspaces/substrate — substrate onboard</div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- VIEW 0: WELCOME SCREEN (AGENT SUBSTRATE SPLASH TITLE)     -->
-    <!-- ========================================================= -->
+    <!-- VIEW 0: WELCOME SCREEN -->
     <div class="welcome-screen-view active" id="view-welcome">
       <div class="ascii-logo">
     _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ 
@@ -720,14 +730,10 @@
 /_/   \_\____|_____|_| \_| |_|   |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|
       </div>
 
-      <div class="welcome-tagline">⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)</div>
+      <div class="welcome-tagline">⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime</div>
 
-      <!-- Animated Typewriter Description -->
-      <div class="welcome-typewriter" id="typewriter-box">
-        <!-- Typewriter content streamed here -->
-      </div>
+      <div class="welcome-typewriter" id="typewriter-box"></div>
 
-      <!-- Core Capabilities Feature Card -->
       <div class="welcome-features-card">
         <div class="welcome-features-badge">⚡ CORE SUBSTRATE CAPABILITIES</div>
         <div class="welcome-feature-row">
@@ -748,7 +754,7 @@
         </div>
       </div>
 
-      <!-- 2 Streamlined Installation Choices -->
+      <!-- Installation Choices -->
       <div class="tracks-section">
         <div class="tracks-header">
           <span>Choose your installation path:</span>
@@ -774,7 +780,6 @@
         </div>
       </div>
 
-      <!-- Preflight Diagnostics Summary -->
       <div class="preflight-badge">
         <span><span class="badge-ok">✔</span> Pre-configured K8s: Connected</span>
         <span><span class="badge-ok">✔</span> Python 3.10+: Ready</span>
@@ -787,50 +792,33 @@
       </button>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-9)                       -->
-    <!-- ========================================================= -->
+    <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-12) -->
     <div class="wizard-view" id="view-wizard">
       
       <!-- Left Sidebar Navigation -->
       <div class="sidebar-nav">
-        <div class="sidebar-brand" onclick="showWelcomeScreen()" title="Return to Welcome Screen">Substrate</div>
+        <div class="sidebar-brand" onclick="showWelcomeScreen()">Substrate</div>
         <div class="sidebar-subtitle">Getting set up</div>
         
         <div class="progress-bar-container">
           <div class="progress-bar-fill" id="progress-fill"></div>
         </div>
 
-        <div class="sidebar-step-count" id="sidebar-count">1 of 9 steps</div>
+        <div class="sidebar-step-count" id="sidebar-count">1 of 12 steps</div>
 
         <div class="step-list">
-          <div class="step-item active" id="nav-step-0" onclick="goToStep(0)">
-            <span class="step-icon">1</span> Check your setup
-          </div>
-          <div class="step-item" id="nav-step-1" onclick="goToStep(1)">
-            <span class="step-icon">2</span> Connect your cluster
-          </div>
-          <div class="step-item" id="nav-step-2" onclick="goToStep(2)">
-            <span class="step-icon">3</span> Private GA Agreement
-          </div>
-          <div class="step-item" id="nav-step-3" onclick="goToStep(3)">
-            <span class="step-icon">4</span> Turn on Substrate
-          </div>
-          <div class="step-item" id="nav-step-4" onclick="goToStep(4)">
-            <span class="step-icon">5</span> Install the CLI
-          </div>
-          <div class="step-item" id="nav-step-5" onclick="goToStep(5)">
-            <span class="step-icon">6</span> First actor
-          </div>
-          <div class="step-item" id="nav-step-6" onclick="goToStep(6)">
-            <span class="step-icon">7</span> Send a request
-          </div>
-          <div class="step-item" id="nav-step-7" onclick="goToStep(7)">
-            <span class="step-icon">8</span> Pause & resume
-          </div>
-          <div class="step-item" id="nav-step-8" onclick="goToStep(8)">
-            <span class="step-icon">9</span> Scale it up
-          </div>
+          <div class="step-item active" id="nav-step-0" onclick="goToStep(0)"><span class="step-icon">1</span> Check your setup</div>
+          <div class="step-item" id="nav-step-1" onclick="goToStep(1)"><span class="step-icon">2</span> Connect your cluster</div>
+          <div class="step-item" id="nav-step-2" onclick="goToStep(2)"><span class="step-icon">3</span> Private GA Agreement</div>
+          <div class="step-item" id="nav-step-3" onclick="goToStep(3)"><span class="step-icon">4</span> Turn on Substrate</div>
+          <div class="step-item" id="nav-step-4" onclick="goToStep(4)"><span class="step-icon">5</span> Compatible Node Pool</div>
+          <div class="step-item" id="nav-step-5" onclick="goToStep(5)"><span class="step-icon">6</span> Configure Autoscaling</div>
+          <div class="step-item" id="nav-step-6" onclick="goToStep(6)"><span class="step-icon">7</span> Deploy WorkerPool</div>
+          <div class="step-item" id="nav-step-7" onclick="goToStep(7)"><span class="step-icon">8</span> Install the CLI</div>
+          <div class="step-item" id="nav-step-8" onclick="goToStep(8)"><span class="step-icon">9</span> First actor</div>
+          <div class="step-item" id="nav-step-9" onclick="goToStep(9)"><span class="step-icon">10</span> Send a request</div>
+          <div class="step-item" id="nav-step-10" onclick="goToStep(10)"><span class="step-icon">11</span> Pause & resume</div>
+          <div class="step-item" id="nav-step-11" onclick="goToStep(11)"><span class="step-icon">12</span> Scale it up</div>
         </div>
       </div>
 
@@ -839,7 +827,7 @@
         
         <!-- STEP 1: Check your setup -->
         <div class="step-screen active" id="screen-0">
-          <div class="step-counter">Step 1 of 9</div>
+          <div class="step-counter">Step 1 of 12</div>
           <div class="step-heading">Check your environment</div>
           <div class="step-description">We'll check if you have everything needed to run Substrate — a container runtime, Python, and kubectl CLI.</div>
 
@@ -865,16 +853,13 @@
           </div>
         </div>
 
-        <!-- STEP 2: Connect your cluster (SIDE-BY-SIDE Cluster List & Verification) -->
+        <!-- STEP 2: Connect your cluster (SIDE-BY-SIDE) -->
         <div class="step-screen" id="screen-1">
-          <div class="step-counter">Step 2 of 9</div>
+          <div class="step-counter">Step 2 of 12</div>
           <div class="step-heading">Select Cluster & Verify Substrate Control Plane</div>
           <div class="step-description">Choose a cluster from your kubeconfig. We'll verify its provider type and probe for existing Substrate components in real-time.</div>
 
-          <!-- SIDE-BY-SIDE CONTAINER: Left = Cluster List, Right = Verification & Probe -->
           <div class="cluster-side-by-side">
-            
-            <!-- Left Column: Cluster Selection -->
             <div>
               <div class="column-title">
                 <span>Target Cluster:</span>
@@ -919,11 +904,8 @@
               </div>
             </div>
 
-            <!-- Right Column: Verification & Probe Status -->
             <div class="inspection-panel">
-              <div class="column-title">
-                <span>Verification & Probe Status:</span>
-              </div>
+              <div class="column-title"><span>Verification & Probe Status:</span></div>
               
               <div class="cluster-info-box" id="cluster-status-box">
                 <div class="cluster-info-header">🌐 CLUSTER VERIFICATION:</div>
@@ -935,10 +917,9 @@
               <div class="compact-checklist-box">
                 <div class="check-line"><span class="check-icon">✓</span> API Reachability: Connected to active context</div>
                 <div class="check-line"><span class="check-icon">✓</span> Provider Compatibility: Kubernetes v1.28+ verified</div>
-                <div class="check-line"><span class="check-icon">✓</span> Ready for Substrate Control Plane installation</div>
+                <div class="check-line"><span class="check-icon">✓</span> Clean cluster ready for Substrate install</div>
               </div>
             </div>
-
           </div>
 
           <div class="action-row">
@@ -947,9 +928,9 @@
           </div>
         </div>
 
-        <!-- STEP 3: Private GA Agreement (Gated access & Support terms) -->
+        <!-- STEP 3: Private GA Agreement -->
         <div class="step-screen" id="screen-2">
-          <div class="step-counter">Step 3 of 9</div>
+          <div class="step-counter">Step 3 of 12</div>
           <div class="step-heading">Private GA Access & Contractual Agreement</div>
           <div class="step-description">Because this is a Private General Availability release, customers must acknowledge that production support and SLAs require an explicit agreement with Google.</div>
 
@@ -988,7 +969,7 @@
 
         <!-- STEP 4: Turn on Substrate -->
         <div class="step-screen" id="screen-3">
-          <div class="step-counter">Step 4 of 9</div>
+          <div class="step-counter">Step 4 of 12</div>
           <div class="step-heading">Turn on Substrate Control Plane</div>
           <div class="step-description">Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].</div>
 
@@ -1006,18 +987,170 @@
               <div class="check-line"><span class="check-icon">✓</span> Initializing eBPF network routing controller in [substrate-system]</div>
             </div>
             <div class="done-status">Done</div>
-            <div class="done-prompt">Substrate is active! Next, let's install the CLI.</div>
+            <div class="done-prompt">Substrate control plane is active! Next, let's configure the worker pool node fleet.</div>
           </div>
 
           <div class="action-row">
             <button class="btn-secondary" onclick="goToStep(2)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(4)">Install the CLI <kbd>Enter ↵</kbd> →</button>
+            <button class="btn-primary" onclick="goToStep(4)">Set up WorkerPool <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
-        <!-- STEP 5: Install the CLI -->
+        <!-- STEP 5: Compatible Node Pool (CCC / Nested-Virt) -->
         <div class="step-screen" id="screen-4">
-          <div class="step-counter">Step 5 of 9</div>
+          <div class="step-counter">Step 5 of 12</div>
+          <div class="step-heading">Set up Compatible WorkerPool Node Fleet</div>
+          <div class="step-description">Scanning cluster node pools for hardware nested virtualization (KVM/microVM). If no compatible pool is found, configure one via Custom Compute Class (CCC).</div>
+
+          <div class="option-cards-container">
+            <div class="option-card-row selected" id="nodepool-card-0" onclick="selectNodepoolOpt(0)">
+              <span class="track-key-badge">1</span>
+              <span style="font-size: 16px;">⚡</span>
+              <div>
+                <div class="option-title">Automatically create a compatible node pool using Custom Compute Class (Recommended)</div>
+                <div class="option-desc">Applies Custom Compute Class manifest with n2-standard-48, Spot fallback, and nested virtualization enabled.</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="nodepool-card-1" onclick="selectNodepoolOpt(1)">
+              <span class="track-key-badge">2</span>
+              <span style="font-size: 16px;">🛠️</span>
+              <div>
+                <div class="option-title">Create a compatible node pool manually via gcloud</div>
+                <div class="option-desc">Generates gcloud container node-pools create command with --enable-nested-virtualization.</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="nodepool-card-2" onclick="selectNodepoolOpt(2)">
+              <span class="track-key-badge">3</span>
+              <span style="font-size: 16px;">🔄</span>
+              <div>
+                <div class="option-title">Choose a different cluster</div>
+                <div class="option-desc">Return to Step 2 to select another cluster context from your kubeconfig.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="yaml-alert-box">
+            💡 <strong>Tip:</strong> You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. <code>manifests/workerpool-ccc.yaml</code>).
+          </div>
+
+          <div class="execution-card">
+            <div class="checklist-title">Configuring compatible node pool...</div>
+            <div class="checklist-items">
+              <div class="check-line"><span class="check-icon">✓</span> Scanning existing node pools: No hardware nested-virt pool detected</div>
+              <div class="check-line"><span class="check-icon">✓</span> Applying Custom Compute Class manifest [agent-spot-ccc] (n2-standard-48, KVM enabled)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Configuring Spot fallback & capacity reservation</div>
+              <div class="check-line"><span class="check-icon">✓</span> Compatible node pool ready for high-density agent sandboxing</div>
+            </div>
+            <div class="done-status">Done</div>
+            <div class="done-prompt">Compatible node pool configured! Now let's set up autoscaling.</div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn-secondary" onclick="goToStep(3)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(5)">Configure Autoscaling <kbd>Enter ↵</kbd> →</button>
+          </div>
+        </div>
+
+        <!-- STEP 6: WorkerPool Autoscaling (HPA & CapacityBuffer) -->
+        <div class="step-screen" id="screen-5">
+          <div class="step-counter">Step 6 of 12</div>
+          <div class="step-heading">Configure WorkerPool Autoscaling (HPA & CapacityBuffer)</div>
+          <div class="step-description">Configure horizontal pod autoscaling and standby capacity buffers so your agent fleet can absorb sudden traffic surges with instant (&lt;100ms) cold starts.</div>
+
+          <div class="option-cards-container">
+            <div class="option-card-row selected" id="hpa-card-0" onclick="selectHpaOpt(0)">
+              <span class="track-key-badge">1</span>
+              <span style="font-size: 16px;">⚡</span>
+              <div>
+                <div class="option-title">Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)</div>
+                <div class="option-desc">Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant &lt;100ms agent session injection.</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="hpa-card-1" onclick="selectHpaOpt(1)">
+              <span class="track-key-badge">2</span>
+              <span style="font-size: 16px;">🛠️</span>
+              <div>
+                <div class="option-title">Configure autoscaling manually via kubectl</div>
+                <div class="option-desc">Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="hpa-card-2" onclick="selectHpaOpt(2)">
+              <span class="track-key-badge">3</span>
+              <span style="font-size: 16px;">⏭️</span>
+              <div>
+                <div class="option-title">Skip autoscaling configuration</div>
+                <div class="option-desc">Keep fixed worker pool replica count without horizontal dynamic scaling.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="yaml-alert-box">
+            💡 <strong>Tip:</strong> You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. <code>manifests/workerpool-autoscaling.yaml</code>).
+          </div>
+
+          <div class="execution-card">
+            <div class="checklist-title">Applying autoscaling & capacity buffer...</div>
+            <div class="checklist-items">
+              <div class="check-line"><span class="check-icon">✓</span> Applying HorizontalPodAutoscaler (OneHPA: minReplicas=10, maxReplicas=100)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Applying CapacityBuffer (fixed-replica-buffer: 3 standby replicas via buffer.gke.io/standby-capacity)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Standby buffer verified: Ready for instant (&lt;100ms) agent session injection</div>
+            </div>
+            <div class="done-status">Done</div>
+            <div class="done-prompt">Autoscaling active! Now let's deploy the default Substrate WorkerPool.</div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn-secondary" onclick="goToStep(4)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(6)">Deploy WorkerPool <kbd>Enter ↵</kbd> →</button>
+          </div>
+        </div>
+
+        <!-- STEP 7: Confirm & Deploy Substrate WorkerPool -->
+        <div class="step-screen" id="screen-6">
+          <div class="step-counter">Step 7 of 12</div>
+          <div class="step-heading">Confirm & Deploy Substrate WorkerPool</div>
+          <div class="step-description">Deploy the default Substrate WorkerPool into namespace [substrate-system] with pre-warmed agent sandboxes and microVM isolation.</div>
+
+          <div class="option-cards-container">
+            <div class="option-card-row selected" id="wp-card-0" onclick="selectWpOpt(0)">
+              <span class="track-key-badge">1</span>
+              <span style="font-size: 16px;">🚀</span>
+              <div>
+                <div class="option-title">Yes, deploy default Substrate WorkerPool [default-worker-pool] (Recommended)</div>
+                <div class="option-desc">Bootstraps 10 warm worker sandboxes with microVM isolation and instant actor attachment in [substrate-system].</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="wp-card-1" onclick="selectWpOpt(1)">
+              <span class="track-key-badge">2</span>
+              <span style="font-size: 16px;">⚙️</span>
+              <div>
+                <div class="option-title">Customize WorkerPool specifications</div>
+                <div class="option-desc">Review and customize memory limits, vCPU allocations, and container sandbox isolation drivers.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="execution-card">
+            <div class="checklist-title">Deploying default Substrate WorkerPool...</div>
+            <div class="checklist-items">
+              <div class="check-line"><span class="check-icon">✓</span> Resolving worker sandbox image (gcr.io/ate-platform/worker:v1)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Deploying WorkerPool CR [default-worker-pool] in namespace [substrate-system]</div>
+              <div class="check-line"><span class="check-icon">✓</span> Provisioning 10 warm worker sandboxes (3 standby buffer replicas active)</div>
+              <div class="check-line"><span class="check-icon">✓</span> WorkerPool is ready: 10/10 warm pods listening for agent execution turns</div>
+            </div>
+            <div class="done-status">Done</div>
+            <div class="done-prompt">Default WorkerPool deployed! Now let's install the developer CLI.</div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn-secondary" onclick="goToStep(5)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(7)">Install the CLI <kbd>Enter ↵</kbd> →</button>
+          </div>
+        </div>
+
+        <!-- STEP 8: Install the CLI -->
+        <div class="step-screen" id="screen-7">
+          <div class="step-counter">Step 8 of 12</div>
           <div class="step-heading">Install the atectl CLI</div>
           <div class="step-description">The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.</div>
 
@@ -1038,14 +1171,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(3)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(5)">Deploy first actor <kbd>Enter ↵</kbd> →</button>
+            <button class="btn-secondary" onclick="goToStep(6)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(8)">Deploy first actor <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
-        <!-- STEP 6: First actor -->
-        <div class="step-screen" id="screen-5">
-          <div class="step-counter">Step 6 of 9</div>
+        <!-- STEP 9: First actor -->
+        <div class="step-screen" id="screen-8">
+          <div class="step-counter">Step 9 of 12</div>
           <div class="step-heading">Deploy your first actor</div>
           <div class="step-description">Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.</div>
 
@@ -1066,14 +1199,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(4)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(6)">Send a request <kbd>Enter ↵</kbd> →</button>
+            <button class="btn-secondary" onclick="goToStep(7)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(9)">Send a request <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
-        <!-- STEP 7: Send a request -->
-        <div class="step-screen" id="screen-6">
-          <div class="step-counter">Step 7 of 9</div>
+        <!-- STEP 10: Send a request -->
+        <div class="step-screen" id="screen-9">
+          <div class="step-counter">Step 10 of 12</div>
           <div class="step-heading">Send a request to your actor</div>
           <div class="step-description">Communicate with your running actor through the Substrate Gateway with real-time response streaming.</div>
 
@@ -1093,21 +1226,20 @@
             <div class="done-prompt">Great response! Now let's see how Substrate saves compute when idle.</div>
           </div>
 
-          <!-- Benchmark Latency Gauge -->
           <div class="benchmark-card">
             <div class="benchmark-title">⚡ LIVE TURN BENCHMARK</div>
             <div class="benchmark-value">Latency: 82ms  │  TTFT: 14ms  │  Throughput: 120 tok/s</div>
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(5)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(7)">Test Pause & Resume <kbd>Enter ↵</kbd> →</button>
+            <button class="btn-secondary" onclick="goToStep(8)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(10)">Test Pause & Resume <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
-        <!-- STEP 8: Pause & resume -->
-        <div class="step-screen" id="screen-7">
-          <div class="step-counter">Step 8 of 9</div>
+        <!-- STEP 11: Pause & resume -->
+        <div class="step-screen" id="screen-10">
+          <div class="step-counter">Step 11 of 12</div>
           <div class="step-heading">Pause & resume (0% idle CPU)</div>
           <div class="step-description">When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.</div>
 
@@ -1127,21 +1259,20 @@
             <div class="done-prompt">Sub-200ms instant resume confirmed! Finally, let's scale your fleet.</div>
           </div>
 
-          <!-- Latency Gauge Visualization -->
           <div class="benchmark-card">
             <div class="benchmark-title">⚡ DATA PLANE BENCHMARK</div>
             <div class="benchmark-value">Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)</div>
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(6)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(8)">Scale it up <kbd>Enter ↵</kbd> →</button>
+            <button class="btn-secondary" onclick="goToStep(9)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(11)">Scale it up <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
-        <!-- STEP 9: Scale it up -->
-        <div class="step-screen" id="screen-8">
-          <div class="step-counter">Step 9 of 9</div>
+        <!-- STEP 12: Scale it up -->
+        <div class="step-screen" id="screen-11">
+          <div class="step-counter">Step 12 of 12</div>
           <div class="step-heading">Scale worker fleet & Day-2 Operations</div>
           <div class="step-description">Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.</div>
 
@@ -1161,7 +1292,6 @@
             <div class="done-prompt">You're all set! Enjoy building high-density AI agents with Agent Substrate.</div>
           </div>
 
-          <!-- Live Fleet Table -->
           <div class="fleet-table-card">
             <div class="table-cmd">$ atectl get workerpools</div>
             <div class="table-head">WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE</div>
@@ -1169,8 +1299,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(7)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="alert('🎉 Agent Substrate Private GA onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding <kbd>Enter ↵</kbd></button>
+            <button class="btn-secondary" onclick="goToStep(10)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="alert('🎉 Agent Substrate onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding <kbd>Enter ↵</kbd></button>
           </div>
         </div>
 
@@ -1182,36 +1312,21 @@
 
   <script>
     let currentStep = 0;
-    const totalSteps = 9;
-    let autopilotInterval = null;
+    const totalSteps = 12;
     let selectedTrackIdx = 0;
     let selectedClusterIdx = 0;
+    let selectedNodepoolIdx = 0;
+    let selectedHpaIdx = 0;
+    let selectedWpIdx = 0;
 
     const clustersData = [
-      {
-        provider: "Google Kubernetes Engine (GKE v1.31.1)",
-        capacity: "12 ready nodes (Hardware virtualization ready)",
-        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
-      },
-      {
-        provider: "Amazon Elastic Kubernetes Service (EKS v1.30.4)",
-        capacity: "8 ready nodes (Nitro Enclaves enabled)",
-        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
-      },
-      {
-        provider: "Azure Kubernetes Service (AKS v1.30.3)",
-        capacity: "6 ready nodes (Hyper-V isolation ready)",
-        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
-      },
-      {
-        provider: "Kind Local Sandbox (Kubernetes v1.31.0)",
-        capacity: "3 ready nodes (Docker container sandbox)",
-        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
-      }
+      { provider: "Google Kubernetes Engine (GKE v1.31.1)", capacity: "12 ready nodes (Hardware virtualization ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)" },
+      { provider: "Amazon Elastic Kubernetes Service (EKS v1.30.4)", capacity: "8 ready nodes (Nitro Enclaves enabled)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)" },
+      { provider: "Azure Kubernetes Service (AKS v1.30.3)", capacity: "6 ready nodes (Hyper-V isolation ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)" },
+      { provider: "Kind Local Sandbox (Kubernetes v1.31.0)", capacity: "3 ready nodes (Docker container sandbox)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)" }
     ];
 
-    // Typewriter Description Streamer
-    const INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA).";
+    const INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers.";
     let typeIdx = 0;
     let typewriterTimeout = null;
 
@@ -1250,11 +1365,8 @@
       for (let i = 0; i < 2; i++) {
         const card = document.getElementById(`track-${i}`);
         if (card) {
-          if (i === idx) {
-            card.classList.add('selected');
-          } else {
-            card.classList.remove('selected');
-          }
+          if (i === idx) card.classList.add('selected');
+          else card.classList.remove('selected');
         }
       }
     }
@@ -1264,11 +1376,8 @@
       for (let i = 0; i < 4; i++) {
         const card = document.getElementById(`cluster-card-${i}`);
         if (card) {
-          if (i === idx) {
-            card.classList.add('selected');
-          } else {
-            card.classList.remove('selected');
-          }
+          if (i === idx) card.classList.add('selected');
+          else card.classList.remove('selected');
         }
       }
       const data = clustersData[idx];
@@ -1277,15 +1386,47 @@
       document.getElementById('cluster-line-probe').innerHTML = `<strong>Substrate Probe:</strong> ${data.probe}`;
     }
 
+    function selectNodepoolOpt(idx) {
+      selectedNodepoolIdx = idx;
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`nodepool-card-${i}`);
+        if (card) {
+          if (i === idx) card.classList.add('selected');
+          else card.classList.remove('selected');
+        }
+      }
+      if (idx === 2) goToStep(1); // Return to cluster selection
+    }
+
+    function selectHpaOpt(idx) {
+      selectedHpaIdx = idx;
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById(`hpa-card-${i}`);
+        if (card) {
+          if (i === idx) card.classList.add('selected');
+          else card.classList.remove('selected');
+        }
+      }
+    }
+
+    function selectWpOpt(idx) {
+      selectedWpIdx = idx;
+      for (let i = 0; i < 2; i++) {
+        const card = document.getElementById(`wp-card-${i}`);
+        if (card) {
+          if (i === idx) card.classList.add('selected');
+          else card.classList.remove('selected');
+        }
+      }
+    }
+
     function goToStep(idx) {
       if (idx < 0 || idx >= totalSteps) return;
       currentStep = idx;
 
-      // Ensure wizard view is active
       document.getElementById('view-welcome').classList.remove('active');
       document.getElementById('view-wizard').classList.add('active');
 
-      // Update sidebar nav items
       for (let i = 0; i < totalSteps; i++) {
         const navItem = document.getElementById(`nav-step-${i}`);
         const iconSpan = navItem.querySelector('.step-icon');
@@ -1301,68 +1442,26 @@
           iconSpan.textContent = (i + 1);
         }
 
-        // Show/hide screen
         const screen = document.getElementById(`screen-${i}`);
-        if (i === currentStep) {
-          screen.classList.add('active');
-        } else {
-          screen.classList.remove('active');
+        if (screen) {
+          if (i === currentStep) screen.classList.add('active');
+          else screen.classList.remove('active');
         }
       }
 
-      // Update progress bar
       const fillPct = Math.round(((currentStep + 1) / totalSteps) * 100);
       document.getElementById('progress-fill').style.width = `${fillPct}%`;
       document.getElementById('sidebar-count').textContent = `${currentStep} of ${totalSteps} steps`;
     }
 
     function resetWizard() {
-      if (autopilotInterval) toggleAutopilot();
       showWelcomeScreen();
     }
 
-    function toggleAutopilot() {
-      const btn = document.getElementById('btn-autopilot');
-      const icon = document.getElementById('autopilot-icon');
-      const text = document.getElementById('autopilot-text');
-
-      if (autopilotInterval) {
-        clearInterval(autopilotInterval);
-        autopilotInterval = null;
-        btn.classList.remove('active');
-        icon.textContent = '▶';
-        text.textContent = 'Autopilot Tour';
-      } else {
-        btn.classList.add('active');
-        icon.textContent = '⏸';
-        text.textContent = 'Pause Autopilot';
-        
-        let inWelcome = true;
-        showWelcomeScreen();
-
-        autopilotInterval = setInterval(() => {
-          if (inWelcome) {
-            inWelcome = false;
-            startWizardFromWelcome();
-          } else {
-            let next = (currentStep + 1);
-            if (next >= totalSteps) {
-              inWelcome = true;
-              showWelcomeScreen();
-            } else {
-              goToStep(next);
-            }
-          }
-        }, 3000);
-      }
-    }
-
-    // Initialize typewriter on load
     window.addEventListener('DOMContentLoaded', () => {
       runTypewriter();
     });
 
-    // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
       const welcomeView = document.getElementById('view-welcome');
       const isWelcome = welcomeView.classList.contains('active');
@@ -1373,12 +1472,23 @@
         else if (e.key === 'Enter') startWizardFromWelcome();
       } else {
         if (currentStep === 1) {
-          // In Step 2 (Connect your cluster)
           if (e.key === '1') selectCluster(0);
           else if (e.key === '2') selectCluster(1);
           else if (e.key === '3') selectCluster(2);
           else if (e.key === '4') selectCluster(3);
+        } else if (currentStep === 4) {
+          if (e.key === '1') selectNodepoolOpt(0);
+          else if (e.key === '2') selectNodepoolOpt(1);
+          else if (e.key === '3') selectNodepoolOpt(2);
+        } else if (currentStep === 5) {
+          if (e.key === '1') selectHpaOpt(0);
+          else if (e.key === '2') selectHpaOpt(1);
+          else if (e.key === '3') selectHpaOpt(2);
+        } else if (currentStep === 6) {
+          if (e.key === '1') selectWpOpt(0);
+          else if (e.key === '2') selectWpOpt(1);
         }
+        
         if (e.key === '0') {
           showWelcomeScreen();
         } else if (e.key === 'Enter') {

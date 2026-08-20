@@ -1,4 +1,4 @@
-"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 9 steps."""
+"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 12 steps."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
@@ -38,27 +38,42 @@ async def test_tui_full_flow():
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
 
-        # Step 5: Install the CLI
+        # Step 5: Compatible Node Pool (CCC / Nested-Virt)
+        await pilot.press("enter")
+        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.COMPATIBLE_NODEPOOL
+
+        # Step 6: Configure Autoscaling (HPA & CapacityBuffer)
+        await pilot.press("enter")
+        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.CONFIG_AUTOSCALING
+
+        # Step 7: Deploy WorkerPool
+        await pilot.press("enter")
+        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.DEPLOY_WORKERPOOL
+
+        # Step 8: Install the CLI
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.INSTALL_CLI
 
-        # Step 6: First actor
+        # Step 9: First actor
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.FIRST_ACTOR
 
-        # Step 7: Send a request
+        # Step 10: Send a request
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SEND_REQUEST
 
-        # Step 8: Pause & resume
+        # Step 11: Pause & resume
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.PAUSE_RESUME
 
-        # Step 9: Scale it up
+        # Step 12: Scale it up
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SCALE_UP

@@ -4,8 +4,8 @@ Renders the clean, minimal sidebar matching the design reference:
 - Substrate (bold cyan header)
 - Getting set up (muted cyan subtext)
 - Progress bar (dynamic filled width based on active step)
-- X of 9 steps
-- 9 numbered steps with ✓, active cyan number, and muted upcoming steps.
+- X of 12 steps
+- Numbered steps with ✓, active cyan number, and muted upcoming steps.
 """
 
 from __future__ import annotations
@@ -25,6 +25,9 @@ STEPS_LIST: List[Tuple[OnboardingStep, str]] = [
     (OnboardingStep.CONNECT_CLUSTER, "Connect your cluster"),
     (OnboardingStep.PRIVATE_GA_AGREEMENT, "Private GA Agreement"),
     (OnboardingStep.TURN_ON_SUBSTRATE, "Turn on Substrate"),
+    (OnboardingStep.COMPATIBLE_NODEPOOL, "Compatible Node Pool"),
+    (OnboardingStep.CONFIG_AUTOSCALING, "Configure Autoscaling"),
+    (OnboardingStep.DEPLOY_WORKERPOOL, "Deploy WorkerPool"),
     (OnboardingStep.INSTALL_CLI, "Install the CLI"),
     (OnboardingStep.FIRST_ACTOR, "First actor"),
     (OnboardingStep.SEND_REQUEST, "Send a request"),
@@ -36,7 +39,7 @@ STEP_MAP = {step: idx + 1 for idx, (step, _) in enumerate(STEPS_LIST)}
 
 
 class SidebarNav(Widget):
-    """Left navigation sidebar showing 9 onboarding steps and active progress."""
+    """Left navigation sidebar showing 12 onboarding steps and active progress."""
 
     current_step: reactive[OnboardingStep] = reactive(OnboardingStep.CHECK_SETUP)
 
@@ -69,9 +72,9 @@ class SidebarNav(Widget):
 
         # Step Count Indicator
         completed_count = max(0, curr_idx - 1)
-        t.append(f"{completed_count} of 9 steps\n\n", style="#80868b")
+        t.append(f"{completed_count} of 12 steps\n\n", style="#80868b")
 
-        # 9 Steps List
+        # 12 Steps List
         for i, (step_enum, title) in enumerate(STEPS_LIST):
             step_num = i + 1
             if step_num < curr_idx:

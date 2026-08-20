@@ -3,11 +3,13 @@
 Addresses:
 1. Splash Title: "Agent Substrate" with Google 4-color gradient.
 2. Two Installation Choices: Quickstart and Advanced.
-3. Interactive Cluster Selection & Control Plane Verification:
-   - Select from list of kubeconfig clusters (GKE, EKS, AKS, Kind)
-   - Verify cluster type & Kubernetes version
-   - Probe for existing Substrate Control Plane in [substrate-system]
+3. Side-by-side Cluster Selection & Verification.
 4. Private GA Gated Agreement & Contractual Terms.
+5. Post-Installation WorkerPool Configuration:
+   - Compatible Node Pool setup (Scan cluster node pools, CCC vs gcloud vs different cluster, YAML re-apply note)
+   - WorkerPool Autoscaling (HPA OneHPA min=10 max=100, CapacityBuffer=3 standby, instant injection, YAML note)
+   - Confirm & deploy default Substrate WorkerPool
+6. Fast Developer Loop: CLI Install, First Actor, Send Request, Pause/Resume, Scale Up.
 """
 
 from __future__ import annotations
@@ -22,20 +24,22 @@ class OnboardingStep(str, Enum):
     CONNECT_CLUSTER = "connect_cluster"          # Step 2: Select cluster & verify control plane
     PRIVATE_GA_AGREEMENT = "private_ga"          # Step 3: Private GA gated access & agreement
     TURN_ON_SUBSTRATE = "turn_on_sub"            # Step 4: Turn on Substrate Control Plane
-    INSTALL_CLI = "install_cli"                  # Step 5: Install the CLI
-    FIRST_ACTOR = "first_actor"                  # Step 6: First actor
-    SEND_REQUEST = "send_request"                # Step 7: Send a request
-    PAUSE_RESUME = "pause_resume"                # Step 8: Pause & resume
-    SCALE_UP = "scale_up"                        # Step 9: Scale it up & Live Launchpad
+    COMPATIBLE_NODEPOOL = "compatible_nodepool"  # Step 5: Compatible Node Pool (CCC / Nested-Virt)
+    CONFIG_AUTOSCALING = "config_autoscaling"    # Step 6: WorkerPool Autoscaling (HPA & CapacityBuffer)
+    DEPLOY_WORKERPOOL = "deploy_workerpool"      # Step 7: Confirm & Deploy Substrate WorkerPool
+    INSTALL_CLI = "install_cli"                  # Step 8: Install the CLI
+    FIRST_ACTOR = "first_actor"                  # Step 9: First actor
+    SEND_REQUEST = "send_request"                # Step 10: Send a request
+    PAUSE_RESUME = "pause_resume"                # Step 11: Pause & resume
+    SCALE_UP = "scale_up"                        # Step 12: Scale it up & Live Launchpad
     COMPLETE = "complete"
 
     # Backward compatibility aliases
     CLUSTER = "connect_cluster"
     CREATE_CLUSTER = "connect_cluster"
     CONTROL_PLANE = "turn_on_sub"
-    NODE_POOL = "turn_on_sub"
-    AUTOSCALING = "install_cli"
-    DEPLOY_WORKERPOOL = "first_actor"
+    NODE_POOL = "compatible_nodepool"
+    AUTOSCALING = "config_autoscaling"
     LAUNCHPAD = "scale_up"
     DOCTOR = "check_setup"
     QUESTIONNAIRE = "connect_cluster"
@@ -57,7 +61,7 @@ class OptionItem:
     control_plane_status: str = "Not Installed"
 
 
-# Two Streamlined Setup Tracks for Welcome Screen
+# Setup Tracks for Welcome Screen
 SETUP_TRACKS: List[OptionItem] = [
     OptionItem(
         id="track_quickstart",
@@ -81,8 +85,8 @@ SETUP_TRACKS: List[OptionItem] = [
 AVAILABLE_CLUSTERS: List[OptionItem] = [
     OptionItem(
         id="cluster_gke_prod",
-        title="gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)",
-        description="Google Kubernetes Engine (GKE Standard) in us-central1 • 12 nodes (96 vCPUs) • KVM Enabled",
+        title="gke_enterprise_us-central1_prod",
+        description="GKE Standard in us-central1 • 12 nodes (96 vCPUs) • KVM Ready",
         icon="🌐",
         tip="Active context. Recommended for production agent workloads.",
         shortcut_key="1",
@@ -94,7 +98,7 @@ AVAILABLE_CLUSTERS: List[OptionItem] = [
     OptionItem(
         id="cluster_aws_eks",
         title="aws-eks-production-us-east-1",
-        description="Amazon Elastic Kubernetes Service (EKS) in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves",
+        description="AWS EKS in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves",
         icon="☁️",
         tip="Multi-cloud enterprise cluster.",
         shortcut_key="2",
@@ -106,7 +110,7 @@ AVAILABLE_CLUSTERS: List[OptionItem] = [
     OptionItem(
         id="cluster_azure_aks",
         title="azure-aks-agent-fleet-eastus",
-        description="Microsoft Azure Kubernetes Service (AKS) in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated",
+        description="Azure AKS in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated",
         icon="🔷",
         tip="Enterprise Azure cluster.",
         shortcut_key="3",
@@ -117,8 +121,8 @@ AVAILABLE_CLUSTERS: List[OptionItem] = [
     ),
     OptionItem(
         id="cluster_local_kind",
-        title="kind-substrate-sandbox (Local Workstation)",
-        description="Local Kind Sandbox on Docker Desktop • 3 nodes (24 vCPUs) • Lightweight dev testbed",
+        title="kind-substrate-sandbox",
+        description="Local Kind Sandbox • 3 nodes (24 vCPUs) • Dev testbed",
         icon="🧪",
         tip="Local development sandbox.",
         shortcut_key="4",
@@ -129,37 +133,84 @@ AVAILABLE_CLUSTERS: List[OptionItem] = [
     ),
 ]
 
-CLUSTER_OPTIONS = AVAILABLE_CLUSTERS
-TRACK_OPTIONS = SETUP_TRACKS
-
+# Step 5: Compatible Node Pool Options (Scanning & Nested-Virt)
 NODEPOOL_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="ccc_auto",
-        title="Automatically configure Custom Compute Class (Recommended)",
-        description="Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
+        title="Automatically create a compatible node pool using Custom Compute Class (Recommended)",
+        description="Applies Custom Compute Class manifest with n2-standard-48, Spot fallback, and nested virtualization enabled.",
         icon="⚡",
-        tip="Auto provisions node pool.",
+        tip="Applies manifests/workerpool-ccc.yaml. Modifiable anytime.",
+        shortcut_key="1",
+    ),
+    OptionItem(
+        id="ccc_manual_gcloud",
+        title="Create a compatible node pool manually via gcloud",
+        description="Generates gcloud container node-pools create command with --enable-nested-virtualization.",
+        icon="🛠️",
+        tip="For custom enterprise security policies.",
+        shortcut_key="2",
+    ),
+    OptionItem(
+        id="ccc_different_cluster",
+        title="Choose a different cluster",
+        description="Return to Step 2 to select another cluster context from your kubeconfig.",
+        icon="🔄",
+        tip="Switch cluster context.",
+        shortcut_key="3",
     ),
 ]
 
+# Step 6: WorkerPool Autoscaling Options (HPA & CapacityBuffer)
 AUTOSCALING_OPTIONS: List[OptionItem] = [
     OptionItem(
-        id="auto_hpa",
-        title="Automatically configure HPA & CapacityBuffer with sensible defaults",
-        description="OneHPA min=10, max=100 and fixed-replica-buffer 3 standby",
+        id="auto_hpa_buffer",
+        title="Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)",
+        description="Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant <100ms agent session injection.",
         icon="⚡",
+        tip="Applies manifests/workerpool-autoscaling.yaml. Modifiable anytime.",
+        shortcut_key="1",
+    ),
+    OptionItem(
+        id="manual_hpa",
+        title="Configure autoscaling manually via kubectl",
+        description="Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.",
+        icon="🛠️",
+        tip="Custom metrics & thresholds.",
+        shortcut_key="2",
+    ),
+    OptionItem(
+        id="skip_autoscaling",
+        title="Skip autoscaling configuration",
+        description="Keep fixed worker pool replica count without horizontal dynamic scaling.",
+        icon="⏭️",
+        tip="Fixed worker count.",
+        shortcut_key="3",
     ),
 ]
 
+# Step 7: Confirm & Deploy Substrate WorkerPool
 DEPLOY_WP_OPTIONS: List[OptionItem] = [
     OptionItem(
-        id="deploy_yes",
-        title="Yes, deploy default WorkerPool [default-worker-pool] (Recommended)",
-        description="10 standby replicas, microVM sandbox isolation",
+        id="deploy_yes_default",
+        title="Yes, deploy default Substrate WorkerPool [default-worker-pool] (Recommended)",
+        description="Bootstraps 10 warm worker sandboxes with microVM isolation and instant actor attachment in [substrate-system].",
         icon="🚀",
+        tip="Instant warm agent capacity.",
+        shortcut_key="1",
+    ),
+    OptionItem(
+        id="deploy_customize",
+        title="Customize WorkerPool specifications",
+        description="Review and customize memory limits, vCPU allocations, and container sandbox isolation drivers.",
+        icon="⚙️",
+        tip="Custom resources & quotas.",
+        shortcut_key="2",
     ),
 ]
 
+CLUSTER_OPTIONS = AVAILABLE_CLUSTERS
+TRACK_OPTIONS = SETUP_TRACKS
 DATAPLANE_OPTIONS = NODEPOOL_OPTIONS
 SANDBOX_OPTIONS = AUTOSCALING_OPTIONS
 EDITOR_OPTIONS = DEPLOY_WP_OPTIONS
@@ -179,6 +230,8 @@ class StepMetadata:
     benchmark_text: Optional[str] = None
     is_agreement_step: bool = False
     is_cluster_step: bool = False
+    is_option_step: bool = False
+    yaml_notice: Optional[str] = None
 
 
 STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
@@ -209,18 +262,18 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Python 3.10+ runtime available",
             "Kubectl command utility ready in PATH",
         ],
-        done_message="Prerequisites verified. Let's connect your pre-configured cluster next.",
+        done_message="Prerequisites verified. Let's select your target cluster next.",
         next_action_label="Connect your cluster [Enter ↵] →",
     ),
     OnboardingStep.CONNECT_CLUSTER: StepMetadata(
         step_num=2,
         title="Connect your cluster",
         heading="Select Cluster & Verify Substrate Control Plane",
-        description="Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and check if Substrate control plane is already installed.",
+        description="Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and probe for existing Substrate components in real-time.",
         real_command="kubectl config get-contexts && kubectl get ns substrate-system",
         checklist_title="Verifying selected cluster & control plane...",
         checklist_items=[
-            "Cluster API Reachability: Connected to [gke_enterprise_us-central1_prod-cluster]",
+            "Cluster API Reachability: Connected to [gke_enterprise_us-central1_prod]",
             "Cluster Provider Verified: Google Kubernetes Engine (GKE v1.31.1)",
             "Node Fleet Capacity: 12 ready nodes (96 vCPUs, hardware nested-virt enabled)",
             "Control Plane Status: Checked [substrate-system] — Clean cluster ready for install",
@@ -258,11 +311,63 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Bootstrapping Substrate Gateway & API Server (listening on :8080)",
             "Initializing eBPF network routing controller in [substrate-system]",
         ],
-        done_message="Substrate is active! Next, let's install the CLI.",
+        done_message="Substrate control plane is active! Next, let's configure the worker pool node fleet.",
+        next_action_label="Set up WorkerPool [Enter ↵] →",
+    ),
+    OnboardingStep.COMPATIBLE_NODEPOOL: StepMetadata(
+        step_num=5,
+        title="Compatible Node Pool",
+        heading="Set up Compatible WorkerPool Node Fleet",
+        description="Scanning cluster node pools for hardware nested virtualization (KVM/microVM). If no compatible pool is found, configure one via Custom Compute Class (CCC).",
+        real_command="kubectl apply -f manifests/workerpool-ccc.yaml",
+        checklist_title="Configuring compatible node pool...",
+        checklist_items=[
+            "Scanning existing node pools: No hardware nested-virt pool detected",
+            "Applying Custom Compute Class manifest [agent-spot-ccc] (n2-standard-48, KVM enabled)",
+            "Configuring Spot fallback & capacity reservation",
+            "Compatible node pool ready for high-density agent sandboxing",
+        ],
+        done_message="Compatible node pool configured! You can modify & re-apply manifests/workerpool-ccc.yaml anytime.",
+        next_action_label="Configure Autoscaling [Enter ↵] →",
+        is_option_step=True,
+        yaml_notice="💡 Tip: You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. manifests/workerpool-ccc.yaml).",
+    ),
+    OnboardingStep.CONFIG_AUTOSCALING: StepMetadata(
+        step_num=6,
+        title="Configure Autoscaling",
+        heading="Configure WorkerPool Autoscaling (HPA & CapacityBuffer)",
+        description="Configure horizontal pod autoscaling and standby capacity buffers so your agent fleet can absorb sudden traffic surges with instant (<100ms) cold starts.",
+        real_command="kubectl apply -f manifests/workerpool-autoscaling.yaml",
+        checklist_title="Applying autoscaling & capacity buffer...",
+        checklist_items=[
+            "Applying HorizontalPodAutoscaler (OneHPA: minReplicas=10, maxReplicas=100)",
+            "Applying CapacityBuffer (fixed-replica-buffer: 3 standby replicas via buffer.gke.io/standby-capacity)",
+            "Standby buffer verified: Ready for instant (<100ms) agent session injection",
+        ],
+        done_message="Autoscaling active! You can modify & re-apply manifests/workerpool-autoscaling.yaml anytime.",
+        next_action_label="Deploy WorkerPool [Enter ↵] →",
+        is_option_step=True,
+        yaml_notice="💡 Tip: You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. manifests/workerpool-autoscaling.yaml).",
+    ),
+    OnboardingStep.DEPLOY_WORKERPOOL: StepMetadata(
+        step_num=7,
+        title="Deploy WorkerPool",
+        heading="Confirm & Deploy Substrate WorkerPool",
+        description="Deploy the default Substrate WorkerPool into namespace [substrate-system] with pre-warmed agent sandboxes and microVM isolation.",
+        real_command="kubectl apply -f manifests/default-workerpool.yaml",
+        checklist_title="Deploying default Substrate WorkerPool...",
+        checklist_items=[
+            "Resolving worker sandbox image (gcr.io/ate-platform/worker:v1)",
+            "Deploying WorkerPool CR [default-worker-pool] in namespace [substrate-system]",
+            "Provisioning 10 warm worker sandboxes (3 standby buffer replicas active)",
+            "WorkerPool is ready: 10/10 warm pods listening for agent execution turns",
+        ],
+        done_message="Default WorkerPool deployed! Now let's install the developer CLI.",
         next_action_label="Install the CLI [Enter ↵] →",
+        is_option_step=True,
     ),
     OnboardingStep.INSTALL_CLI: StepMetadata(
-        step_num=5,
+        step_num=8,
         title="Install the CLI",
         heading="Install the atectl CLI",
         description="The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
@@ -277,7 +382,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         next_action_label="Deploy first actor [Enter ↵] →",
     ),
     OnboardingStep.FIRST_ACTOR: StepMetadata(
-        step_num=6,
+        step_num=9,
         title="First actor",
         heading="Deploy your first actor",
         description="Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
@@ -292,7 +397,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         next_action_label="Send a request [Enter ↵] →",
     ),
     OnboardingStep.SEND_REQUEST: StepMetadata(
-        step_num=7,
+        step_num=10,
         title="Send a request",
         heading="Send a request to your actor",
         description="Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
@@ -308,7 +413,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         benchmark_text="Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     ),
     OnboardingStep.PAUSE_RESUME: StepMetadata(
-        step_num=8,
+        step_num=11,
         title="Pause & resume",
         heading="Pause & resume (0% idle CPU)",
         description="When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
@@ -324,7 +429,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
         benchmark_text="Cold Start (890ms)  ➔  Suspend (38ms, 0% CPU)  ➔  Warm Resume (115ms)",
     ),
     OnboardingStep.SCALE_UP: StepMetadata(
-        step_num=9,
+        step_num=12,
         title="Scale it up",
         heading="Scale worker fleet & Day-2 Operations",
         description="Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
@@ -361,6 +466,9 @@ class UserSetupState:
     current_step: OnboardingStep = OnboardingStep.WELCOME
     selected_track: str = "track_quickstart"
     selected_cluster: str = "cluster_gke_prod"
+    selected_nodepool_option: str = "ccc_auto"
+    selected_autoscaling_option: str = "auto_hpa_buffer"
+    selected_deploy_wp_option: str = "deploy_yes_default"
     cluster_provider: str = "Google Kubernetes Engine (GKE)"
     cluster_version: str = "v1.31.1-gke.1520000"
     control_plane_detected: bool = False

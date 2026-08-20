@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with Pre-existing Cluster Verification & Private GA Agreement."""
+"""State Machine for Onboarding Workflow with WorkerPool CCC, Autoscaling & Deployment."""
 
 from __future__ import annotations
 
@@ -15,12 +15,15 @@ class OnboardingStateMachine:
       2. Connect pre-existing cluster (CONNECT_CLUSTER)
       3. Private GA Agreement & Gated Access (PRIVATE_GA_AGREEMENT)
       4. Turn on Substrate (TURN_ON_SUBSTRATE)
-      5. Install the CLI (INSTALL_CLI)
-      6. First actor (FIRST_ACTOR)
-      7. Send a request (SEND_REQUEST)
-      8. Pause & resume (PAUSE_RESUME)
-      9. Scale it up & Live Launchpad (SCALE_UP)
-      10. Complete (COMPLETE)
+      5. Compatible Node Pool (COMPATIBLE_NODEPOOL)
+      6. Configure Autoscaling (CONFIG_AUTOSCALING)
+      7. Deploy WorkerPool (DEPLOY_WORKERPOOL)
+      8. Install the CLI (INSTALL_CLI)
+      9. First actor (FIRST_ACTOR)
+      10. Send a request (SEND_REQUEST)
+      11. Pause & resume (PAUSE_RESUME)
+      12. Scale it up & Live Launchpad (SCALE_UP)
+      13. Complete (COMPLETE)
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
@@ -29,6 +32,9 @@ class OnboardingStateMachine:
         OnboardingStep.CONNECT_CLUSTER,
         OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
+        OnboardingStep.COMPATIBLE_NODEPOOL,
+        OnboardingStep.CONFIG_AUTOSCALING,
+        OnboardingStep.DEPLOY_WORKERPOOL,
         OnboardingStep.INSTALL_CLI,
         OnboardingStep.FIRST_ACTOR,
         OnboardingStep.SEND_REQUEST,
@@ -107,5 +113,5 @@ class OnboardingStateMachine:
             return 0
 
     def total_steps(self) -> int:
-        """Total number of interactive steps (9 steps following Welcome)."""
-        return 9
+        """Total number of interactive steps (12 steps following Welcome)."""
+        return 12

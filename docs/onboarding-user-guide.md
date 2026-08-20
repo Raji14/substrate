@@ -18,32 +18,10 @@
    - Users bring their pre-configured Kubernetes cluster (GKE, EKS, AKS, OpenShift, or on-prem) ensuring total infrastructure portability without vendor lock-in.
 3. **Gated Access for Private General Availability (GA)**:
    - Gated customer registration and explicit contractual acknowledgment that **production support and enterprise SLAs require an executed agreement with Google Cloud**.
-
----
-
-### 🛠️ CUJ 1: Platform Engineer — Connecting Pre-existing Clusters & Gated License
-
-**User Goal**: Verify and connect an existing enterprise Kubernetes cluster to Substrate, register the Private GA license, and activate the high-density worker fleet.
-
-- **The Challenge**: Avoiding cloud vendor lock-in while ensuring strict compliance with enterprise support contracts.
-- **How Substrate Helps**:
-  1. Validates standard Kubernetes API compatibility (v1.28+).
-  2. Registers the organization's Private GA license token (`ga-sub-****`).
-  3. Records contractual support boundary acceptance before control plane installation.
-- **Outcome**: A portable, compliant Substrate installation running on the enterprise's pre-existing Kubernetes cluster.
-
----
-
-### 🤖 CUJ 2: AI Application Developer — Fast No-YAML Agent Launch
-
-**User Goal**: Take an agent program (packaged in a standard container image) and deploy it to users without writing complex Kubernetes configuration files.
-
-- **The Challenge**: AI developers want to build logic with LLMs (like Gemini, Claude, or OpenAI), not spend hours debugging 200-line Kubernetes YAML files, networking rules, and ingress routes.
-- **How Substrate Helps**:
-  1. Lets the developer register their container image directly (`atectl actor create`).
-  2. Streams execution turns in real-time with sub-100ms response benchmarks.
-  3. Provides built-in **Request Parking** so incoming user messages wait safely in queue while sleeping agents wake up.
-- **Outcome**: The agent is live in seconds. When waiting for a human reply, it automatically frees up machine memory; when the human speaks, it resumes right where it left off.
+4. **Post-Installation WorkerPool Fleet Configuration**:
+   - **Compatible Node Pool (Hardware Nested Virtualization)**: Scans cluster node pools; if missing nested-virt, options are presented: (1) Auto Custom Compute Class (CCC), (2) Manual gcloud, (3) Choose different cluster. Users can modify and re-apply YAML manifests (`manifests/workerpool-ccc.yaml`) at any time.
+   - **WorkerPool Autoscaling (HPA & CapacityBuffer)**: Options: (1) Auto HPA OneHPA (min=10, max=100) & CapacityBuffer (3 standby replicas via `buffer.gke.io/standby-capacity`), (2) Manual kubectl, (3) Skip autoscaling. Users can modify and re-apply YAML manifests (`manifests/workerpool-autoscaling.yaml`) at any time.
+   - **Confirm & Deploy Default Substrate WorkerPool**: Confirm and bootstrap 10 warm worker sandboxes with microVM isolation.
 
 ---
 
@@ -64,155 +42,84 @@ The Welcome Screen features the glowing **Agent Substrate** ASCII Art logo with 
 
 ---
 
-## 🧭 Section 3: The 9-Step Interactive Journey
+## 🧭 Section 3: The 12-Step Interactive Journey
 
 ```
 ╭─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ Substrate                      Step 3 of 9                                                              │
-│ Getting set up                 Private GA Access & Contractual Agreement                                │
-│ ────────────────────────────── Because this is a Private General Availability release, customers must   │
-│ 2 of 9 steps                   acknowledge that production support requires an agreement with Google.   │
+│ Substrate                      Step 5 of 12                                                             │
+│ Getting set up                 Set up Compatible WorkerPool Node Fleet                                  │
+│ ────────────────────────────── Scanning cluster node pools for hardware nested virtualization. If no    │
+│ 4 of 12 steps                  compatible pool is found, configure one via Custom Compute Class (CCC).  │
 │                                                                                                         │
-│ ✓ Check your setup             ┌─ ▼ Show the real command ─────────────────────────────────────────────┐│
-│ ✓ Connect your cluster         │  atectl auth register --customer="Acme Corp" --token="ga-sub-****"   ││
-│ 3 Private GA Agreement         └───────────────────────────────────────────────────────────────────────┘│
-│ 4 Turn on Substrate                                                                                     │
-│ 5 Install the CLI              ┌─ [!] PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT ───────────┐│
-│ 6 First actor                  │  Customer: Acme Corp (rajithal@enterprise.com) │ Token: Verified [✓]  ││
-│ 7 Send a request               │  [✓] I acknowledge that production support requires an explicit      ││
-│ 8 Pause & resume               │      agreement with Google Cloud.                                     ││
-│ 9 Scale it up                  └───────────────────────────────────────────────────────────────────────┘│
-│                                                                                                         │
-│                                                     [ ← Back [b] ]  [ Turn on Substrate [Enter ↵] → ]  │
+│ ✓ Check your setup             ┌─ Choose configuration option (Press [1-3]): ──────────────────────────┐│
+│ ✓ Connect your cluster         │ ▶ [1] ⚡ Automatically create a compatible node pool using CCC (Rec.) ││
+│ ✓ Private GA Agreement         │ ○ [2] 🛠️ Create a compatible node pool manually via gcloud             ││
+│ ✓ Turn on Substrate            │ ○ [3] 🔄 Choose a different cluster                                   ││
+│ 5 Compatible Node Pool         └───────────────────────────────────────────────────────────────────────┘│
+│ 6 Configure Autoscaling                                                                                 │
+│ 7 Deploy WorkerPool            ┌─ 💡 Note ─────────────────────────────────────────────────────────────┐│
+│ 8 Install the CLI              │  You can modify and re-apply the CCC YAML manifest later at any time  ││
+│ 9 First actor                  │  (e.g. manifests/workerpool-ccc.yaml).                                 ││
+│ 10 Send a request              └───────────────────────────────────────────────────────────────────────┘│
+│ 11 Pause & resume                                                                                       │
+│ 12 Scale it up                                      [ ← Back [b] ]  [ Configure Autoscaling [Enter ↵] ] │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ---
 
 ### 1️⃣ Step 1: Check your setup
+- **Command**: `which docker && which kubectl && which python3`
+- **Checklist**: Container runtime, Python 3.10+, kubectl in PATH.
 
-Verifies your local workstation has the required container runtimes, Python environment, and cluster utilities.
-
-![Step 1: Check your setup](../demos/onboarding-tui/screenshots/step1_check_your_setup.png)
-
-- **Real Command**: `which docker && which kubectl && which python3`
-- **Checklist**:
-  - `✓ Container runtime detected (Docker / Podman / Containerd)`
-  - `✓ Python 3.10+ runtime available`
-  - `✓ Kubectl command utility ready in PATH`
-- **Done Message**: *"Prerequisites verified. Let's connect your pre-configured cluster next."*
-
----
-
-### 2️⃣ Step 2: Connect your cluster (Pre-existing Cluster Requirement)
-
-Validates connection to your pre-configured Kubernetes cluster (ensuring portability across GKE, EKS, AKS, OpenShift, or on-prem).
-
-![Step 2: Connect your cluster](../demos/onboarding-tui/screenshots/step2_connect_your_cluster.png)
-
-- **Real Command**: `kubectl cluster-info && kubectl get nodes -o wide`
-- **Pre-configured Cluster Info**:
-  - `Context: gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)`
-  - `Kubernetes Ver: v1.31.1-gke (Compatible with standard K8s v1.28+)`
-  - `Node Fleet: 12 ready nodes (96 cores, hardware nested-virt enabled)`
-  - `Portability: Zero cloud vendor lock-in`
-- **Done Message**: *"Pre-configured cluster verified! Now let's complete the Private GA agreement."*
-
----
+### 2️⃣ Step 2: Connect your cluster (Side-by-Side Verification)
+- **Side-by-Side Layout**:
+  - **Left**: Cluster selector (`[1-4]`) with GKE, EKS, AKS, Kind.
+  - **Right**: Live verification card & control plane probe status in `[substrate-system]`.
 
 ### 3️⃣ Step 3: Private GA Agreement (Gated Access & Support Terms)
+- **Command**: `atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"`
+- **Terms**: Explicit acknowledgment that production support requires an executed agreement with Google Cloud.
 
-Captures customer organization registration and acknowledgment of Google support boundaries.
+### 4️⃣ Step 4: Turn on Substrate (Control Plane Installation)
+- **Command**: `kubectl apply -f manifests/substrate-control-plane.yaml`
+- **Actions**: CRDs, Valkey state store, Gateway, eBPF router in `[substrate-system]`.
 
-![Step 3: Private GA Agreement](../demos/onboarding-tui/screenshots/step3_private_ga_agreement.png)
+### 5️⃣ Step 5: Compatible Node Pool (Hardware Nested Virtualization)
+- **Options**:
+  1. `[1] (Recommended)`: **Automatically create a compatible node pool using Custom Compute Class** (`manifests/workerpool-ccc.yaml`)
+  2. `[2]`: **Create a compatible node pool manually via gcloud**
+  3. `[3]`: **Choose a different cluster**
+- **Note**: Modifiable anytime via `manifests/workerpool-ccc.yaml`.
 
-- **Real Command**: `atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"`
-- **Contractual Terms Agreement**:
-  - `Customer Org: Acme Corporation`
-  - `Contact Email: rajithal@enterprise.com`
-  - `License Token: ga-sub-8f92a-live-contract [Verified ✓]`
-  - `[✓] I acknowledge that Agent Substrate is provided under Private GA terms. Production support and enterprise SLAs require an explicit agreement with Google Cloud.`
-- **Done Message**: *"Private GA agreement acknowledged! Now let's turn on Substrate."*
+### 6️⃣ Step 6: WorkerPool Autoscaling (HPA & CapacityBuffer)
+- **Options**:
+  1. `[1] (Recommended)`: **Automatically configure HPA & CapacityBuffer with sensible defaults**
+     - OneHPA: minReplicas=10, maxReplicas=100
+     - CapacityBuffer: 3 standby replicas via `buffer.gke.io/standby-capacity`
+     - Standby buffer ready for instant (<100ms) agent session injection
+  2. `[2]`: **Configure autoscaling manually via kubectl**
+  3. `[3]`: **Skip autoscaling configuration**
+- **Note**: Modifiable anytime via `manifests/workerpool-autoscaling.yaml`.
 
----
+### 7️⃣ Step 7: Confirm & Deploy Substrate WorkerPool
+- **Options**:
+  1. `[1] (Recommended)`: **Yes, deploy default Substrate WorkerPool [default-worker-pool]** (10 warm pods, microVM sandboxes)
+  2. `[2]`: **Customize WorkerPool specifications**
 
-### 4️⃣ Step 4: Turn on Substrate
+### 8️⃣ Step 8: Install the CLI (`atectl`)
+- **Command**: `go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh`
 
-Installs the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace `substrate-system`.
+### 9️⃣ Step 9: First actor (No-YAML Template Launch)
+- **Command**: `atectl actor create my-first-actor --template=default-agent`
 
-![Step 4: Turn on Substrate](../demos/onboarding-tui/screenshots/step4_turn_on_substrate.png)
+### 🔟 Step 10: Send a request (Streaming Execution & Benchmark)
+- **Command**: `atectl actor execute my-first-actor --prompt="..."`
+- **Benchmark**: Turn Latency: 82ms │ TTFT: 14ms │ Throughput: 120 tok/s
 
-- **Real Command**: `kubectl apply -f manifests/substrate-control-plane.yaml`
-- **Done Message**: *"Substrate is active! Next, let's install the CLI."*
+### 1️⃣1️⃣ Step 11: Pause & resume (0% Idle CPU)
+- **Command**: `atectl actor suspend my-first-actor && atectl actor resume my-first-actor`
+- **Benchmark**: Suspend 38ms (0% CPU) ➔ Resume 115ms
 
----
-
-### 5️⃣ Step 5: Install the CLI
-
-Installs the `atectl` command-line utility for managing actors and worker pools without writing YAML.
-
-![Step 5: Install the CLI](../demos/onboarding-tui/screenshots/step5_install_the_cli.png)
-
-- **Real Command**: `go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh`
-- **Done Message**: *"CLI is installed and ready. Let's deploy your first actor!"*
-
----
-
-### 6️⃣ Step 6: First actor
-
-Launches your first AI agent container from a standard template into a pre-warmed sandbox.
-
-![Step 6: First actor](../demos/onboarding-tui/screenshots/step6_first_actor.png)
-
-- **Real Command**: `atectl actor create my-first-actor --template=default-agent --atespace=default-atespace`
-- **Done Message**: *"Actor is running! Let's send it an interactive request."*
-
----
-
-### 7️⃣ Step 7: Send a request
-
-Communicates with your running actor through the Substrate Gateway with real-time response streaming and latency benchmarks.
-
-![Step 7: Send a request](../demos/onboarding-tui/screenshots/step7_send_a_request.png)
-
-- **Real Command**: `atectl actor execute my-first-actor --prompt="Analyze recent logs and report status"`
-- **Persistent Latency Benchmark**: `Turn Latency: 82ms  │  TTFT: 14ms  │  Throughput: 120 tok/s`
-
----
-
-### 8️⃣ Step 8: Pause & resume
-
-Demonstrates Substrate's core compute efficiency: saving 90% compute when idle and waking in milliseconds.
-
-![Step 8: Pause & resume](../demos/onboarding-tui/screenshots/step8_pause_and_resume.png)
-
-- **Real Command**: `atectl actor suspend my-first-actor && atectl actor resume my-first-actor`
-- **Persistent Benchmark**: `Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)`
-
----
-
-### 9️⃣ Step 9: Scale it up & Live Inspection
-
-Scales worker pools with pre-warmed standby capacity buffers and live fleet verification.
-
-![Step 9: Scale it up](../demos/onboarding-tui/screenshots/step9_scale_it_up.png)
-
-- **Real Command**: `atectl create workerpools production-fleet --workers=20 --isolation=microvm`
-- **Persistent Readiness Table**:
-  ```bash
-  $ atectl get workerpools
-  WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE
-  production-fleet  substrate-system  microvm    20/20  3        4%   8%   0
-  ```
-
----
-
-## 📺 Section 4: Demo Assets & Verification
-
-| Asset | Location / Command | Description |
-| :--- | :--- | :--- |
-| **🌐 Interactive Web Simulator** | `./open_simulator.sh` *(or `open demos/onboarding-tui/index.html`)* | Clickable browser prototype featuring the Agent Substrate Welcome Screen, 2 installation choices, keyboard badges, and Autopilot tour. |
-| **🎬 HD Video Demo (1080p MP4)** | `open demos/onboarding-tui/onboarding_demo.mp4` | High-definition screen recording walking through the Agent Substrate Welcome Screen + all 9 onboarding steps. |
-| **💻 Native Terminal Application** | `cd /Users/rajithal/substrate && python3 onboard.py` | Full-fidelity Textual terminal onboarding application with tactile keyboard controls. |
-| **🖼️ High-Res Step Screenshots** | `demos/onboarding-tui/screenshots/` | High-resolution PNG step snapshots including `step0_welcome.png` through `step9_scale_it_up.png`. |
-| **🧪 Automated Tests** | `python3 -m pytest substrate_onboarding/tests/` | **19/19 passing (100%)**. |
+### 1️⃣2️⃣ Step 12: Scale it up & Fleet Inspection
+- **Command**: `atectl create workerpools production-fleet --workers=20 --isolation=microvm`

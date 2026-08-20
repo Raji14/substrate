@@ -1,4 +1,4 @@
-"""Unit tests for OnboardingStateMachine with Pre-existing Cluster & Private GA Agreement."""
+"""Unit tests for OnboardingStateMachine with Pre-existing Cluster, Private GA Agreement, and WorkerPool CCC."""
 
 import pytest
 from substrate_onboarding.config import OnboardingStep, UserSetupState
@@ -23,6 +23,9 @@ def test_state_machine_sequential_transitions():
         OnboardingStep.CONNECT_CLUSTER,
         OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
+        OnboardingStep.COMPATIBLE_NODEPOOL,
+        OnboardingStep.CONFIG_AUTOSCALING,
+        OnboardingStep.DEPLOY_WORKERPOOL,
         OnboardingStep.INSTALL_CLI,
         OnboardingStep.FIRST_ACTOR,
         OnboardingStep.SEND_REQUEST,
@@ -36,7 +39,7 @@ def test_state_machine_sequential_transitions():
         assert step == expected
 
     assert sm.state.is_complete
-    assert len(transitions) == 10
+    assert len(transitions) == len(expected_steps)
 
 
 def test_state_machine_previous_step():
