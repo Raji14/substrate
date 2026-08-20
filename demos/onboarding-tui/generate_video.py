@@ -205,7 +205,7 @@ def render_welcome_screen(frame_idx=0):
     draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
     draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
-    draw.text((wx + 360, wy + 10), "broyal@broyal: ~/workspaces/ate-demos/demos — substrate onboard", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
     # ASCII Logo
     ly = wy + 48
@@ -280,7 +280,7 @@ def render_step_frame(step_idx=0):
     draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
     draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
-    draw.text((wx + 360, wy + 10), "broyal@broyal: ~/workspaces/ate-demos/demos — substrate onboard", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
     # Left Sidebar (width 240)
     sw = 240
