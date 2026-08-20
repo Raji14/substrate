@@ -1,14 +1,11 @@
 """High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Onboarding.
 
 Features:
-- "Agent Substrate" Google 4-color gradient splash title (without duplicate subtitle)
+- "Agent Substrate" Google 4-color gradient splash title
 - Tagline: "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)"
-- 2 Streamlined installation choices:
-    1) Quickstart — Automatic cluster detection & default configuration (Recommended)
-    2) Advanced — Custom installation with kubectl
-- Interactive cluster selection list & Substrate control plane presence probe
-- Generous whitespace and light-theme safe palette
-- Keyboard shortcut indicators throughout the flow
+- 2 Streamlined installation choices (Quickstart & Advanced)
+- Step 2: Side-by-side cluster selection list (Left) and verification probe (Right)
+- Compact, clean row spacing without redundant command callout
 """
 
 import os
@@ -88,19 +85,14 @@ STEPS_DATA = [
         "num": 2,
         "title": "Connect your cluster",
         "heading": "Select Cluster & Verify Substrate Control Plane",
-        "desc": "Choose a cluster from your kubeconfig. We'll verify its provider type and probe for existing Substrate components.",
-        "cmd": "kubectl config get-contexts && kubectl get ns substrate-system",
-        "chk_title": "Verifying selected cluster & control plane...",
-        "chk_items": [
-            "Cluster API Reachability: Connected to [gke_enterprise_us-central1_prod-cluster]",
-            "Cluster Provider Verified: Google Kubernetes Engine (GKE v1.31.1)",
-            "Node Fleet Capacity: 12 ready nodes (96 vCPUs, hardware nested-virt enabled)",
-            "Control Plane Status: Checked [substrate-system] — Clean cluster ready for install",
-        ],
-        "done": "Done",
-        "prompt": "Cluster verified & clean! Now let's complete the Private GA agreement.",
+        "desc": "Choose a cluster from your kubeconfig. We'll verify its provider type and probe for existing Substrate components in real-time.",
+        "cmd": "",
+        "chk_title": "",
+        "chk_items": [],
+        "done": "",
+        "prompt": "",
         "btn": "Private GA Agreement [Enter ↵] →",
-        "custom_box": "cluster",
+        "custom_box": "cluster_side_by_side",
     },
     {
         "num": 3,
@@ -245,7 +237,7 @@ def render_welcome_screen(typewriter_progress=1.0):
         draw.text((wx + 180, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_sm)
         ly += 16
 
-    # Tagline (replacing redundant Agent Substrate subtitle)
+    # Tagline
     draw.text((wx + 270, ly + 4), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)", fill=ACCENT_CYAN, font=font_sm)
 
     # Animated Typewriter Description
@@ -363,72 +355,92 @@ def render_step_frame(step_idx=0):
     draw.text((cx, cy + 18), data["heading"], fill=TEXT_WHITE, font=font_md)
     draw.text((cx, cy + 44), data["desc"], fill=TEXT_PRIMARY, font=font_sm)
 
-    # Collapsible Command Box
-    cby = cy + 74
-    draw.rounded_rectangle([cx, cby, cx + cw, cby + 58], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-    draw.rounded_rectangle([cx + 12, cby + 6, cx + 180, cby + 24], radius=4, fill=ACCENT_BLUE)
-    draw.text((cx + 18, cby + 8), "▼ Show the real command", fill=TEXT_WHITE, font=font_xs)
-    draw.text((cx + 14, cby + 32), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
+    # STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR & VERIFICATION PROBE
+    if data.get("custom_box") == "cluster_side_by_side":
+        cy_step2 = cy + 76
+        half_w = (cw - 20) // 2
 
-    # Specialized Box (Cluster / Agreement)
-    ey = cby + 68
-    if data.get("custom_box") == "cluster":
-        # Interactive Cluster List Box
-        draw.text((cx, ey), "Select target cluster from kubeconfig (Press [1-4]):", fill=TEXT_WHITE, font=font_xs)
-        ey += 18
+        # Left Column: Cluster Picker
+        draw.text((cx, cy_step2), "Target Cluster (Press [1-4]):", fill=TEXT_WHITE, font=font_xs)
         clusters_info = [
-            ("[1]  *  gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)", "Google Kubernetes Engine (GKE Standard) in us-central1 • 12 nodes (96 vCPUs) • KVM Enabled", True),
-            ("[2]  #  aws-eks-production-us-east-1", "Amazon Elastic Kubernetes Service (EKS) in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves", False),
+            ("[1] * gke_enterprise_us-central1_prod", "GKE Standard • 12 nodes (96 vCPUs) • KVM", True),
+            ("[2] # aws-eks-production-us-east-1", "AWS EKS • 8 nodes (64 vCPUs) • Nitro", False),
+            ("[3] # azure-aks-agent-fleet-eastus", "Azure AKS • 6 nodes (48 vCPUs) • Hyper-V", False),
+            ("[4] # kind-substrate-sandbox", "Local Sandbox • 3 nodes (24 vCPUs)", False),
         ]
+        list_y = cy_step2 + 20
         for c_title, c_desc, c_sel in clusters_info:
             c_bg = ACCENT_BLUE if c_sel else BG_CMD
             c_out = ACCENT_CYAN if c_sel else BORDER_SUBTLE
-            draw.rounded_rectangle([cx, ey, cx + cw, ey + 36], radius=6, fill=c_bg, outline=c_out, width=1)
-            draw.text((cx + 12, ey + 4), c_title, fill=TEXT_WHITE, font=font_xs)
-            draw.text((cx + 12, ey + 18), c_desc, fill=(211, 227, 253) if c_sel else TEXT_MUTED, font=font_xs)
-            ey += 40
+            draw.rounded_rectangle([cx, list_y, cx + half_w, list_y + 44], radius=6, fill=c_bg, outline=c_out, width=1)
+            draw.text((cx + 10, list_y + 6), c_title, fill=TEXT_WHITE, font=font_xs)
+            draw.text((cx + 10, list_y + 24), c_desc, fill=(211, 227, 253) if c_sel else TEXT_MUTED, font=font_xs)
+            list_y += 50
 
-        # Cluster Type & Control Plane Verification Box
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 72], radius=6, fill=BG_CARD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, ey + 8), "* CLUSTER TYPE & CONTROL PLANE VERIFICATION:", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 26), "• Provider Type   : Google Kubernetes Engine (GKE v1.31.1) [Verified ✓]", fill=TEXT_WHITE, font=font_xs)
-        draw.text((cx + 14, ey + 42), "• Node Capacity   : 12 ready nodes (96 vCPUs, hardware virtualization / KVM ready)", fill=ACCENT_GREEN, font=font_xs)
-        draw.text((cx + 14, ey + 58), "• Substrate Probe : Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready)", fill=ACCENT_YELLOW, font=font_xs)
-        ey += 80
-    elif data.get("custom_box") == "agreement":
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 68], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
-        draw.text((cx + 14, ey + 8), "[!] PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:", fill=ACCENT_YELLOW, font=font_xs)
-        draw.text((cx + 14, ey + 26), "Customer: Acme Corp (rajithal@enterprise.com) │ Token: ga-sub-8f92a-live-contract [✓]", fill=TEXT_WHITE, font=font_xs)
-        draw.text((cx + 14, ey + 46), "[✓] I acknowledge that production support requires an explicit agreement with Google Cloud.", fill=ACCENT_CYAN, font=font_xs)
-        ey += 78
+        # Right Column: Inspection & Probe Box
+        rx = cx + half_w + 20
+        draw.text((rx, cy_step2), "Verification & Probe Status:", fill=TEXT_WHITE, font=font_xs)
 
-    # Execution Checklist Card
-    card_h = 130 if "custom_box" in data or "benchmark" in data or data["num"] == 9 else 190
-    draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
-    draw.text((cx + 20, ey + 12), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
+        # Verification Box
+        box_y = cy_step2 + 20
+        draw.rounded_rectangle([rx, box_y, rx + half_w, box_y + 90], radius=6, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
+        draw.text((rx + 12, box_y + 8), "🌐 CLUSTER VERIFICATION:", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((rx + 12, box_y + 26), "• Provider: Google Kubernetes Engine (GKE v1.31) [✓]", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 12, box_y + 44), "• Capacity: 12 ready nodes (KVM microVM ready)", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((rx + 12, box_y + 64), "• Substrate: [substrate-system] ➔ Clean Ready", fill=ACCENT_YELLOW, font=font_xs)
 
-    iy = ey + 32
-    for item in data["chk_items"][:3]:
-        draw.text((cx + 20, iy), "✓", fill=ACCENT_GREEN, font=font_sm)
-        draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_xs)
-        iy += 20
+        # Compact Checklist Box
+        chk_y = box_y + 100
+        draw.rounded_rectangle([rx, chk_y, rx + half_w, chk_y + 94], radius=6, fill=BG_CMD, outline=BORDER_DARK, width=1)
+        draw.text((rx + 12, chk_y + 10), "⚡ PROBE CHECKLIST:", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((rx + 12, chk_y + 30), "  ✓ API Reachability: Connected to active context", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 12, chk_y + 50), "  ✓ Compatibility: Kubernetes v1.28+ verified", fill=TEXT_WHITE, font=font_xs)
+        draw.text((rx + 12, chk_y + 70), "  ✓ Clean cluster ready for Substrate install", fill=ACCENT_GREEN, font=font_xs)
 
-    draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN if data["num"] < 9 else ACCENT_CYAN, font=font_base)
-    draw.text((cx + 20, iy + 22), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
+        by = list_y + 10
 
-    # Latency / Fleet visualization widgets
-    vy = ey + card_h + 10
-    if "benchmark" in data:
-        draw.rounded_rectangle([cx, vy, cx + cw, vy + 36], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, vy + 10), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
-        by = vy + 46
-    elif data["num"] == 9:
-        draw.rounded_rectangle([cx, vy, cx + cw, vy + 40], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, vy + 6), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, vy + 22), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
-        by = vy + 50
     else:
-        by = ey + card_h + 12
+        # Other Steps: Command box & Checklist
+        cby = cy + 74
+        draw.rounded_rectangle([cx, cby, cx + cw, cby + 58], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.rounded_rectangle([cx + 12, cby + 6, cx + 180, cby + 24], radius=4, fill=ACCENT_BLUE)
+        draw.text((cx + 18, cby + 8), "▼ Show the real command", fill=TEXT_WHITE, font=font_xs)
+        draw.text((cx + 14, cby + 32), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
+
+        ey = cby + 68
+        if data.get("custom_box") == "agreement":
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 68], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+            draw.text((cx + 14, ey + 8), "[!] PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:", fill=ACCENT_YELLOW, font=font_xs)
+            draw.text((cx + 14, ey + 26), "Customer: Acme Corp (rajithal@enterprise.com) │ Token: ga-sub-8f92a-live-contract [✓]", fill=TEXT_WHITE, font=font_xs)
+            draw.text((cx + 14, ey + 46), "[✓] I acknowledge that production support requires an explicit agreement with Google Cloud.", fill=ACCENT_CYAN, font=font_xs)
+            ey += 78
+
+        # Execution Checklist Card
+        card_h = 160 if "benchmark" in data or data["num"] == 9 else 220
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
+        draw.text((cx + 20, ey + 12), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
+
+        iy = ey + 32
+        for item in data["chk_items"]:
+            draw.text((cx + 20, iy), "✓", fill=ACCENT_GREEN, font=font_sm)
+            draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_xs)
+            iy += 22
+
+        draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN if data["num"] < 9 else ACCENT_CYAN, font=font_base)
+        draw.text((cx + 20, iy + 24), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
+
+        vy = ey + card_h + 10
+        if "benchmark" in data:
+            draw.rounded_rectangle([cx, vy, cx + cw, vy + 36], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+            draw.text((cx + 14, vy + 10), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
+            by = vy + 46
+        elif data["num"] == 9:
+            draw.rounded_rectangle([cx, vy, cx + cw, vy + 40], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+            draw.text((cx + 14, vy + 6), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
+            draw.text((cx + 14, vy + 22), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
+            by = vy + 50
+        else:
+            by = ey + card_h + 12
 
     # Action Button Row with tactile keycap badges
     draw.rounded_rectangle([cx + cw - 380, by, cx + cw - 290, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
@@ -451,7 +463,7 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
         w_img = render_welcome_screen(typewriter_progress=progress)
         writer.append_data(np.array(w_img))
 
-    durations = [2.2, 2.8, 2.5, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
+    durations = [2.2, 3.0, 2.5, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
     for i in range(9):
         num_frames = int(durations[i] * FPS)
         frame_img = render_step_frame(i)

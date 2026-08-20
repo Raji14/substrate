@@ -1,4 +1,4 @@
-"""Generic interactive StepScreen with cluster selection, control plane probe, and generous whitespace."""
+"""Generic interactive StepScreen with side-by-side cluster selection and verification."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from substrate_onboarding.widgets.sidebar_nav import SidebarNav
 
 
 class GenericStepScreen(Screen[None]):
-    """Generic high-fidelity step screen rendering 2-column layout with generous whitespace and cluster verification."""
+    """Generic high-fidelity step screen rendering 2-column layout with side-by-side cluster inspection."""
 
     selected_cluster_idx: reactive[int] = reactive(0)
 
@@ -54,29 +54,41 @@ class GenericStepScreen(Screen[None]):
                     yield Label(self.meta.heading, classes="wizard-step-title")
                     yield Label(self.meta.description, classes="wizard-step-description")
 
-                    # Real Command Callout Card
-                    yield Static(self._render_command_callout(), id="command-callout-card")
-
-                    # Interactive Cluster Selection & Verification (Step 2)
+                    # Step 2: Side-by-side Cluster Selection (Left) and Verification Status (Right)
                     if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-                        yield Label("Select target cluster from kubeconfig (Press [1-4]):", classes="section-subtitle-label")
-                        with Vertical(id="cluster-selection-list"):
-                            for idx in range(len(self.clusters)):
-                                yield Static(self._render_cluster_row(idx), id=f"cluster-item-{idx}", classes="cluster-option-row")
-                        yield Static(self._render_cluster_verification_box(), id="cluster-verification-box")
+                        with Horizontal(id="cluster-side-by-side-layout"):
+                            # Left Column: Cluster List
+                            with Vertical(id="cluster-picker-column"):
+                                yield Label("Select target cluster (Press [1-4]):", classes="column-header-label")
+                                for idx in range(len(self.clusters)):
+                                    yield Static(
+                                        self._render_cluster_row(idx),
+                                        id=f"cluster-item-{idx}",
+                                        classes="compact-cluster-card",
+                                    )
 
-                    # Specialized Interactive Box (Private GA Agreement)
-                    elif self.step_key == OnboardingStep.PRIVATE_GA_AGREEMENT:
-                        yield Static(self._render_agreement_box(), id="agreement-card")
+                            # Right Column: Cluster Type & Control Plane Verification
+                            with Vertical(id="cluster-inspection-column"):
+                                yield Label("Cluster Type & Substrate Probe:", classes="column-header-label")
+                                yield Static(self._render_cluster_verification_box(), id="cluster-verification-box")
+                                yield Static(self._render_compact_checklist(), id="cluster-compact-checklist")
 
-                    # Live Execution Checklist Card
-                    yield Static(self._render_checklist_box(), id="execution-checklist-card")
+                    else:
+                        # For other steps: Sleek command callout
+                        yield Static(self._render_command_callout(), id="command-callout-card")
 
-                    # Persistent Visualization Card (Benchmark or Live Fleet Table)
-                    if self.meta.benchmark_text:
-                        yield Static(self._render_benchmark_card(), id="benchmark-visualization-card")
-                    elif self.step_key == OnboardingStep.SCALE_UP:
-                        yield Static(self._render_fleet_table(), id="fleet-visualization-card")
+                        # Specialized Interactive Box (Private GA Agreement)
+                        if self.step_key == OnboardingStep.PRIVATE_GA_AGREEMENT:
+                            yield Static(self._render_agreement_box(), id="agreement-card")
+
+                        # Live Execution Checklist Card
+                        yield Static(self._render_checklist_box(), id="execution-checklist-card")
+
+                        # Persistent Visualization Card (Benchmark or Live Fleet Table)
+                        if self.meta.benchmark_text:
+                            yield Static(self._render_benchmark_card(), id="benchmark-visualization-card")
+                        elif self.step_key == OnboardingStep.SCALE_UP:
+                            yield Static(self._render_fleet_table(), id="fleet-visualization-card")
 
                     # Action Button Row with tactile keycap badges
                     with Horizontal(classes="action-button-row"):
@@ -106,8 +118,12 @@ class GenericStepScreen(Screen[None]):
         if self._checklist_progress < len(self.meta.checklist_items):
             self._checklist_progress += 1
             try:
-                box = self.query_one("#execution-checklist-card", Static)
-                box.update(self._render_checklist_box())
+                if self.step_key == OnboardingStep.CONNECT_CLUSTER:
+                    box = self.query_one("#cluster-compact-checklist", Static)
+                    box.update(self._render_compact_checklist())
+                else:
+                    box = self.query_one("#execution-checklist-card", Static)
+                    box.update(self._render_checklist_box())
             except Exception:
                 pass
         else:
@@ -117,7 +133,7 @@ class GenericStepScreen(Screen[None]):
     def _render_command_callout(self) -> Text:
         t = Text()
         t.append(" ▼ Show the real command \n", style="bold #ffffff on #1565c0")
-        t.append(f"\n  {self.meta.real_command}", style="#70d6ff")
+        t.append(f"  {self.meta.real_command}", style="#70d6ff")
         return t
 
     def _render_cluster_row(self, idx: int) -> Text:
@@ -128,24 +144,37 @@ class GenericStepScreen(Screen[None]):
         keycap = f" [{idx + 1}] "
         if is_selected:
             t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
-            t.append(f" {cluster.icon}   {cluster.title}\n", style="bold #70d6ff on #1565c0")
-            t.append(f"        {cluster.description}\n", style="#e3e3e3 on #1565c0")
-            t.append(f"        💡 {cluster.tip}", style="italic #81c995 on #1565c0")
+            t.append(f" {cluster.icon} {cluster.title[:38]}\n", style="bold #70d6ff on #1565c0")
+            t.append(f"        {cluster.description[:52]}", style="#e3e3e3 on #1565c0")
         else:
             t.append(f" ○ {keycap}", style="#80868b")
-            t.append(f" {cluster.icon}   {cluster.title}\n", style="bold #e3e3e3")
-            t.append(f"        {cluster.description}\n", style="#80868b")
-            t.append(f"        💡 {cluster.tip}", style="italic #5f6368")
+            t.append(f" {cluster.icon} {cluster.title[:38]}\n", style="bold #e3e3e3")
+            t.append(f"        {cluster.description[:52]}", style="#80868b")
 
         return t
 
     def _render_cluster_verification_box(self) -> Text:
         cluster = self.clusters[self.selected_cluster_idx]
         t = Text()
-        t.append("🌐 CLUSTER TYPE & CONTROL PLANE VERIFICATION:\n\n", style="bold #70d6ff")
-        t.append(f"  •  Provider Type   :  {cluster.provider} (v1.31 Compatible)  [Verified ✓]\n\n", style="bold #ffffff")
-        t.append(f"  •  Node Capacity   :  {cluster.nodes} ready nodes (Hardware virtualization / KVM ready)\n\n", style="#81c995")
-        t.append(f"  •  Substrate Probe :  Checked namespace [substrate-system] ➔  {cluster.control_plane_status}", style="bold #fdd663")
+        t.append("🌐 CLUSTER VERIFICATION:\n", style="bold #70d6ff")
+        t.append(f"  Provider : {cluster.provider}\n", style="bold #ffffff")
+        t.append(f"  Nodes    : {cluster.nodes} ready (KVM / microVM enabled)\n", style="#81c995")
+        t.append(f"  Probe    : [substrate-system] ➔ {cluster.control_plane_status}", style="bold #fdd663")
+        return t
+
+    def _render_compact_checklist(self) -> Text:
+        t = Text()
+        t.append("⚡ PROBE CHECKLIST:\n", style="bold #70d6ff")
+        for i, item in enumerate(self.meta.checklist_items):
+            if i < self._checklist_progress:
+                t.append("  ✓ ", style="bold #81c995")
+                t.append(f"{item}\n", style="#ffffff")
+            elif i == self._checklist_progress:
+                t.append("  ⠋ ", style="bold #70d6ff")
+                t.append(f"{item}\n", style="#70d6ff")
+            else:
+                t.append("  ○ ", style="#5f6368")
+                t.append(f"{item}\n", style="#5f6368")
         return t
 
     def _render_agreement_box(self) -> Text:
@@ -203,34 +232,34 @@ class GenericStepScreen(Screen[None]):
     def action_select_cluster_1(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER:
             self.selected_cluster_idx = 0
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
     def action_select_cluster_2(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER:
             self.selected_cluster_idx = 1
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
     def action_select_cluster_3(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER:
             self.selected_cluster_idx = 2
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
     def action_select_cluster_4(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER:
             self.selected_cluster_idx = 3
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
     def action_navigate_up(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER and self.selected_cluster_idx > 0:
             self.selected_cluster_idx -= 1
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
     def action_navigate_down(self) -> None:
         if self.step_key == OnboardingStep.CONNECT_CLUSTER and self.selected_cluster_idx < len(self.clusters) - 1:
             self.selected_cluster_idx += 1
-            self._refresh_cluster_list()
+            self._refresh_cluster_view()
 
-    def _refresh_cluster_list(self) -> None:
+    def _refresh_cluster_view(self) -> None:
         for idx in range(len(self.clusters)):
             try:
                 row = self.query_one(f"#cluster-item-{idx}", Static)

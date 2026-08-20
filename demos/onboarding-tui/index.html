@@ -420,7 +420,7 @@
     /* Right Content Area */
     .content-area {
       background: var(--bg-content);
-      padding: 26px 34px;
+      padding: 24px 32px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
@@ -442,16 +442,16 @@
     }
 
     .step-counter { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-    .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 8px; }
-    .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 16px; }
+    .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 6px; }
+    .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 14px; }
 
-    /* Collapsible Real Command Callout */
+    /* Collapsible Real Command Callout (For Steps 1, 3-9) */
     .command-box {
       background: #11151c;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
     }
     .command-pill {
       display: inline-block;
@@ -459,9 +459,9 @@
       color: #ffffff;
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 4px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .command-text {
       font-size: 12px;
@@ -469,26 +469,106 @@
       font-family: inherit;
     }
 
-    /* Execution Checklist Card */
+    /* ========================================================= */
+    /* STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR & VERIFICATION      */
+    /* ========================================================= */
+    .cluster-side-by-side {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .column-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cluster-compact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cluster-compact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+    .cluster-compact-card:hover {
+      background: #1c222d;
+      border-color: var(--accent-cyan);
+    }
+    .cluster-compact-card.selected {
+      background: var(--accent-blue);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 3px 10px rgba(21, 101, 192, 0.35);
+    }
+    .cluster-name-title { font-size: 11px; font-weight: 700; color: var(--text-white); }
+    .cluster-name-desc { font-size: 10px; color: var(--text-muted); }
+    .cluster-compact-card.selected .cluster-name-desc { color: rgba(255, 255, 255, 0.9); }
+
+    /* Right Inspection Column */
+    .inspection-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cluster-info-box {
+      background: #11151c;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cluster-info-header { font-size: 11px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 2px; }
+    .cluster-info-line { font-size: 11px; color: var(--text-primary); line-height: 1.4; }
+
+    .compact-checklist-box {
+      background: #090d16;
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Execution Checklist Card (Other Steps) */
     .execution-card {
       background: #090d16;
       border: 1px solid var(--border-dark);
       border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
       flex: 1;
     }
     .checklist-title {
       font-size: 13px;
       font-weight: 700;
       color: var(--accent-cyan);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .checklist-items {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     .check-line {
       font-size: 12px;
@@ -498,73 +578,28 @@
       gap: 10px;
     }
     .check-icon { color: var(--accent-green); font-weight: 700; }
-    .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 6px; }
+    .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 4px; }
     .done-prompt { font-size: 12px; color: var(--text-primary); font-style: italic; }
-
-    /* Interactive Cluster Selection List */
-    .cluster-select-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .cluster-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 10px 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.15s;
-    }
-    .cluster-card:hover {
-      background: #1c222d;
-      border-color: var(--accent-cyan);
-    }
-    .cluster-card.selected {
-      background: var(--accent-blue);
-      border-color: var(--accent-cyan);
-      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.35);
-    }
-    .cluster-info-title { font-size: 12px; font-weight: 700; color: var(--text-white); }
-    .cluster-info-sub { font-size: 11px; color: var(--text-muted); }
-    .cluster-card.selected .cluster-info-sub { color: rgba(255, 255, 255, 0.9); }
-
-    /* Cluster Verification & Control Plane Probe Box */
-    .cluster-info-box {
-      background: #11151c;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .cluster-info-header { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 2px; }
-    .cluster-info-line { font-size: 11px; color: var(--text-primary); line-height: 1.5; }
 
     /* Private GA Agreement Box */
     .agreement-box {
       background: #191c14;
       border: 1px solid var(--accent-yellow);
       border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
     .agreement-title { font-size: 12px; font-weight: 700; color: var(--accent-yellow); }
     .agreement-item { font-size: 11px; color: var(--text-white); }
     .agreement-checkbox-row {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      margin-top: 6px;
-      padding: 8px 10px;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 6px 8px;
       background: rgba(0, 0, 0, 0.4);
       border-radius: 6px;
       border: 1px solid rgba(253, 214, 99, 0.4);
@@ -573,7 +608,7 @@
     .checkbox-box {
       color: var(--accent-green);
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px;
     }
     .checkbox-text {
       font-size: 11px;
@@ -587,8 +622,8 @@
       background: #11151c;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
     }
     .benchmark-title { font-size: 11px; font-weight: 700; color: var(--accent-yellow); margin-bottom: 4px; }
     .benchmark-value { font-size: 12px; font-weight: 600; color: var(--accent-green); }
@@ -598,11 +633,11 @@
       background: #11151c;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
     }
-    .table-cmd { font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
-    .table-head { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+    .table-cmd { font-size: 11px; color: var(--accent-cyan); margin-bottom: 4px; }
+    .table-head { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
     .table-row { font-size: 11px; color: var(--accent-green); font-weight: 600; }
 
     /* Action Buttons Row */
@@ -617,7 +652,7 @@
       background: var(--bg-card);
       color: var(--text-primary);
       border: 1px solid var(--border-subtle);
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 600;
@@ -636,7 +671,7 @@
       background: var(--accent-blue);
       color: #ffffff;
       border: 1px solid var(--accent-cyan);
-      padding: 8px 20px;
+      padding: 7px 18px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 700;
@@ -836,79 +871,80 @@
           </div>
         </div>
 
-        <!-- STEP 2: Connect your cluster (Interactive Cluster Selection & Control Plane Probe) -->
+        <!-- STEP 2: Connect your cluster (SIDE-BY-SIDE Cluster List & Verification) -->
         <div class="step-screen" id="screen-1">
           <div class="step-counter">Step 2 of 9</div>
           <div class="step-heading">Select Cluster & Verify Substrate Control Plane</div>
-          <div class="step-description">Choose a cluster from your active kubeconfig. We'll verify its provider type, Kubernetes version, and check if Substrate control plane is already installed.</div>
+          <div class="step-description">Choose a cluster from your kubeconfig. We'll verify its provider type and probe for existing Substrate components in real-time.</div>
 
-          <div class="command-box">
-            <div class="command-pill">▼ Show the real command</div>
-            <div class="command-text">kubectl config get-contexts && kubectl get ns substrate-system</div>
-          </div>
+          <!-- SIDE-BY-SIDE CONTAINER: Left = Cluster List, Right = Verification & Probe -->
+          <div class="cluster-side-by-side">
+            
+            <!-- Left Column: Cluster Selection -->
+            <div>
+              <div class="column-title">
+                <span>Target Cluster:</span>
+                <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1-4</kbd></span>
+              </div>
+              <div class="cluster-compact-list">
+                <div class="cluster-compact-card selected" id="cluster-card-0" onclick="selectCluster(0)">
+                  <span class="track-key-badge">1</span>
+                  <span style="font-size: 16px;">🌐</span>
+                  <div>
+                    <div class="cluster-name-title">gke_enterprise_us-central1_prod</div>
+                    <div class="cluster-name-desc">GKE Standard • 12 nodes (96 cores) • KVM</div>
+                  </div>
+                </div>
 
-          <!-- Interactive Cluster Selector (Press 1-4) -->
-          <div style="font-size: 12px; font-weight: 700; color: var(--text-white); margin-bottom: 8px; display: flex; justify-content: space-between;">
-            <span>Select target cluster from kubeconfig:</span>
-            <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1</kbd> - <kbd>4</kbd></span>
-          </div>
+                <div class="cluster-compact-card" id="cluster-card-1" onclick="selectCluster(1)">
+                  <span class="track-key-badge">2</span>
+                  <span style="font-size: 16px;">☁️</span>
+                  <div>
+                    <div class="cluster-name-title">aws-eks-production-us-east-1</div>
+                    <div class="cluster-name-desc">AWS EKS • 8 nodes (64 cores) • Nitro</div>
+                  </div>
+                </div>
 
-          <div class="cluster-select-list">
-            <div class="cluster-card selected" id="cluster-card-0" onclick="selectCluster(0)">
-              <span class="track-key-badge">1</span>
-              <span class="track-icon">🌐</span>
-              <div class="cluster-info">
-                <div class="cluster-info-title">gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)</div>
-                <div class="cluster-info-sub">Google Kubernetes Engine (GKE Standard) in us-central1 • 12 nodes (96 vCPUs) • KVM Enabled</div>
+                <div class="cluster-compact-card" id="cluster-card-2" onclick="selectCluster(2)">
+                  <span class="track-key-badge">3</span>
+                  <span style="font-size: 16px;">🔷</span>
+                  <div>
+                    <div class="cluster-name-title">azure-aks-agent-fleet-eastus</div>
+                    <div class="cluster-name-desc">Azure AKS • 6 nodes (48 cores) • Hyper-V</div>
+                  </div>
+                </div>
+
+                <div class="cluster-compact-card" id="cluster-card-3" onclick="selectCluster(3)">
+                  <span class="track-key-badge">4</span>
+                  <span style="font-size: 16px;">🧪</span>
+                  <div>
+                    <div class="cluster-name-title">kind-substrate-sandbox</div>
+                    <div class="cluster-name-desc">Local Sandbox • 3 nodes (24 cores)</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="cluster-card" id="cluster-card-1" onclick="selectCluster(1)">
-              <span class="track-key-badge">2</span>
-              <span class="track-icon">☁️</span>
-              <div class="cluster-info">
-                <div class="cluster-info-title">aws-eks-production-us-east-1</div>
-                <div class="cluster-info-sub">Amazon Elastic Kubernetes Service (EKS) in us-east-1 • 8 nodes (64 vCPUs) • Nitro Enclaves</div>
+            <!-- Right Column: Verification & Probe Status -->
+            <div class="inspection-panel">
+              <div class="column-title">
+                <span>Verification & Probe Status:</span>
+              </div>
+              
+              <div class="cluster-info-box" id="cluster-status-box">
+                <div class="cluster-info-header">🌐 CLUSTER VERIFICATION:</div>
+                <div class="cluster-info-line" id="cluster-line-provider"><strong>Provider:</strong> Google Kubernetes Engine (GKE v1.31.1) <span style="color: var(--accent-green);">[Verified ✓]</span></div>
+                <div class="cluster-info-line" id="cluster-line-capacity"><strong>Capacity:</strong> 12 ready nodes (Hardware virtualization ready)</div>
+                <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>Substrate Probe:</strong> [substrate-system] ➔ Not Installed (Clean Ready)</div>
+              </div>
+
+              <div class="compact-checklist-box">
+                <div class="check-line"><span class="check-icon">✓</span> API Reachability: Connected to active context</div>
+                <div class="check-line"><span class="check-icon">✓</span> Provider Compatibility: Kubernetes v1.28+ verified</div>
+                <div class="check-line"><span class="check-icon">✓</span> Ready for Substrate Control Plane installation</div>
               </div>
             </div>
 
-            <div class="cluster-card" id="cluster-card-2" onclick="selectCluster(2)">
-              <span class="track-key-badge">3</span>
-              <span class="track-icon">🔷</span>
-              <div class="cluster-info">
-                <div class="cluster-info-title">azure-aks-agent-fleet-eastus</div>
-                <div class="cluster-info-sub">Microsoft Azure Kubernetes Service (AKS) in eastus • 6 nodes (48 vCPUs) • Hyper-V Isolated</div>
-              </div>
-            </div>
-
-            <div class="cluster-card" id="cluster-card-3" onclick="selectCluster(3)">
-              <span class="track-key-badge">4</span>
-              <span class="track-icon">🧪</span>
-              <div class="cluster-info">
-                <div class="cluster-info-title">kind-substrate-sandbox (Local Workstation)</div>
-                <div class="cluster-info-sub">Local Kind Sandbox on Docker Desktop • 3 nodes (24 vCPUs) • Lightweight dev testbed</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Cluster Verification & Control Plane Status Box -->
-          <div class="cluster-info-box" id="cluster-status-box">
-            <div class="cluster-info-header">🌐 CLUSTER TYPE & CONTROL PLANE VERIFICATION:</div>
-            <div class="cluster-info-line" id="cluster-line-provider"><strong>• Provider Type :</strong> Google Kubernetes Engine (GKE v1.31.1) <span style="color: var(--accent-green);">[Verified ✓]</span></div>
-            <div class="cluster-info-line" id="cluster-line-capacity"><strong>• Node Capacity :</strong> 12 ready nodes (96 vCPUs, hardware virtualization / KVM ready)</div>
-            <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>• Substrate Probe :</strong> Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)</div>
-          </div>
-
-          <div class="execution-card">
-            <div class="checklist-title">Verifying selected cluster & control plane...</div>
-            <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Cluster API Reachability: Connected to active cluster</div>
-              <div class="check-line"><span class="check-icon">✓</span> Cluster Provider Verified: Kubernetes v1.28+ compatible</div>
-              <div class="check-line"><span class="check-icon">✓</span> Node Fleet Capacity: Nested virtualization / Sandboxing enabled</div>
-              <div class="check-line"><span class="check-icon">✓</span> Control Plane Status: Checked [substrate-system] (Clean ready state)</div>
-            </div>
-            <div class="done-status">Done</div>
-            <div class="done-prompt">Cluster verified & ready! Now let's complete the Private GA agreement.</div>
           </div>
 
           <div class="action-row">
@@ -1160,23 +1196,23 @@
     const clustersData = [
       {
         provider: "Google Kubernetes Engine (GKE v1.31.1)",
-        capacity: "12 ready nodes (96 vCPUs, hardware virtualization / KVM ready)",
-        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+        capacity: "12 ready nodes (Hardware virtualization ready)",
+        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
       },
       {
         provider: "Amazon Elastic Kubernetes Service (EKS v1.30.4)",
-        capacity: "8 ready nodes (64 vCPUs, Nitro Enclaves enabled)",
-        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+        capacity: "8 ready nodes (Nitro Enclaves enabled)",
+        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
       },
       {
         provider: "Azure Kubernetes Service (AKS v1.30.3)",
-        capacity: "6 ready nodes (48 vCPUs, Hyper-V isolation ready)",
-        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+        capacity: "6 ready nodes (Hyper-V isolation ready)",
+        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
       },
       {
         provider: "Kind Local Sandbox (Kubernetes v1.31.0)",
-        capacity: "3 ready nodes (24 vCPUs, Docker sandbox container)",
-        probe: "Checked namespace [substrate-system] ➔ Not Installed (Clean cluster ready for install)"
+        capacity: "3 ready nodes (Docker container sandbox)",
+        probe: "[substrate-system] ➔ Not Installed (Clean Ready)"
       }
     ];
 
@@ -1242,9 +1278,9 @@
         }
       }
       const data = clustersData[idx];
-      document.getElementById('cluster-line-provider').innerHTML = `<strong>• Provider Type :</strong> ${data.provider} <span style="color: var(--accent-green);">[Verified ✓]</span>`;
-      document.getElementById('cluster-line-capacity').innerHTML = `<strong>• Node Capacity :</strong> ${data.capacity}`;
-      document.getElementById('cluster-line-probe').innerHTML = `<strong>• Substrate Probe :</strong> ${data.probe}`;
+      document.getElementById('cluster-line-provider').innerHTML = `<strong>Provider:</strong> ${data.provider} <span style="color: var(--accent-green);">[Verified ✓]</span>`;
+      document.getElementById('cluster-line-capacity').innerHTML = `<strong>Capacity:</strong> ${data.capacity}`;
+      document.getElementById('cluster-line-probe').innerHTML = `<strong>Substrate Probe:</strong> ${data.probe}`;
     }
 
     function goToStep(idx) {

@@ -222,25 +222,39 @@ Screen {
     margin: 1 0;
 }
 
-.section-subtitle-label {
-    color: #ffffff;
-    text-style: bold;
+/* Step 2: Side-by-Side Cluster Layout */
+#cluster-side-by-side-layout {
+    width: 100%;
+    height: auto;
+    layout: horizontal;
     margin-top: 1;
     margin-bottom: 1;
 }
 
-#cluster-selection-list {
-    width: 100%;
+#cluster-picker-column {
+    width: 1fr;
     height: auto;
+    margin-right: 1;
+}
+
+#cluster-inspection-column {
+    width: 1fr;
+    height: auto;
+    margin-left: 1;
+}
+
+.column-header-label {
+    color: #ffffff;
+    text-style: bold;
     margin-bottom: 1;
 }
 
-.cluster-option-row {
+.compact-cluster-card {
     width: 100%;
     height: auto;
     background: #161b22;
     border: solid #30363d;
-    padding: 1 2;
+    padding: 0 1;
     margin-bottom: 1;
 }
 
@@ -248,9 +262,17 @@ Screen {
     width: 100%;
     height: auto;
     background: #11151c;
-    border: solid #30363d;
-    padding: 1 2;
-    margin: 1 0;
+    border: solid #70d6ff;
+    padding: 1 1;
+    margin-bottom: 1;
+}
+
+#cluster-compact-checklist {
+    width: 100%;
+    height: auto;
+    background: #090d16;
+    border: solid #21262d;
+    padding: 1 1;
 }
 
 /* Execution Checklist Card */
