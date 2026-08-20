@@ -21,7 +21,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     """Delightful, high-taste Textual TUI for developer onboarding with Welcome Screen."""
 
     CSS = APP_CSS
-    TITLE = "Substrate — Getting set up (Private GA)"
+    TITLE = "Agent Substrate — Getting set up"
 
     BINDINGS = [
         Binding("ctrl+c", "request_exit", "Exit", show=False, priority=True),

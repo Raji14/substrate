@@ -21,7 +21,7 @@ LOGO_LINES = [
     "/_/   \\_\\____|_____|_| \\_| |_|        |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
-INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA)."
+INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
 
 
 class WelcomeScreen(Screen[None]):
@@ -54,7 +54,7 @@ class WelcomeScreen(Screen[None]):
 
             # Punchy Tagline (No repetition of 'Agent Substrate')
             yield Label(
-                "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)",
+                "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime",
                 id="welcome-hero-subtitle",
             )
 
@@ -140,8 +140,8 @@ class WelcomeScreen(Screen[None]):
         t.append("No-YAML container templates, turn hooks & request parking\n", style="#ffffff")
         t.append("  ⚡   Instant Resume   : ", style="bold #fdd663")
         t.append("Suspend idle actors to 0% CPU; restore state in <200ms\n", style="#ffffff")
-        t.append("  🔒   Private GA Gated : ", style="bold #f28b82")
-        t.append("Customer registration & explicit Google support terms acknowledgment", style="#ffffff")
+        t.append("  🔒   Security & Isolation: ", style="bold #8ab4f8")
+        t.append("Hardware-level microVM isolation and rootless sandboxing", style="#ffffff")
         return t
 
     def _render_track_card(self, idx: int) -> Text:
@@ -171,8 +171,8 @@ class WelcomeScreen(Screen[None]):
         t.append("Python 3.10+: Ready    │    ", style="#e3e3e3")
         t.append("⚡  ", style="bold #81c995")
         t.append("MicroVM Sandbox: Ready    │    ", style="#e3e3e3")
-        t.append("★  ", style="bold #fdd663")
-        t.append("Private GA: Gated", style="#fdd663")
+        t.append("★  ", style="bold #81c995")
+        t.append("Enterprise Ready: Yes", style="#81c995")
         return t
 
     def action_confirm_selection(self) -> None:

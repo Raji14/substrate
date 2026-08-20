@@ -261,10 +261,10 @@ def render_welcome_screen(typewriter_progress=1.0):
 
     bx, by = wx + 130, card_y + 8
     draw.rounded_rectangle([bx, by, bx + fw, by + 28], radius=6, fill=(13, 17, 23), outline=BORDER_DARK, width=1)
-    badges = ["✔ K8s: Connected", "✔ Python 3.10+: Ready", "⚡ MicroVM: Ready", "★ GKE Private GA: Supported"]
+    badges = ["✔ K8s: Connected", "✔ Python 3.10+: Ready", "⚡ MicroVM: Ready", "★ GKE & K8s: Supported"]
     badge_x = bx + 24
     for b in badges:
-        draw.text((badge_x, by + 6), b, fill=ACCENT_GREEN if "✔" in b else (ACCENT_YELLOW if "★" in b else ACCENT_CYAN), font=font_xs)
+        draw.text((badge_x, by + 6), b, fill=ACCENT_GREEN if "✔" in b else (ACCENT_GREEN if "★" in b else ACCENT_CYAN), font=font_xs)
         badge_x += 210
 
     btn_y = by + 36
@@ -362,14 +362,7 @@ def render_step_frame(step_idx):
         draw.text((rx + 12, box_y + 56), "• Capacity: 12 ready nodes (Hardware microVM ready)", fill=ACCENT_GREEN, font=font_xs)
         draw.text((rx + 12, box_y + 72), "• Substrate: [substrate-system] ➔ Clean Ready", fill=ACCENT_YELLOW, font=font_xs)
 
-        # Conditional GKE Agreement Box
-        gke_y = box_y + 96
-        draw.rounded_rectangle([rx, gke_y, rx + half_w, gke_y + 56], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
-        draw.text((rx + 10, gke_y + 6), "[!] PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):", fill=ACCENT_YELLOW, font=font_xs)
-        draw.text((rx + 10, gke_y + 22), "Customer: Acme Corp │ Token: ga-sub-8f92a [Verified ✓]", fill=TEXT_WHITE, font=font_xs)
-        draw.text((rx + 10, gke_y + 38), "[✓] Production support requires an agreement with Google.", fill=ACCENT_CYAN, font=font_xs)
-
-        chk_y = gke_y + 64
+        chk_y = box_y + 98
         draw.rounded_rectangle([rx, chk_y, rx + half_w, chk_y + 68], radius=6, fill=BG_CMD, outline=BORDER_DARK, width=1)
         draw.text((rx + 12, chk_y + 8), "⚡ PROBE CHECKLIST:", fill=ACCENT_CYAN, font=font_xs)
         draw.text((rx + 12, chk_y + 24), "  ✓ API Reachability: Connected to active context", fill=TEXT_WHITE, font=font_xs)

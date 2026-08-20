@@ -1282,7 +1282,7 @@
         <span><span class="badge-ok">✔</span> Pre-configured K8s: Connected</span>
         <span><span class="badge-ok">✔</span> Python 3.10+: Ready</span>
         <span><span class="badge-ok">⚡</span> MicroVM Sandbox: Ready</span>
-        <span><span class="badge-warn">★</span> GKE Private GA: Supported</span>
+        <span><span class="badge-ok">★</span> GKE & Kubernetes: Supported</span>
       </div>
 
       <button class="btn-primary" style="font-size: 13px; padding: 10px 28px;" onclick="startWizardFromWelcome()">
@@ -1397,20 +1397,6 @@
                 <div class="cluster-info-line" id="cluster-line-region"><strong>Region:</strong> us-central1 (Iowa)</div>
                 <div class="cluster-info-line" id="cluster-line-capacity"><strong>Capacity:</strong> 12 ready nodes (Hardware virtualization ready)</div>
                 <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>Substrate Probe:</strong> [substrate-system] ➔ Not Installed (Clean Ready)</div>
-              </div>
-
-              <!-- Interactive GKE Private GA Agreement (Shown ONLY for GKE) -->
-              <div class="gke-agreement-box" id="gke-agreement-box">
-                <div class="gke-agreement-header">
-                  <span class="gke-agreement-title">📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):</span>
-                  <span class="gke-token-pill">Token: ga-sub-8f92a [Verified ✓]</span>
-                </div>
-                <div class="gke-agreement-sub">Organization: Acme Corp • Contact: rajithal@enterprise.com</div>
-                <div class="gke-agreement-checkbox-row" id="gke-agreement-toggle" onclick="toggleGkeAgreement()">
-                  <span class="gke-checkbox-box" id="gke-checkbox-icon">☑</span>
-                  <span class="gke-checkbox-text" id="gke-checkbox-label">I acknowledge that production support requires an explicit agreement with Google Cloud.</span>
-                  <span class="kbd-key" style="margin-left: auto;">Press [a]</span>
-                </div>
               </div>
 
               <div class="compact-checklist-box">
@@ -2167,35 +2153,8 @@ atectl logs workerpool/default-worker-pool --follow</div>
         headerBadge.style.display = 'flex';
       }
 
-      // Conditional GKE Agreement Visibility
-      const gkeBox = document.getElementById('gke-agreement-box');
-      if (gkeBox) {
-        if (data.isGke) {
-          gkeBox.style.display = 'flex';
-        } else {
-          gkeBox.style.display = 'none';
-        }
-      }
-
       // Re-trigger live probe check animation
       animateChecklistForStep(1);
-    }
-
-    function toggleGkeAgreement() {
-      gkeAgreementAccepted = !gkeAgreementAccepted;
-      const icon = document.getElementById('gke-checkbox-icon');
-      const label = document.getElementById('gke-checkbox-label');
-      if (gkeAgreementAccepted) {
-        icon.textContent = '☑';
-        icon.style.color = 'var(--accent-green)';
-        label.style.color = 'var(--accent-cyan)';
-        label.textContent = 'I acknowledge that production support requires an explicit agreement with Google Cloud. [Verified ✓]';
-      } else {
-        icon.textContent = '☐';
-        icon.style.color = 'var(--accent-yellow)';
-        label.style.color = 'var(--accent-yellow)';
-        label.textContent = '[!] Press [a] to acknowledge Google Cloud Private GA support agreement';
-      }
     }
 
     function proceedFromStep4() {
@@ -2550,8 +2509,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
           } else if (e.key === 'ArrowDown' || e.key === 'j' || e.key === 'Tab') {
             e.preventDefault();
             selectCluster(Math.min(3, selectedClusterIdx + 1));
-          } else if (e.key === 'a' || e.key === 'A') {
-            toggleGkeAgreement();
           }
         } else if (currentStep === 2) {
           // Step 3: Turn on Substrate

@@ -33,7 +33,6 @@ class GenericStepScreen(Screen):
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
         ("b", "previous_step", "Back"),
-        ("a", "toggle_agreement", "Acknowledge"),
         ("1", "select_opt_1", "Select 1"),
         ("2", "select_opt_2", "Select 2"),
         ("3", "select_opt_3", "Select 3"),
@@ -56,7 +55,6 @@ class GenericStepScreen(Screen):
         self.nodepool_opts = NODEPOOL_OPTIONS
         self.autoscaling_opts = AUTOSCALING_OPTIONS
         self.deploy_wp_opts = DEPLOY_WP_OPTIONS
-        self.gke_agreement_accepted = True
         self._checklist_progress = 0
         self._timer = None
 
@@ -88,7 +86,6 @@ class GenericStepScreen(Screen):
                             with Vertical(id="cluster-inspection-column"):
                                 yield Label("Cluster Type & Substrate Probe:", classes="column-header-label")
                                 yield Static(self._render_cluster_verification_box(), id="cluster-verification-box")
-                                yield Static(self._render_gke_agreement_box(), id="cluster-gke-agreement-box")
                                 yield Static(self._render_compact_checklist(), id="cluster-compact-checklist")
 
                     elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
@@ -250,18 +247,6 @@ class GenericStepScreen(Screen):
         t.append("  ⚠️  Scan Result: No node pool detected with hardware nested virtualization enabled.\n", style="bold #fdd663")
         return t
 
-    def _render_gke_agreement_box(self) -> Text:
-        cluster = self.clusters[self.selected_option_idx if self.selected_option_idx < len(self.clusters) else 0]
-        t = Text()
-        if cluster.is_gke:
-            t.append("📝 PRIVATE GA GATED ACKNOWLEDGMENT (GKE ONLY):\n", style="bold #fdd663")
-            t.append("  • Org: Acme Corp  │  Token: ga-sub-8f92a [Verified ✓]\n", style="#e3e3e3")
-            if self.gke_agreement_accepted:
-                t.append("  [✓] I acknowledge production support requires an explicit agreement with Google. [Accepted]", style="bold #70d6ff")
-            else:
-                t.append("  [ ] Press [a] to accept Google Cloud Private GA support agreement", style="bold #fdd663")
-        return t
-
     def _render_compact_checklist(self) -> Text:
         t = Text()
         t.append("⚡ PROBE CHECKLIST:\n", style="bold #70d6ff")
@@ -389,15 +374,6 @@ class GenericStepScreen(Screen):
         self.selected_option_idx = 3
         self._refresh_screen_options()
 
-    def action_toggle_agreement(self) -> None:
-        if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-            self.gke_agreement_accepted = not self.gke_agreement_accepted
-            try:
-                gke_box = self.query_one("#cluster-gke-agreement-box", Static)
-                gke_box.update(self._render_gke_agreement_box())
-            except Exception:
-                pass
-
     def action_navigate_up(self) -> None:
         if self.selected_option_idx > 0:
             self.selected_option_idx -= 1
@@ -429,11 +405,6 @@ class GenericStepScreen(Screen):
             try:
                 ver_box = self.query_one("#cluster-verification-box", Static)
                 ver_box.update(self._render_cluster_verification_box())
-            except Exception:
-                pass
-            try:
-                gke_box = self.query_one("#cluster-gke-agreement-box", Static)
-                gke_box.update(self._render_gke_agreement_box())
             except Exception:
                 pass
         elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
