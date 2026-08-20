@@ -69,11 +69,13 @@ class BottomBar(Widget):
         self,
         initial_tip: str = "Welcome to Agent Substrate. Press [Enter] to begin.",
         initial_hints: str = "[Enter] Proceed  [↑/↓] Select  [b] Back  [/help] Commands",
+        tip: Optional[str] = None,
+        hints: Optional[str] = None,
         id: str = "bottom-bar",
     ):
         super().__init__(id=id)
-        self.tip_text = initial_tip
-        self.hint_text = initial_hints
+        self.tip_text = tip or initial_tip
+        self.hint_text = hints or initial_hints
 
     def compose(self) -> ComposeResult:
         with Horizontal():

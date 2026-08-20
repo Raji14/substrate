@@ -1,31 +1,31 @@
-"""Generic interactive StepScreen with side-by-side cluster selection, Region info, conditional GKE Private GA agreement, and WorkerPool setup."""
+"""Generic Step Screen Renderer for Substrate Onboarding with 7-step sequence & progressive disclosure."""
 
 from __future__ import annotations
 
-import asyncio
 from typing import List, Optional
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.screen import Screen
-from textual.widgets import Label, Static, Button
+from textual.widgets import Button, Label, Static
 from rich.text import Text
+
 from substrate_onboarding.config import (
     OnboardingStep,
     STEP_CONFIGS,
+    StepMetadata,
     AVAILABLE_CLUSTERS,
     NODEPOOL_OPTIONS,
     AUTOSCALING_OPTIONS,
     DEPLOY_WP_OPTIONS,
     OptionItem,
-    StepMetadata,
 )
-from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 from substrate_onboarding.widgets.sidebar_nav import SidebarNav
+from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 
 
-class GenericStepScreen(Screen[None]):
-    """Generic high-fidelity step screen rendering 2-column layout with options, probe checklists, region info, and YAML notices."""
+class GenericStepScreen(Screen):
+    """Universal renderer for wizard steps with progressive disclosure, custom option cards & verification."""
 
     selected_option_idx: reactive[int] = reactive(0)
 
@@ -64,7 +64,7 @@ class GenericStepScreen(Screen[None]):
             with Vertical(id="content-area"):
                 with Vertical(id="content-panel"):
                     # Step Number & Title
-                    yield Label(f"Step {self.meta.step_num} of 11", classes="step-indicator-label")
+                    yield Label(f"Step {self.meta.step_num} of 7", classes="step-indicator-label")
                     yield Label(self.meta.heading, classes="wizard-step-title")
                     yield Label(self.meta.description, classes="wizard-step-description")
 
@@ -129,18 +129,17 @@ class GenericStepScreen(Screen[None]):
                                 )
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
+                    elif self.step_key == OnboardingStep.COMPLETE:
+                        # Step 7: Celebratory Completion & Next Steps
+                        yield Static(self._render_celebratory_card(), id="celebratory-card")
+                        yield Static(self._render_next_steps_card(), id="next-steps-card")
+
                     else:
                         # Other steps: Sleek command callout
                         yield Static(self._render_command_callout(), id="command-callout-card")
 
                         # Live Execution Checklist Card
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
-
-                        # Persistent Visualization Card (Benchmark or Live Fleet Table)
-                        if self.meta.benchmark_text:
-                            yield Static(self._render_benchmark_card(), id="benchmark-visualization-card")
-                        elif self.step_key == OnboardingStep.SCALE_UP:
-                            yield Static(self._render_fleet_table(), id="fleet-visualization-card")
 
                     # Action Button Row with tactile keycap badges
                     with Horizontal(classes="action-button-row"):
@@ -158,24 +157,25 @@ class GenericStepScreen(Screen[None]):
                         yield btn_proceed
 
         yield BottomBar(
-            initial_tip=self.meta.done_message,
-            initial_hints="[1-4] Select  [Enter ↵] Proceed  [b] Back  [/help] Help  [Ctrl+C] Exit",
+            tip="[↑/↓] Navigate  •  [1-4] Select  •  [a] Agreement  •  [Enter] Proceed  •  [b] Back  •  [F1] Help"
         )
 
     def on_mount(self) -> None:
         self._checklist_progress = 0
-        self._timer = self.set_interval(0.12, self._tick_checklist)
+        if self.meta.checklist_items:
+            self._timer = self.set_interval(0.4, self._tick_checklist)
 
     def _tick_checklist(self) -> None:
-        if self._checklist_progress < len(self.meta.checklist_items):
+        if self._checklist_progress <= len(self.meta.checklist_items):
             self._checklist_progress += 1
             try:
-                if self.step_key == OnboardingStep.CONNECT_CLUSTER:
-                    box = self.query_one("#cluster-compact-checklist", Static)
-                    box.update(self._render_compact_checklist())
-                else:
-                    box = self.query_one("#execution-checklist-card", Static)
-                    box.update(self._render_checklist_box())
+                chk = self.query_one("#execution-checklist-card", Static)
+                chk.update(self._render_checklist_box())
+            except Exception:
+                pass
+            try:
+                compact_chk = self.query_one("#cluster-compact-checklist", Static)
+                compact_chk.update(self._render_compact_checklist())
             except Exception:
                 pass
         else:
@@ -184,14 +184,14 @@ class GenericStepScreen(Screen[None]):
 
     def _render_command_callout(self) -> Text:
         t = Text()
-        t.append(" ▼ Show the real command \n", style="bold #ffffff on #1565c0")
-        t.append(f"  {self.meta.real_command}", style="#70d6ff")
+        t.append("▼ Show the real command\n", style="bold #70d6ff")
+        t.append(f"  {self.meta.real_command}\n", style="bold #e3e3e3")
         return t
 
     def _render_yaml_notice(self) -> Text:
         t = Text()
-        t.append("💡 Note: ", style="bold #fdd663")
-        t.append(self.meta.yaml_notice or "", style="#e3e3e3")
+        if self.meta.yaml_notice:
+            t.append(f"{self.meta.yaml_notice}\n", style="bold #fdd663")
         return t
 
     def _render_cluster_row(self, idx: int) -> Text:
@@ -291,6 +291,21 @@ class GenericStepScreen(Screen[None]):
                 t.append("🔄  CHOOSE A DIFFERENT CLUSTER:\n\n", style="bold #70d6ff")
                 t.append("  Press [Enter ↵] or [3] to return to Step 2 and select another cluster from your kubeconfig.\n", style="#e3e3e3")
                 return t
+        elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
+            if self.selected_option_idx == 1:
+                t.append("🛠️  MANUAL KUBECTL AUTOSCALING:\n\n", style="bold #70d6ff")
+                t.append("  kubectl apply -f manifests/workerpool-autoscaling.yaml\n\n", style="bold #e3e3e3")
+                t.append("  💡 Modify the HPA and CapacityBuffer manifests, then press [Enter ↵] to continue.\n", style="italic #fdd663")
+                return t
+            elif self.selected_option_idx == 2:
+                t.append("⏭️  AUTOSCALING SKIPPED:\n\n", style="bold #70d6ff")
+                t.append("  Worker pool will run with a fixed replica count without dynamic scaling.\n", style="#e3e3e3")
+                return t
+        elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
+            if self.selected_option_idx == 1:
+                t.append("⏭️  DEFAULT WORKERPOOL SKIPPED:\n\n", style="bold #70d6ff")
+                t.append("  Initial worker pool creation skipped. You can deploy worker pools at any time via atectl or kubectl.\n", style="#e3e3e3")
+                return t
 
         title = self.meta.checklist_title
         items = self.meta.checklist_items
@@ -314,17 +329,28 @@ class GenericStepScreen(Screen[None]):
 
         return t
 
-    def _render_benchmark_card(self) -> Text:
+    def _render_celebratory_card(self) -> Text:
         t = Text()
-        t.append("⚡ LIVE DATA PLANE BENCHMARK:\n\n", style="bold #70d6ff")
-        t.append(f"  {self.meta.benchmark_text}\n", style="bold #81c995")
+        t.append("🎉✨ AGENT SUBSTRATE ON GKE INSTALLATION COMPLETE! ✨🎉\n\n", style="bold #81c995")
+        t.append("Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.\n\n", style="bold #ffffff")
+        t.append("  ✓ Control Plane : Active in namespace [substrate-system] (Gateway :8080)\n", style="#81c995")
+        t.append("  ✓ Node Fleet    : Hardware nested virtualization (KVM/microVM) ready\n", style="#81c995")
+        t.append("  ✓ Autoscaling   : OneHPA (10-100) + 3 Standby Buffer replicas active (<100ms cold start)\n", style="#81c995")
         return t
 
-    def _render_fleet_table(self) -> Text:
+    def _render_next_steps_card(self) -> Text:
         t = Text()
-        t.append("$ atectl get workerpools\n", style="#70d6ff")
-        t.append("WORKERPOOL        NAMESPACE         ISOLATION  READY  STANDBY  CPU  MEM  QUEUE\n", style="bold #80868b")
-        t.append("production-fleet  substrate-system  microvm    20/20  3        4%   8%   0\n", style="bold #81c995")
+        t.append("🚀 NEXT STEPS — GET STARTED WITH YOUR FIRST AGENT:\n\n", style="bold #70d6ff")
+        t.append("1. Deploy your first actor session:\n", style="bold #fdd663")
+        t.append("   # Install developer CLI\n", style="#80868b")
+        t.append("   curl -sSL https://ate.dev/atectl | sh\n\n", style="bold #8ab4f8")
+        t.append("   # Deploy AI agent actor from template\n", style="#80868b")
+        t.append("   atectl actor create my-first-actor --template=default-agent --atespace=default-atespace\n\n", style="bold #8ab4f8")
+        t.append("   # Send an interactive prompt to your actor\n", style="#80868b")
+        t.append("   atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"\n\n", style="bold #8ab4f8")
+        t.append("2. Inspect your standby workers at any time:\n", style="bold #fdd663")
+        t.append("   atectl get workerpools\n", style="bold #8ab4f8")
+        t.append("   atectl logs workerpool/default-worker-pool --follow\n", style="bold #8ab4f8")
         return t
 
     def action_proceed_next(self) -> None:
@@ -344,6 +370,12 @@ class GenericStepScreen(Screen[None]):
         self._refresh_screen_options()
 
     def action_select_opt_3(self) -> None:
+        if self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+            # Return to cluster selection (Step 2)
+            if hasattr(self.app, "previous_step"):
+                self.app.previous_step()
+                self.app.previous_step()
+            return
         self.selected_option_idx = 2
         self._refresh_screen_options()
 
@@ -417,6 +449,11 @@ class GenericStepScreen(Screen[None]):
                     row.update(self._render_option_card(self.autoscaling_opts, idx))
                 except Exception:
                     pass
+            try:
+                chk = self.query_one("#execution-checklist-card", Static)
+                chk.update(self._render_checklist_box())
+            except Exception:
+                pass
         elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
             for idx in range(len(self.deploy_wp_opts)):
                 try:
@@ -424,9 +461,8 @@ class GenericStepScreen(Screen[None]):
                     row.update(self._render_option_card(self.deploy_wp_opts, idx))
                 except Exception:
                     pass
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "btn-proceed":
-            self.action_proceed_next()
-        elif event.button.id == "btn-back":
-            self.action_previous_step()
+            try:
+                chk = self.query_one("#execution-checklist-card", Static)
+                chk.update(self._render_checklist_box())
+            except Exception:
+                pass

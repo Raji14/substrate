@@ -3,8 +3,10 @@
 Features:
 - "Agent Substrate" Google 4-color gradient splash title
 - Step 2: Side-by-side cluster selection with Region details & Conditional GKE Private GA agreement
-- Post-Installation WorkerPool Configuration: Compatible Node Pool CCC, Autoscaling HPA/CapacityBuffer, Deploy WorkerPool
-- Fast Developer Loop: CLI Install, First Actor, Send Request, Pause/Resume, Scale Up (11 interactive steps)
+- Step 4: Compatible Node Pool (Scan -> CCC/Manual options -> Progress)
+- Step 5: WorkerPool Autoscaling (HPA & CapacityBuffer)
+- Step 6: Confirm & Deploy Substrate WorkerPool (Yes vs. No, skip)
+- Step 7: Installation Complete (Celebratory hero banner + next steps runnable code)
 """
 
 import os
@@ -54,11 +56,11 @@ font_md = ImageFont.truetype(FONT_PATH, 17)
 font_lg = ImageFont.truetype(FONT_PATH, 20)
 
 LOGO_LINES = [
-    "    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
-    "   / \\  / ___| ____| \\ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
-    "  / _ \\| |  _|  _| |  \\| | | |   \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
-    " / ___ \\ |_| | |___| |\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
-    "/_/   \\_\\____|_____|_| \\_| |_|   |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
+    r"    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
+    r"   / \  / ___| ____| \ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|",
+    r"  / _ \| |  _|  _| |  \| | | |   \___ \| | | |  _ \\___ \ | | | |_) | / _ \ | | |  _|  ",
+    r" / ___ \ |_| | |___| |\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \| | | |___ ",
+    r"/_/   \_\____|_____|_| \_| |_|   |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|",
 ]
 
 INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
@@ -161,91 +163,22 @@ STEPS_DATA = [
             "WorkerPool is ready: 10/10 warm pods listening for agent turns",
         ],
         "done": "Done",
-        "prompt": "Default WorkerPool deployed! Now let's install the developer CLI.",
-        "btn": "Install the CLI [Enter ↵] →",
+        "prompt": "WorkerPool configured! Proceeding to installation summary.",
+        "btn": "Complete Installation [Enter ↵] →",
         "custom_box": "deploy_wp",
     },
     {
         "num": 7,
-        "title": "Install the CLI",
-        "heading": "Install the atectl CLI",
-        "desc": "The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
-        "cmd": "go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh",
-        "chk_title": "Configuring developer CLI...",
-        "chk_items": [
-            "Downloading atectl binary for your architecture (macOS / Linux)",
-            "Registering shell autocompletions and PATH bindings",
-            "CLI verified: atectl version v0.2.1-ga",
-        ],
-        "done": "Done",
-        "prompt": "CLI is installed and ready. Let's deploy your first actor!",
-        "btn": "Deploy first actor [Enter ↵] →",
-    },
-    {
-        "num": 8,
-        "title": "First actor",
-        "heading": "Deploy your first actor",
-        "desc": "Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
-        "cmd": "atectl actor create my-first-actor --template=default-agent --atespace=default-atespace",
-        "chk_title": "Launching actor session...",
-        "chk_items": [
-            "Resolving agent container image (gcr.io/ate-platform/agent:v1)",
-            "Injecting into pre-warmed worker sandbox",
-            "Actor [my-first-actor] is live and listening on port 8080",
-        ],
-        "done": "Done",
-        "prompt": "Actor is running! Let's send it an interactive request.",
-        "btn": "Send a request [Enter ↵] →",
-    },
-    {
-        "num": 9,
-        "title": "Send a request",
-        "heading": "Send a request to your actor",
-        "desc": "Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
-        "cmd": 'atectl actor execute my-first-actor --prompt="Analyze recent logs and report status"',
-        "chk_title": "Streaming execution turn...",
-        "chk_items": [
-            "Routing turn request through Substrate Gateway",
-            "Actor turn completed in 82ms (First token: 14ms)",
-            'Response: "System operating normally. 0 errors detected."',
-        ],
-        "done": "Done",
-        "prompt": "Great response! Now let's see how Substrate saves compute when idle.",
-        "btn": "Test Pause & Resume [Enter ↵] →",
-        "benchmark": "Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
-    },
-    {
-        "num": 10,
-        "title": "Pause & resume",
-        "heading": "Pause & resume (0% idle CPU)",
-        "desc": "When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
-        "cmd": "atectl actor suspend my-first-actor && atectl actor resume my-first-actor",
-        "chk_title": "Testing data plane suspend/resume...",
-        "chk_items": [
-            "Suspending idle actor memory state to disk (38ms, CPU drops to 0%)",
-            "Request parking held incoming user message in queue",
-            "Restoring actor memory state on wake event in 115ms",
-        ],
-        "done": "Done",
-        "prompt": "Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
-        "btn": "Scale it up [Enter ↵] →",
-        "benchmark": "Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)",
-    },
-    {
-        "num": 11,
-        "title": "Scale it up",
-        "heading": "Scale worker fleet & Day-2 Operations",
-        "desc": "Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
-        "cmd": "atectl create workerpools production-fleet --workers=20 --isolation=microvm",
-        "chk_title": "Scaling worker pool capacity...",
-        "chk_items": [
-            "Worker pool [production-fleet] scaled to 20 warm pods",
-            "Standby CapacityBuffer configured (3 warm spares ready)",
-            "Live inspection verified: atectl get workerpools (Ready: 20/20)",
-        ],
-        "done": "Complete 🎉",
-        "prompt": "You're all set! Enjoy building high-density AI agents with Agent Substrate.",
-        "btn": "Finish Onboarding [Enter ↵]",
+        "title": "Installation Complete",
+        "heading": "Agent Substrate on GKE Installation Complete! 🎉",
+        "desc": "Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.",
+        "cmd": "",
+        "chk_title": "",
+        "chk_items": [],
+        "done": "",
+        "prompt": "",
+        "btn": "🚀 Finish & Close [Enter ↵]",
+        "custom_box": "celebration_complete",
     },
 ]
 
@@ -258,82 +191,86 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.rounded_rectangle([wx, wy, wx + ww, wy + wh], radius=10, fill=BG_CANVAS, outline=BORDER_DARK, width=1)
 
     draw.rectangle([wx, wy, wx + ww, wy + 34], fill=(9, 13, 22))
-    draw.line([wx, wy + 34, wx + ww, wy + 34], fill=BORDER_DARK, width=1)
     draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
     draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
-    ly = wy + 42
+    ly = wy + 48
     logo_colors = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN, GOOGLE_BLUE]
     for i, line in enumerate(LOGO_LINES):
-        draw.text((wx + 180, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_sm)
-        ly += 16
+        draw.text((wx + 180, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_xs)
+        ly += 14
 
-    draw.text((wx + 270, ly + 4), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
+    tag_y = ly + 8
+    draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
 
-    num_chars = int(len(INTRO_TEXT) * typewriter_progress)
-    typed_str = INTRO_TEXT[:num_chars]
-    cursor = " ▌" if typewriter_progress < 1.0 else ""
-    
-    if len(typed_str) > 78:
-        split_pt = typed_str[:78].rfind(" ")
-        line1 = typed_str[:split_pt]
-        line2 = typed_str[split_pt+1:] + cursor
-        draw.text((wx + 180, ly + 26), line1, fill=TEXT_PRIMARY, font=font_xs)
-        draw.text((wx + 180, ly + 42), line2, fill=TEXT_PRIMARY, font=font_xs)
-    else:
-        draw.text((wx + 180, ly + 26), typed_str + cursor, fill=TEXT_PRIMARY, font=font_xs)
+    tw_y = tag_y + 24
+    chars_to_show = int(len(INTRO_TEXT) * typewriter_progress)
+    disp_text = INTRO_TEXT[:chars_to_show]
+    if typewriter_progress < 1.0:
+        disp_text += "▌"
+    draw.text((wx + 130, tw_y), disp_text, fill=TEXT_PRIMARY, font=font_xs)
 
-    fy = ly + 76
-    draw.rounded_rectangle([wx + 100, fy, wx + ww - 100, fy + 88], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
-    draw.rounded_rectangle([wx + 116, fy - 10, wx + 360, fy + 10], radius=4, fill=ACCENT_BLUE, outline=ACCENT_CYAN)
-    draw.text((wx + 126, fy - 6), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
+    fx, fy, fw, fh = wx + 130, tw_y + 28, 860, 118
+    draw.rounded_rectangle([fx, fy, fx + fw, fy + fh], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
+    draw.rounded_rectangle([fx + 16, fy - 10, fx + 260, fy + 8], radius=4, fill=ACCENT_BLUE)
+    draw.text((fx + 24, fy - 8), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
 
-    draw.text((wx + 120, fy + 16), "*   Platform Fleet   : Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", fill=GOOGLE_BLUE, font=font_xs)
-    draw.text((wx + 120, fy + 32), "*   Agent Workloads  : No-YAML container templates, turn hooks & request parking", fill=GOOGLE_GREEN, font=font_xs)
-    draw.text((wx + 120, fy + 48), "*   Instant Resume   : Suspend idle actors to 0% CPU; restore state in <200ms", fill=GOOGLE_YELLOW, font=font_xs)
-    draw.text((wx + 120, fy + 64), "*   Gated Access     : Automatic detection & terms acknowledgment on Google Cloud GKE", fill=GOOGLE_RED, font=font_xs)
+    rows = [
+        ("🛠️  Platform Fleet :", "Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", GOOGLE_BLUE),
+        ("🤖  Agent Workloads :", "No-YAML container templates, turn hooks & request parking", GOOGLE_GREEN),
+        ("⚡  Instant Resume  :", "Suspend idle actors to 0% CPU; restore state in <200ms", GOOGLE_YELLOW),
+        ("🔒  Gated Access    :", "Automatic detection & terms acknowledgment on Google Cloud GKE", GOOGLE_RED),
+    ]
+    ry = fy + 16
+    for lbl, desc, col in rows:
+        draw.text((fx + 16, ry), lbl, fill=col, font=font_xs)
+        draw.text((fx + 180, ry), desc, fill=TEXT_WHITE, font=font_xs)
+        ry += 24
 
-    ty = fy + 100
-    draw.text((wx + 100, ty), "Choose your installation path (Press [1] or [2]):", fill=TEXT_WHITE, font=font_sm)
+    tx = wx + 130
+    ty = fy + fh + 14
+    draw.text((tx, ty), "Choose your installation path:", fill=TEXT_WHITE, font=font_sm)
+    draw.text((tx + fw - 160, ty), "Press [1] or [2]", fill=ACCENT_CYAN, font=font_xs)
 
     tracks = [
-        ("[1]  *  Quickstart — Automatic cluster detection & default configuration (Recommended)", "Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.", True),
-        ("[2]  #  Advanced — Custom installation with kubectl", "Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.", False),
+        ("[1] * Quickstart — Automatic cluster detection & default configuration (Recommended)", "Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.", True),
+        ("[2] # Advanced — Custom installation with kubectl", "Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.", False),
     ]
-    toy = ty + 22
-    for title, desc, is_sel in tracks:
-        bg = ACCENT_BLUE if is_sel else BG_CARD
-        out = ACCENT_CYAN if is_sel else BORDER_SUBTLE
-        draw.rounded_rectangle([wx + 100, toy, wx + ww - 100, toy + 42], radius=6, fill=bg, outline=out, width=1)
-        draw.text((wx + 114, toy + 7), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
-        draw.text((wx + 134, toy + 6), title, fill=TEXT_WHITE, font=font_xs)
-        draw.text((wx + 134, toy + 22), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
-        toy += 48
+    card_y = ty + 22
+    for t_title, t_desc, t_sel in tracks:
+        c_bg = ACCENT_BLUE if t_sel else BG_CARD
+        c_outline = ACCENT_CYAN if t_sel else BORDER_SUBTLE
+        draw.rounded_rectangle([tx, card_y, tx + fw, card_y + 44], radius=6, fill=c_bg, outline=c_outline, width=1)
+        draw.text((tx + 12, card_y + 6), t_title, fill=TEXT_WHITE, font=font_xs)
+        draw.text((tx + 12, card_y + 24), t_desc, fill=(211, 227, 253) if t_sel else TEXT_MUTED, font=font_xs)
+        card_y += 50
 
-    dy = toy + 8
-    draw.rounded_rectangle([wx + 100, dy, wx + ww - 100, dy + 26], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
-    diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * GKE Private GA: Supported"
-    draw.text((wx + 130, dy + 7), diag_str, fill=ACCENT_GREEN, font=font_xs)
+    bx, by = wx + 130, card_y + 8
+    draw.rounded_rectangle([bx, by, bx + fw, by + 28], radius=6, fill=(13, 17, 23), outline=BORDER_DARK, width=1)
+    badges = ["✔ K8s: Connected", "✔ Python 3.10+: Ready", "⚡ MicroVM: Ready", "★ GKE Private GA: Supported"]
+    badge_x = bx + 24
+    for b in badges:
+        draw.text((badge_x, by + 6), b, fill=ACCENT_GREEN if "✔" in b else (ACCENT_YELLOW if "★" in b else ACCENT_CYAN), font=font_xs)
+        badge_x += 210
 
-    by = dy + 34
-    draw.rounded_rectangle([wx + ww - 460, by, wx + ww - 100, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((wx + ww - 440, by + 9), "▶  Press [Enter ↵] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
+    btn_y = by + 36
+    draw.rounded_rectangle([bx + 260, btn_y, bx + 600, btn_y + 36], radius=8, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
+    draw.text((bx + 276, btn_y + 10), "▶ Press [Enter ↵] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
 
     return img
 
 
-def render_step_frame(step_idx=0):
+def render_step_frame(step_idx):
     data = STEPS_DATA[step_idx]
-    img = Image.new("RGB", (WIDTH, HEIGHT), (9, 13, 22))
+    img = Image.new("RGB", (WIDTH, HEIGHT), BG_CANVAS)
     draw = ImageDraw.Draw(img)
 
     wx, wy, ww, wh = 80, 40, 1120, 640
     draw.rounded_rectangle([wx, wy, wx + ww, wy + wh], radius=10, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
 
-    draw.rectangle([wx, wy, wx + ww, wy + 34], fill=BG_CANVAS)
-    draw.line([wx, wy + 34, wx + ww, wy + 34], fill=BORDER_DARK, width=1)
+    draw.rectangle([wx, wy, wx + ww, wy + 34], fill=(9, 13, 22))
     draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
     draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
@@ -348,12 +285,12 @@ def render_step_frame(step_idx=0):
     draw.text((wx + 16, wy + 66), "Getting set up", fill=TEXT_MUTED, font=font_xs)
 
     draw.line([wx + 16, wy + 86, wx + sw - 16, wy + 86], fill=(33, 38, 45), width=3)
-    fill_w = int(((step_idx + 1) / 11.0) * (sw - 32))
+    fill_w = int(((step_idx + 1) / 7.0) * (sw - 32))
     draw.line([wx + 16, wy + 86, wx + 16 + fill_w, wy + 86], fill=ACCENT_CYAN, width=3)
 
-    draw.text((wx + 16, wy + 96), f"{step_idx} of 11 steps", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 16, wy + 96), f"{step_idx} of 7 steps", fill=TEXT_MUTED, font=font_xs)
 
-    # 11 Steps List in Sidebar
+    # 7 Steps List in Sidebar
     sy = wy + 116
     for i, s in enumerate(STEPS_DATA):
         num = i + 1
@@ -366,18 +303,18 @@ def render_step_frame(step_idx=0):
         else:
             draw.text((wx + 16, sy), str(num), fill=TEXT_DIM, font=font_xs)
             draw.text((wx + 30, sy), s["title"][:22], fill=TEXT_DIM, font=font_xs)
-        sy += 22
+        sy += 24
 
     # Right Content Area
     cx = wx + sw + 30
     cy = wy + 42
     cw = ww - sw - 60
 
-    draw.text((cx, cy), f"Step {data['num']} of 11", fill=TEXT_MUTED, font=font_xs)
+    draw.text((cx, cy), f"Step {data['num']} of 7", fill=TEXT_MUTED, font=font_xs)
     draw.text((cx, cy + 16), data["heading"], fill=TEXT_WHITE, font=font_md)
     draw.text((cx, cy + 38), data["desc"], fill=TEXT_PRIMARY, font=font_xs)
 
-    # STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR WITH REGION & CONDITIONAL GKE GA AGREEMENT
+    # STEP 2: SIDE-BY-SIDE CLUSTER SELECTOR
     if data.get("custom_box") == "cluster_side_by_side":
         cy_step2 = cy + 64
         half_w = (cw - 16) // 2
@@ -449,7 +386,7 @@ def render_step_frame(step_idx=0):
         else: # deploy_wp
             opts = [
                 ("[1] * Yes, deploy default Substrate WorkerPool [default-worker-pool] (Recommended)", "Bootstraps 10 warm worker sandboxes with microVM isolation and instant actor attachment in [substrate-system].", True),
-                ("[2] # Customize WorkerPool specifications", "Review and customize memory limits, vCPU allocations, and container sandbox isolation drivers.", False),
+                ("[2] # No, skip default WorkerPool deployment", "Skip initial worker pool provisioning. You can create custom worker pools at any time via kubectl or atectl.", False),
             ]
 
         for o_title, o_desc, o_sel in opts:
@@ -477,8 +414,32 @@ def render_step_frame(step_idx=0):
         draw.text((cx + 16, iy + 22), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
         by = ey + card_h + 10
 
+    elif data.get("custom_box") == "celebration_complete":
+        # STEP 7: CELEBRATION & NEXT STEPS
+        ey = cy + 62
+        # Celebratory Banner
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 64], radius=8, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
+        draw.text((cx + 16, ey + 10), "🎉✨ Installation Complete! ✨🎉", fill=ACCENT_GREEN, font=font_sm)
+        draw.text((cx + 16, ey + 32), "Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.", fill=TEXT_WHITE, font=font_xs)
+        ey += 76
+
+        # Next Step 1: Deploy actor
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 120], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, ey + 8), "🤖 1. Get started by deploying your first actor session:", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((cx + 14, ey + 28), "curl -sSL https://ate.dev/atectl | sh", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 48), "atectl actor create my-first-actor --template=default-agent --atespace=default-atespace", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 68), "atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"", fill=ACCENT_CYAN, font=font_xs)
+        ey += 130
+
+        # Next Step 2: Inspect standby workers
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 80], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, ey + 8), "📊 2. Inspect your standby workers at any time:", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((cx + 14, ey + 28), "atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 48), "atectl logs workerpool/default-worker-pool --follow", fill=ACCENT_CYAN, font=font_xs)
+        by = ey + 92
+
     else:
-        # Other Steps (1, 3, 7, 8, 9, 10, 11)
+        # Step 1 & 3: Command Callout + Checklist
         cby = cy + 62
         draw.rounded_rectangle([cx, cby, cx + cw, cby + 52], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
         draw.rounded_rectangle([cx + 12, cby + 6, cx + 180, cby + 22], radius=4, fill=ACCENT_BLUE)
@@ -486,7 +447,7 @@ def render_step_frame(step_idx=0):
         draw.text((cx + 14, cby + 30), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
 
         ey = cby + 60
-        card_h = 160 if "benchmark" in data or data["num"] == 11 else 200
+        card_h = 200
         draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
         draw.text((cx + 20, ey + 10), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
 
@@ -496,21 +457,9 @@ def render_step_frame(step_idx=0):
             draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_xs)
             iy += 20
 
-        draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN if data["num"] < 11 else ACCENT_CYAN, font=font_base)
+        draw.text((cx + 20, iy + 4), data["done"], fill=ACCENT_GREEN, font=font_base)
         draw.text((cx + 20, iy + 22), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
-
-        vy = ey + card_h + 8
-        if "benchmark" in data:
-            draw.rounded_rectangle([cx, vy, cx + cw, vy + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-            draw.text((cx + 14, vy + 9), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
-            by = vy + 42
-        elif data["num"] == 11:
-            draw.rounded_rectangle([cx, vy, cx + cw, vy + 38], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-            draw.text((cx + 14, vy + 5), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
-            draw.text((cx + 14, vy + 20), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
-            by = vy + 46
-        else:
-            by = ey + card_h + 10
+        by = ey + card_h + 10
 
     # Action Button Row
     draw.rounded_rectangle([cx + cw - 380, by, cx + cw - 290, by + 32], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
@@ -532,8 +481,8 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
         w_img = render_welcome_screen(typewriter_progress=progress)
         writer.append_data(np.array(w_img))
 
-    durations = [2.0, 3.2, 2.2, 2.5, 2.5, 2.2, 2.0, 2.2, 2.5, 2.5, 3.0]
-    for i in range(11):
+    durations = [2.2, 3.2, 2.5, 3.0, 3.0, 3.0, 3.5]
+    for i in range(7):
         num_frames = int(durations[i] * FPS)
         frame_img = render_step_frame(i)
         frame_np = np.array(frame_img)
@@ -552,7 +501,7 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     w_img.save(os.path.join(out_dir, "step0_welcome.png"))
     print("  ✓ Saved step0_welcome.png")
 
-    for i in range(11):
+    for i in range(7):
         fname = f"step{i+1}_{STEPS_DATA[i]['title'].lower().replace(' ', '_').replace('&', 'and')}.png"
         img = render_step_frame(i)
         img.save(os.path.join(out_dir, fname))

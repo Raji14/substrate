@@ -1,4 +1,4 @@
-"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 11 steps."""
+"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 7 steps."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
@@ -48,34 +48,10 @@ async def test_tui_full_flow():
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.DEPLOY_WORKERPOOL
 
-        # Step 7: Install the CLI
+        # Step 7: Installation Complete
         await pilot.press("enter")
         await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.INSTALL_CLI
-
-        # Step 8: First actor
-        await pilot.press("enter")
-        await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.FIRST_ACTOR
-
-        # Step 9: Send a request
-        await pilot.press("enter")
-        await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.SEND_REQUEST
-
-        # Step 10: Pause & resume
-        await pilot.press("enter")
-        await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.PAUSE_RESUME
-
-        # Step 11: Scale it up
-        await pilot.press("enter")
-        await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.SCALE_UP
-
-        # Finish onboarding
-        await pilot.press("enter")
-        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.COMPLETE
         assert app.state.is_complete is True
 
 

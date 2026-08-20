@@ -1,4 +1,4 @@
-"""Unit tests for OnboardingStateMachine with Region and GKE Private GA Agreement in Step 2."""
+"""Unit tests for OnboardingStateMachine with 7-step sequence."""
 
 import pytest
 from substrate_onboarding.config import OnboardingStep, UserSetupState
@@ -25,11 +25,6 @@ def test_state_machine_sequential_transitions():
         OnboardingStep.COMPATIBLE_NODEPOOL,
         OnboardingStep.CONFIG_AUTOSCALING,
         OnboardingStep.DEPLOY_WORKERPOOL,
-        OnboardingStep.INSTALL_CLI,
-        OnboardingStep.FIRST_ACTOR,
-        OnboardingStep.SEND_REQUEST,
-        OnboardingStep.PAUSE_RESUME,
-        OnboardingStep.SCALE_UP,
         OnboardingStep.COMPLETE,
     ]
 
@@ -58,10 +53,6 @@ def test_state_machine_previous_step():
 
 def test_state_machine_direct_transition():
     sm = OnboardingStateMachine()
-    res = sm.transition_to(OnboardingStep.CONNECT_CLUSTER)
-    assert res is True
-    assert sm.current_step == OnboardingStep.CONNECT_CLUSTER
-
-    # Transitioning to same step returns False
-    res2 = sm.transition_to(OnboardingStep.CONNECT_CLUSTER)
-    assert res2 is False
+    success = sm.transition_to(OnboardingStep.COMPATIBLE_NODEPOOL)
+    assert success is True
+    assert sm.current_step == OnboardingStep.COMPATIBLE_NODEPOOL

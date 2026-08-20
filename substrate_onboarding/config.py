@@ -10,13 +10,10 @@ Features:
 4. Post-Installation WorkerPool Configuration:
    - Step 4: Compatible Node Pool setup (CCC / Nested-Virt with YAML re-apply note)
    - Step 5: WorkerPool Autoscaling (OneHPA min=10 max=100 & CapacityBuffer=3 standby with YAML note)
-   - Step 6: Confirm & Deploy Substrate WorkerPool
-5. Fast Developer Loop:
-   - Step 7: Install the CLI (atectl)
-   - Step 8: First actor
-   - Step 9: Send a request
-   - Step 10: Pause & resume (0% CPU suspend)
-   - Step 11: Scale it up & Live Launchpad
+   - Step 6: Confirm & Deploy Substrate WorkerPool (Yes vs. No, skip)
+5. Step 7: Installation Complete & Next Steps:
+   - Celebratory animation confirming Agent Substrate on GKE is complete & ready for agent workloads.
+   - Actionable next steps: Deploy first actor session & Inspect standby workers.
 """
 
 from __future__ import annotations
@@ -33,12 +30,7 @@ class OnboardingStep(str, Enum):
     COMPATIBLE_NODEPOOL = "compatible_nodepool"  # Step 4: Compatible Node Pool (CCC / Nested-Virt)
     CONFIG_AUTOSCALING = "config_autoscaling"    # Step 5: WorkerPool Autoscaling (HPA & CapacityBuffer)
     DEPLOY_WORKERPOOL = "deploy_workerpool"      # Step 6: Confirm & Deploy Substrate WorkerPool
-    INSTALL_CLI = "install_cli"                  # Step 7: Install the CLI
-    FIRST_ACTOR = "first_actor"                  # Step 8: First actor
-    SEND_REQUEST = "send_request"                # Step 9: Send a request
-    PAUSE_RESUME = "pause_resume"                # Step 10: Pause & resume
-    SCALE_UP = "scale_up"                        # Step 11: Scale it up & Live Launchpad
-    COMPLETE = "complete"
+    COMPLETE = "complete"                        # Step 7: Installation Complete & Next Steps
 
     # Backward compatibility aliases
     PRIVATE_GA_AGREEMENT = "connect_cluster"
@@ -48,11 +40,16 @@ class OnboardingStep(str, Enum):
     NODE_POOL = "compatible_nodepool"
     AUTOSCALING = "config_autoscaling"
     DEPLOY_WP = "deploy_workerpool"
-    LAUNCHPAD = "scale_up"
+    LAUNCHPAD = "complete"
     DOCTOR = "check_setup"
     QUESTIONNAIRE = "connect_cluster"
     AUTH = "connect_cluster"
-    SUMMARY = "scale_up"
+    SUMMARY = "complete"
+    INSTALL_CLI = "complete"
+    FIRST_ACTOR = "complete"
+    SEND_REQUEST = "complete"
+    PAUSE_RESUME = "complete"
+    SCALE_UP = "complete"
 
 
 @dataclass
@@ -218,11 +215,11 @@ DEPLOY_WP_OPTIONS: List[OptionItem] = [
         shortcut_key="1",
     ),
     OptionItem(
-        id="deploy_customize",
-        title="Customize WorkerPool specifications",
-        description="Review and customize memory limits, vCPU allocations, and container sandbox isolation drivers.",
-        icon="⚙️",
-        tip="Custom resources & quotas.",
+        id="deploy_skip",
+        title="No, skip default WorkerPool deployment",
+        description="Skip initial worker pool provisioning. You can create custom worker pools at any time via kubectl or atectl.",
+        icon="⏭️",
+        tip="Skip default pool creation.",
         shortcut_key="2",
     ),
 ]
@@ -363,86 +360,25 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Provisioning 10 warm worker sandboxes (3 standby buffer replicas active)",
             "WorkerPool is ready: 10/10 warm pods listening for agent execution turns",
         ],
-        done_message="Default WorkerPool deployed! Now let's install the developer CLI.",
-        next_action_label="Install the CLI [Enter ↵] →",
+        done_message="WorkerPool configured! Proceeding to installation summary.",
+        next_action_label="Complete Installation [Enter ↵] →",
         is_option_step=True,
     ),
-    OnboardingStep.INSTALL_CLI: StepMetadata(
+    OnboardingStep.COMPLETE: StepMetadata(
         step_num=7,
-        title="Install the CLI",
-        heading="Install the atectl CLI",
-        description="The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
-        real_command="go install ./cmd/atectl || curl -sSL https://ate.dev/atectl | sh",
-        checklist_title="Configuring developer CLI...",
+        title="Installation Complete",
+        heading="Agent Substrate Installation Complete! 🎉",
+        description="Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.",
+        real_command="atectl get workerpools",
+        checklist_title="Cluster Readiness Status",
         checklist_items=[
-            "Downloading atectl binary for your architecture (macOS / Linux)",
-            "Registering shell autocompletions and PATH bindings",
-            "CLI verified: atectl version v0.2.1-ga",
+            "Substrate Control Plane: Healthy (Gateway :8080 active)",
+            "Worker Fleet: 10 warm microVM sandboxes listening",
+            "Standby CapacityBuffer: 3 standby pods pre-warmed (<100ms cold start)",
+            "GKE Cluster: Ready for high-density AI agent turns",
         ],
-        done_message="CLI is installed and ready. Let's deploy your first actor!",
-        next_action_label="Deploy first actor [Enter ↵] →",
-    ),
-    OnboardingStep.FIRST_ACTOR: StepMetadata(
-        step_num=8,
-        title="First actor",
-        heading="Deploy your first actor",
-        description="Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
-        real_command="atectl actor create my-first-actor --template=default-agent --atespace=default-atespace",
-        checklist_title="Launching actor session...",
-        checklist_items=[
-            "Resolving agent container image (gcr.io/ate-platform/agent:v1)",
-            "Injecting into pre-warmed worker sandbox",
-            "Actor [my-first-actor] is live and listening on port 8080",
-        ],
-        done_message="Actor is running! Let's send it an interactive request.",
-        next_action_label="Send a request [Enter ↵] →",
-    ),
-    OnboardingStep.SEND_REQUEST: StepMetadata(
-        step_num=9,
-        title="Send a request",
-        heading="Send a request to your actor",
-        description="Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
-        real_command='atectl actor execute my-first-actor --prompt="Analyze recent logs and report status"',
-        checklist_title="Streaming execution turn...",
-        checklist_items=[
-            "Routing turn request through Substrate Gateway",
-            "Actor turn completed in 82ms (First token: 14ms)",
-            'Response received: "System operating normally. 0 errors detected."',
-        ],
-        done_message="Great response! Now let's see how Substrate saves compute when idle.",
-        next_action_label="Test Pause & Resume [Enter ↵] →",
-        benchmark_text="Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
-    ),
-    OnboardingStep.PAUSE_RESUME: StepMetadata(
-        step_num=10,
-        title="Pause & resume",
-        heading="Pause & resume (0% idle CPU)",
-        description="When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
-        real_command="atectl actor suspend my-first-actor && atectl actor resume my-first-actor",
-        checklist_title="Testing data plane suspend/resume...",
-        checklist_items=[
-            "Suspending idle actor memory state to disk (38ms, CPU drops to 0%)",
-            "Request parking held incoming user message in queue",
-            "Restoring actor memory state on wake event in 115ms",
-        ],
-        done_message="Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
-        next_action_label="Scale it up [Enter ↵] →",
-        benchmark_text="Cold Start (890ms)  ➔  Suspend (38ms, 0% CPU)  ➔  Warm Resume (115ms)",
-    ),
-    OnboardingStep.SCALE_UP: StepMetadata(
-        step_num=11,
-        title="Scale it up",
-        heading="Scale worker fleet & Day-2 Operations",
-        description="Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
-        real_command="atectl create workerpools production-fleet --workers=20 --isolation=microvm",
-        checklist_title="Scaling worker pool capacity...",
-        checklist_items=[
-            "Worker pool [production-fleet] scaled to 20 warm pods",
-            "Standby CapacityBuffer configured (3 warm spares ready)",
-            "Live inspection verified: atectl get workerpools (Ready: 20/20)",
-        ],
-        done_message="You're all set! Enjoy building high-density AI agents with Agent Substrate.",
-        next_action_label="🚀 Finish Onboarding [Enter ↵]",
+        done_message="All systems go! Follow the next steps below to deploy your first agent.",
+        next_action_label="🚀 Finish & Close [Enter ↵]",
     ),
 }
 
@@ -465,18 +401,18 @@ class CheckResult:
 @dataclass
 class UserSetupState:
     current_step: OnboardingStep = OnboardingStep.WELCOME
-    selected_track: str = "track_quickstart"
-    selected_cluster: str = "cluster_gke_prod"
-    selected_nodepool_option: str = "ccc_auto"
-    selected_autoscaling_option: str = "auto_hpa_buffer"
-    selected_deploy_wp_option: str = "deploy_yes_default"
-    cluster_provider: str = "Google Kubernetes Engine (GKE)"
+    selected_track: str = "quickstart"
+    selected_cluster_id: str = "cluster_gke_prod"
     cluster_region: str = "us-central1 (Iowa)"
-    cluster_version: str = "v1.31.1-gke.1520000"
-    is_gke: bool = True
-    control_plane_detected: bool = False
-    customer_org: str = "Acme Corp"
-    customer_email: str = "rajithal@enterprise.com"
-    ga_token: str = "ga-sub-8f92a-live-contract"
-    agreement_accepted: bool = True
+    cluster_provider: str = "Google Kubernetes Engine (GKE)"
+    is_gke_cluster: bool = True
+    gke_agreement_accepted: bool = True
+    gke_token: str = "ga-sub-8f92a-live-contract"
+    selected_nodepool_mode: str = "ccc_auto"
+    selected_autoscaling_mode: str = "auto_hpa_buffer"
+    deploy_default_workerpool: bool = True
+    installed_crds: bool = False
+    installed_control_plane: bool = False
+    installed_cli: bool = False
+    first_actor_deployed: bool = False
     is_complete: bool = False

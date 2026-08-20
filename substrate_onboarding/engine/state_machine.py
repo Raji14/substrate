@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with Region details and Conditional GKE Agreement in Step 2."""
+"""State Machine for Onboarding Workflow with 7-step progressive disclosure architecture."""
 
 from __future__ import annotations
 
@@ -17,12 +17,7 @@ class OnboardingStateMachine:
       4. Compatible Node Pool (COMPATIBLE_NODEPOOL)
       5. Configure Autoscaling (CONFIG_AUTOSCALING)
       6. Deploy WorkerPool (DEPLOY_WORKERPOOL)
-      7. Install the CLI (INSTALL_CLI)
-      8. First actor (FIRST_ACTOR)
-      9. Send a request (SEND_REQUEST)
-      10. Pause & resume (PAUSE_RESUME)
-      11. Scale it up & Live Launchpad (SCALE_UP)
-      12. Complete (COMPLETE)
+      7. Installation Complete & Next Steps (COMPLETE)
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
@@ -33,11 +28,6 @@ class OnboardingStateMachine:
         OnboardingStep.COMPATIBLE_NODEPOOL,
         OnboardingStep.CONFIG_AUTOSCALING,
         OnboardingStep.DEPLOY_WORKERPOOL,
-        OnboardingStep.INSTALL_CLI,
-        OnboardingStep.FIRST_ACTOR,
-        OnboardingStep.SEND_REQUEST,
-        OnboardingStep.PAUSE_RESUME,
-        OnboardingStep.SCALE_UP,
         OnboardingStep.COMPLETE,
     ]
 
@@ -68,14 +58,15 @@ class OnboardingStateMachine:
 
         for listener in self._listeners:
             listener(old_step, new_step)
+
         return True
 
     def next_step(self) -> Optional[OnboardingStep]:
-        """Advance to the subsequent onboarding step."""
+        """Advance to the next logical step in the predefined sequence."""
         try:
-            curr_idx = self.STEPS_ORDER.index(self.current_step)
-            if curr_idx < len(self.STEPS_ORDER) - 1:
-                next_step = self.STEPS_ORDER[curr_idx + 1]
+            current_idx = self.STEPS_ORDER.index(self.current_step)
+            if current_idx < len(self.STEPS_ORDER) - 1:
+                next_step = self.STEPS_ORDER[current_idx + 1]
                 self.transition_to(next_step)
                 return next_step
         except ValueError:
@@ -83,33 +74,32 @@ class OnboardingStateMachine:
         return None
 
     def previous_step(self) -> Optional[OnboardingStep]:
-        """Rollback to the previous onboarding step if history exists."""
-        if not self.history:
+        """Rollback to the previous step in history, or the preceding logical step."""
+        if self.history:
+            prev_step = self.history.pop()
+            old_step = self.state.current_step
+            self.state.current_step = prev_step
+            for listener in self._listeners:
+                listener(old_step, prev_step)
+            return prev_step
+        else:
             try:
-                curr_idx = self.STEPS_ORDER.index(self.current_step)
-                if curr_idx > 0:
-                    prev = self.STEPS_ORDER[curr_idx - 1]
-                    self.transition_to(prev)
-                    return prev
+                current_idx = self.STEPS_ORDER.index(self.current_step)
+                if current_idx > 0:
+                    prev_step = self.STEPS_ORDER[current_idx - 1]
+                    self.transition_to(prev_step)
+                    return prev_step
             except ValueError:
                 pass
-            return None
-
-        prev_step = self.history.pop()
-        old_step = self.state.current_step
-        self.state.current_step = prev_step
-
-        for listener in self._listeners:
-            listener(old_step, prev_step)
-        return prev_step
+        return None
 
     def step_number(self) -> int:
-        """Returns 0-based or 1-based step index."""
+        """Return the current step number (0-based, matching STEPS_ORDER index)."""
         try:
             return self.STEPS_ORDER.index(self.current_step)
         except ValueError:
             return 0
 
     def total_steps(self) -> int:
-        """Total number of interactive steps (11 steps following Welcome)."""
-        return 11
+        """Total number of interactive steps (excluding Welcome Step 0)."""
+        return len(self.STEPS_ORDER) - 1

@@ -39,12 +39,13 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "compatible_nodepool": lambda: GenericStepScreen(OnboardingStep.COMPATIBLE_NODEPOOL, name="compatible_nodepool"),
         "config_autoscaling": lambda: GenericStepScreen(OnboardingStep.CONFIG_AUTOSCALING, name="config_autoscaling"),
         "deploy_workerpool": lambda: GenericStepScreen(OnboardingStep.DEPLOY_WORKERPOOL, name="deploy_workerpool"),
-        "install_cli": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
-        "first_actor": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
-        "send_request": lambda: GenericStepScreen(OnboardingStep.SEND_REQUEST, name="send_request"),
-        "pause_resume": lambda: GenericStepScreen(OnboardingStep.PAUSE_RESUME, name="pause_resume"),
-        "scale_up": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
+        "complete": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
         # Backward compatibility aliases
+        "install_cli": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
+        "first_actor": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
+        "send_request": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
+        "pause_resume": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
+        "scale_up": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
         "private_ga": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "create_cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
@@ -52,11 +53,11 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "node_pool": lambda: GenericStepScreen(OnboardingStep.COMPATIBLE_NODEPOOL, name="compatible_nodepool"),
         "autoscaling": lambda: GenericStepScreen(OnboardingStep.CONFIG_AUTOSCALING, name="config_autoscaling"),
         "deploy_wp": lambda: GenericStepScreen(OnboardingStep.DEPLOY_WORKERPOOL, name="deploy_workerpool"),
-        "launchpad": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
+        "launchpad": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
         "doctor": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
         "questionnaire": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
         "auth": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
-        "summary": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
+        "summary": lambda: GenericStepScreen(OnboardingStep.COMPLETE, name="complete"),
     }
 
     def __init__(self, initial_state: Optional[UserSetupState] = None):
