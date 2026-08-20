@@ -152,7 +152,7 @@
 
     /* Titlebar */
     .titlebar {
-      height: 34px;
+      height: 36px;
       background: #090d16;
       border-bottom: 1px solid var(--border-dark);
       display: flex;
@@ -165,6 +165,201 @@
     .dot-min { background: #ffbd2e; }
     .dot-max { background: #27c93f; }
     .window-title { margin-left: 12px; font-size: 11px; color: var(--text-muted); }
+
+    /* Persistent Header Cluster Badge */
+    .header-cluster-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--accent-cyan);
+      background: rgba(21, 101, 192, 0.25);
+      border: 1px solid rgba(112, 214, 255, 0.35);
+      padding: 2px 10px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .badge-pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 6px var(--accent-green);
+      display: inline-block;
+    }
+    .badge-ns-tag {
+      font-size: 9px;
+      color: var(--text-muted);
+      background: #090d16;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* Declarative Manifest / GitOps Drawer */
+    .manifest-drawer {
+      margin-bottom: 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: #11151c;
+      overflow: hidden;
+      transition: all 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .manifest-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      background: #161b22;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      user-select: none;
+    }
+    .manifest-drawer-header:hover {
+      background: #1c222d;
+    }
+    .manifest-code-content {
+      display: none;
+      padding: 10px 14px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #a8c7fa;
+      background: #090d16;
+      border-top: 1px solid var(--border-dark);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: inherit;
+    }
+    .btn-copy-yaml {
+      background: #21262d;
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-copy-yaml:hover {
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    /* Live Test Turn Playground */
+    .test-turn-container {
+      background: #11151c;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 0 16px rgba(112, 214, 255, 0.12);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .test-turn-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .test-turn-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+    .btn-test-turn {
+      background: linear-gradient(135deg, #1565c0 0%, #00897b 100%);
+      color: #ffffff;
+      border: 1px solid var(--accent-cyan);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-test-turn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 240, 255, 0.35);
+    }
+    .test-turn-console {
+      background: #090d16;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .test-turn-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-white);
+      transition: opacity 0.2s;
+    }
+    .tt-icon { font-weight: bold; width: 14px; color: var(--accent-cyan); flex-shrink: 0; }
+    .tt-msg { flex: 1; min-width: 0; }
+    .tt-time { font-size: 10px; color: var(--accent-yellow); background: rgba(0,0,0,0.4); padding: 1px 5px; border-radius: 3px; }
+    .test-turn-result {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-dark);
+    }
+    .tt-banner {
+      color: var(--accent-green);
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .tt-output {
+      font-size: 11px;
+      color: #a8c7fa;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 10px;
+      border-radius: 4px;
+      border-left: 2px solid var(--accent-green);
+      font-family: monospace;
+    }
+
+    /* Teardown Footnote */
+    .cleanup-footnote {
+      background: rgba(22, 27, 34, 0.7);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .inline-code {
+      color: var(--accent-cyan);
+      background: #090d16;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
 
     /* ========================================================= */
     /* WELCOME SCREEN (STEP 0) STYLES                            */
@@ -997,6 +1192,11 @@
       <div class="dot dot-min"></div>
       <div class="dot dot-max"></div>
       <div class="window-title">rajithal@rajithal: ~/workspaces/substrate — substrate onboard</div>
+      <div class="header-cluster-badge" id="header-cluster-badge" style="display: none;">
+        <span class="badge-pulse-dot"></span>
+        <span id="header-cluster-text">gke_enterprise_us-central1_prod (us-central1)</span>
+        <span class="badge-ns-tag">ns: substrate-system</span>
+      </div>
     </div>
 
     <!-- VIEW 0: WELCOME SCREEN -->
@@ -1100,16 +1300,11 @@
       <!-- Right Main Content Area -->
       <div class="content-area">
         
-        <!-- STEP 1: Check your setup -->
+        <!-- STEP 1: Check your setup (Clean, No-Noise Preflight) -->
         <div class="step-screen active" id="screen-0">
           <div class="step-counter">Step 1 of 7</div>
           <div class="step-heading">Check your environment</div>
           <div class="step-description">We'll check if you have everything needed to run Substrate — a container runtime, Python, and kubectl CLI.</div>
-
-          <div class="command-box">
-            <div class="command-pill">▼ Show the real command</div>
-            <div class="command-text">which docker && which kubectl && which python3</div>
-          </div>
 
           <div class="execution-card" id="exec-card-0">
             <div class="checklist-title">Checking prerequisites...</div>
@@ -1218,9 +1413,31 @@
           <div class="step-heading">Turn on Substrate Control Plane</div>
           <div class="step-description">Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].</div>
 
-          <div class="command-box">
-            <div class="command-pill">▼ Show the real command</div>
-            <div class="command-text">kubectl apply -f manifests/substrate-control-plane.yaml</div>
+          <!-- DECLARATIVE GITOPS MANIFEST DRAWER -->
+          <div class="manifest-drawer" id="drawer-step-2">
+            <div class="manifest-drawer-header" onclick="toggleManifestDrawer('drawer-step-2')">
+              <span><span></></span> Declarative Control-Plane Manifest: <span style="color: #fff;">manifests/substrate-control-plane.yaml</span></span>
+              <button class="btn-copy-yaml" onclick="copyManifestYaml(event, 'drawer-step-2')">📋 Copy for GitOps</button>
+            </div>
+            <div class="manifest-code-content">apiVersion: v1
+kind: Namespace
+metadata:
+  name: substrate-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: substrate-controller-manager
+  namespace: substrate-system
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: controller
+        image: gcr.io/ate-platform/controller:v0.2.1
+        resources:
+          limits: { cpu: 500m, memory: 512Mi }</div>
           </div>
 
           <div class="execution-card" id="exec-card-2">
@@ -1300,6 +1517,26 @@
             <div class="done-prompt" id="done-prompt-3" style="opacity: 0;">Compatible node pool configured! Now let's set up autoscaling.</div>
           </div>
 
+          <!-- DECLARATIVE GITOPS MANIFEST DRAWER FOR STEP 4 -->
+          <div class="manifest-drawer" id="drawer-step-3" style="display: none;">
+            <div class="manifest-drawer-header" onclick="toggleManifestDrawer('drawer-step-3')">
+              <span><span></></span> Declarative Custom Compute Class: <span style="color: #fff;">manifests/workerpool-ccc.yaml</span></span>
+              <button class="btn-copy-yaml" onclick="copyManifestYaml(event, 'drawer-step-3')">📋 Copy for GitOps</button>
+            </div>
+            <div class="manifest-code-content">apiVersion: cloud.google.com/v1
+kind: CustomComputeClass
+metadata:
+  name: agent-spot-ccc
+spec:
+  nodePoolSpec:
+    machineType: n2-standard-48
+    enableNestedVirtualization: true
+    spot: true
+    autoScaling:
+      minNodes: 1
+      maxNodes: 10</div>
+          </div>
+
           <!-- PHASE 3B: MANUAL COMMAND CALLOUT (Revealed ONLY when Option 2 is selected) -->
           <div class="command-box" id="nodepool-manual-box" style="display: none;">
             <div class="command-pill">🛠️ Manual gcloud Node Pool Provisioning</div>
@@ -1371,6 +1608,33 @@
             <div class="done-prompt" id="done-prompt-4" style="opacity: 0;">Autoscaling active! Now let's deploy the default Substrate WorkerPool.</div>
           </div>
 
+          <!-- DECLARATIVE GITOPS MANIFEST DRAWER FOR STEP 5 -->
+          <div class="manifest-drawer" id="drawer-step-4" style="display: none;">
+            <div class="manifest-drawer-header" onclick="toggleManifestDrawer('drawer-step-4')">
+              <span><span></></span> Declarative Autoscaling & Buffer: <span style="color: #fff;">manifests/workerpool-autoscaling.yaml</span></span>
+              <button class="btn-copy-yaml" onclick="copyManifestYaml(event, 'drawer-step-4')">📋 Copy for GitOps</button>
+            </div>
+            <div class="manifest-code-content">apiVersion: autoscaling.k8s.io/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: workerpool-hpa
+  namespace: substrate-system
+spec:
+  scaleTargetRef:
+    apiVersion: substrate.ate.dev/v1
+    kind: WorkerPool
+    name: default-worker-pool
+  minReplicas: 10
+  maxReplicas: 100
+---
+apiVersion: buffer.gke.io/v1
+kind: CapacityBuffer
+metadata:
+  name: standby-worker-buffer
+spec:
+  standbyReplicas: 3</div>
+          </div>
+
           <!-- OPTION 2 MANUAL BOX -->
           <div class="command-box" id="hpa-manual-box" style="display: none;">
             <div class="command-pill">🛠️ Manual Kubectl Autoscaling</div>
@@ -1434,6 +1698,26 @@
             <div class="done-prompt" id="done-prompt-5" style="opacity: 0;">Default WorkerPool deployed! Moving to installation complete summary.</div>
           </div>
 
+          <!-- DECLARATIVE GITOPS MANIFEST DRAWER FOR STEP 6 -->
+          <div class="manifest-drawer" id="drawer-step-5" style="display: none;">
+            <div class="manifest-drawer-header" onclick="toggleManifestDrawer('drawer-step-5')">
+              <span><span></></span> Declarative WorkerPool Manifest: <span style="color: #fff;">manifests/default-workerpool.yaml</span></span>
+              <button class="btn-copy-yaml" onclick="copyManifestYaml(event, 'drawer-step-5')">📋 Copy for GitOps</button>
+            </div>
+            <div class="manifest-code-content">apiVersion: substrate.ate.dev/v1
+kind: WorkerPool
+metadata:
+  name: default-worker-pool
+  namespace: substrate-system
+spec:
+  replicas: 10
+  computeClassName: agent-spot-ccc
+  isolation:
+    driver: gvisor-microvm
+  runtimeTemplate:
+    image: gcr.io/ate-platform/worker:v1</div>
+          </div>
+
           <!-- OPTION 2 SKIP NOTIFICATION -->
           <div class="scan-status-box" id="wp-skip-box" style="display: none;">
             <div class="scan-status-header">
@@ -1450,7 +1734,7 @@
           </div>
         </div>
 
-        <!-- STEP 7: Installation Complete (CELEBRATORY ANIMATION & CONCRETE NEXT STEPS) -->
+        <!-- STEP 7: Installation Complete (CELEBRATORY HERO + LIVE TEST PLAYGROUND + GITOPS NEXT STEPS) -->
         <div class="step-screen" id="screen-6">
           <div class="step-counter">Step 7 of 7</div>
           <div class="step-heading">Agent Substrate on GKE Installation Complete! 🎉</div>
@@ -1461,6 +1745,25 @@
             <div class="celebration-title">🎉✨ Installation Complete! ✨🎉</div>
             <div class="celebration-desc">
               Agent Substrate has been successfully installed and configured on your GKE cluster! Your environment is now primed for ultra-low latency (&lt;100ms) cold starts, microVM isolation, and heavy multiplexing.
+            </div>
+          </div>
+
+          <!-- LIVE TEST TURN PLAYGROUND -->
+          <div class="test-turn-container">
+            <div class="test-turn-header">
+              <span class="test-turn-badge">⚡ LIVE VERIFICATION PLAYGROUND</span>
+              <button class="btn-test-turn" id="btn-run-test-turn" onclick="runLiveTestTurn()">
+                <span>▶</span> <span>Run Live Cold-Start Test Turn</span> <kbd>t</kbd>
+              </button>
+            </div>
+            <div class="test-turn-console" id="test-turn-console" style="display: none;">
+              <div class="test-turn-line" id="tt-step-1"><span class="tt-icon">⠋</span> <span class="tt-msg">Allocating warm microVM from default-worker-pool...</span> <span class="tt-time">14ms</span></div>
+              <div class="test-turn-line" id="tt-step-2" style="opacity: 0.3;"><span class="tt-icon">○</span> <span class="tt-msg">Injecting prompt payload {"role": "agent", "task": "hello-world"}...</span> <span class="tt-time">22ms</span></div>
+              <div class="test-turn-line" id="tt-step-3" style="opacity: 0.3;"><span class="tt-icon">○</span> <span class="tt-msg">Executing in sandboxed microVM (0.01 vCPU, zero cold-start delay)...</span> <span class="tt-time">12ms</span></div>
+              <div class="test-turn-result" id="tt-result" style="display: none;">
+                <div class="tt-banner">✅ Agent Turn Complete: 48ms total round-trip! Sub-100ms latency verified.</div>
+                <div class="tt-output">{"status": "ready", "worker": "default-worker-pool-8f4b", "message": "Agent Substrate microVM is warm and listening."}</div>
+              </div>
             </div>
           </div>
 
@@ -1489,6 +1792,12 @@ atectl get workerpools
 # Stream live data plane turn execution and pause/resume telemetry
 atectl logs workerpool/default-worker-pool --follow</div>
             </div>
+          </div>
+
+          <!-- Teardown & Uninstall Safety Footnote -->
+          <div class="cleanup-footnote">
+            <span class="cleanup-icon">💡</span>
+            <span>Need to tear down or uninstall? Clean up anytime with: <code class="inline-code">kubectl delete -f manifests/substrate-control-plane.yaml</code> or <code class="inline-code">atectl uninstall</code></span>
           </div>
 
           <div class="action-row">
@@ -1706,6 +2015,116 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
+    function toggleManifestDrawer(drawerId) {
+      const drawer = document.getElementById(drawerId);
+      if (!drawer) return;
+      const content = drawer.querySelector('.manifest-code-content');
+      if (!content) return;
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+      } else {
+        content.style.display = 'block';
+        content.style.animation = 'fadeIn 0.25s ease-out';
+      }
+    }
+
+    function copyManifestYaml(event, drawerId) {
+      if (event) event.stopPropagation();
+      const drawer = document.getElementById(drawerId);
+      if (!drawer) return;
+      const content = drawer.querySelector('.manifest-code-content');
+      const btn = drawer.querySelector('.btn-copy-yaml');
+      if (!content || !btn) return;
+
+      navigator.clipboard.writeText(content.textContent).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied for GitOps!';
+        btn.style.color = 'var(--accent-green)';
+        btn.style.borderColor = 'var(--accent-green)';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 1800);
+      });
+    }
+
+    let isTestTurnRunning = false;
+    function runLiveTestTurn() {
+      if (isTestTurnRunning) return;
+      isTestTurnRunning = true;
+
+      const consoleBox = document.getElementById('test-turn-console');
+      const btn = document.getElementById('btn-run-test-turn');
+      const step1 = document.getElementById('tt-step-1');
+      const step2 = document.getElementById('tt-step-2');
+      const step3 = document.getElementById('tt-step-3');
+      const result = document.getElementById('tt-result');
+
+      if (!consoleBox) return;
+      consoleBox.style.display = 'flex';
+      consoleBox.style.animation = 'fadeIn 0.3s ease-out';
+      if (btn) btn.disabled = true;
+
+      if (step1) {
+        step1.style.opacity = '1';
+        step1.querySelector('.tt-icon').textContent = '⠋';
+        step1.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
+      }
+      if (step2) {
+        step2.style.opacity = '0.3';
+        step2.querySelector('.tt-icon').textContent = '○';
+      }
+      if (step3) {
+        step3.style.opacity = '0.3';
+        step3.querySelector('.tt-icon').textContent = '○';
+      }
+      if (result) result.style.display = 'none';
+
+      // Stage 1: MicroVM Allocation (14ms simulation)
+      setTimeout(() => {
+        if (step1) {
+          step1.querySelector('.tt-icon').textContent = '✓';
+          step1.querySelector('.tt-icon').style.color = 'var(--accent-green)';
+        }
+        if (step2) {
+          step2.style.opacity = '1';
+          step2.querySelector('.tt-icon').textContent = '⠋';
+          step2.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
+        }
+
+        // Stage 2: Prompt Dispatch (22ms simulation)
+        setTimeout(() => {
+          if (step2) {
+            step2.querySelector('.tt-icon').textContent = '✓';
+            step2.querySelector('.tt-icon').style.color = 'var(--accent-green)';
+          }
+          if (step3) {
+            step3.style.opacity = '1';
+            step3.querySelector('.tt-icon').textContent = '⠋';
+            step3.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
+          }
+
+          // Stage 3: Execution Response (12ms simulation)
+          setTimeout(() => {
+            if (step3) {
+              step3.querySelector('.tt-icon').textContent = '✓';
+              step3.querySelector('.tt-icon').style.color = 'var(--accent-green)';
+            }
+            if (result) {
+              result.style.display = 'block';
+              result.style.animation = 'fadeIn 0.3s ease-out';
+            }
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<span>↺</span> <span>Re-run Test Turn</span> <kbd>t</kbd>';
+            }
+            isTestTurnRunning = false;
+          }, 350);
+        }, 350);
+      }, 350);
+    }
+
     function selectCluster(idx) {
       selectedClusterIdx = idx;
       for (let i = 0; i < 4; i++) {
@@ -1720,6 +2139,15 @@ atectl logs workerpool/default-worker-pool --follow</div>
       document.getElementById('cluster-line-region').innerHTML = `<strong>Region:</strong> ${data.region}`;
       document.getElementById('cluster-line-capacity').innerHTML = `<strong>Capacity:</strong> ${data.capacity}`;
       document.getElementById('cluster-line-probe').innerHTML = `<strong>Substrate Probe:</strong> ${data.probe}`;
+
+      // Update Top Header Cluster Badge
+      const headerBadge = document.getElementById('header-cluster-badge');
+      const headerText = document.getElementById('header-cluster-text');
+      if (headerBadge && headerText) {
+        const cName = idx === 0 ? "gke_enterprise_us-central1_prod" : (idx === 1 ? "aws-eks-production" : (idx === 2 ? "azure-aks-agent-fleet" : "kind-sandbox"));
+        headerText.textContent = `Connected: ${cName} (${data.region})`;
+        headerBadge.style.display = 'flex';
+      }
 
       // Conditional GKE Agreement Visibility
       const gkeBox = document.getElementById('gke-agreement-box');
@@ -1752,6 +2180,30 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
+    function proceedFromStep4() {
+      if (selectedNodepoolIdx === -1) {
+        selectNodepoolOpt(0);
+        return;
+      }
+      goToStep(4);
+    }
+
+    function proceedFromStep5() {
+      if (selectedHpaIdx === -1) {
+        selectHpaOpt(0);
+        return;
+      }
+      goToStep(5);
+    }
+
+    function proceedFromStep6() {
+      if (selectedWpIdx === -1) {
+        selectWpOpt(0);
+        return;
+      }
+      goToStep(6);
+    }
+
     function selectNodepoolOpt(idx) {
       selectedNodepoolIdx = idx;
       for (let i = 0; i < 3; i++) {
@@ -1763,15 +2215,20 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
 
       const execCard = document.getElementById('exec-card-3');
+      const drawer = document.getElementById('drawer-step-3');
       const manualBox = document.getElementById('nodepool-manual-box');
       const nextBtn = document.getElementById('btn-next-step-3');
 
       if (idx === 0) {
-        // Option 1: Automatic CCC -> Show progress checklist
+        // Option 1: Automatic CCC -> Show progress checklist & GitOps drawer
         if (manualBox) manualBox.style.display = 'none';
         if (execCard) {
           execCard.style.display = 'block';
           execCard.style.animation = 'fadeIn 0.3s ease-out';
+        }
+        if (drawer) {
+          drawer.style.display = 'block';
+          drawer.style.animation = 'fadeIn 0.3s ease-out';
         }
         if (nextBtn) {
           nextBtn.disabled = false;
@@ -1783,6 +2240,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (idx === 1) {
         // Option 2: Manual via gcloud -> Show command box ONLY
         if (execCard) execCard.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (manualBox) {
           manualBox.style.display = 'block';
           manualBox.style.animation = 'fadeIn 0.3s ease-out';
@@ -1799,14 +2257,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
-    function proceedFromStep4() {
-      if (selectedNodepoolIdx === -1) {
-        selectNodepoolOpt(0);
-        return;
-      }
-      goToStep(4);
-    }
-
     function selectHpaOpt(idx) {
       selectedHpaIdx = idx;
       for (let i = 0; i < 3; i++) {
@@ -1818,17 +2268,22 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
 
       const execCard = document.getElementById('exec-card-4');
+      const drawer = document.getElementById('drawer-step-4');
       const manualBox = document.getElementById('hpa-manual-box');
       const skipBox = document.getElementById('hpa-skip-box');
       const nextBtn = document.getElementById('btn-next-step-4');
 
       if (idx === 0) {
-        // Option 1: Automatic HPA + Buffer -> Show progress checklist
+        // Option 1: Automatic HPA + Buffer -> Show progress checklist & GitOps drawer
         if (manualBox) manualBox.style.display = 'none';
         if (skipBox) skipBox.style.display = 'none';
         if (execCard) {
           execCard.style.display = 'block';
           execCard.style.animation = 'fadeIn 0.3s ease-out';
+        }
+        if (drawer) {
+          drawer.style.display = 'block';
+          drawer.style.animation = 'fadeIn 0.3s ease-out';
         }
         if (nextBtn) {
           nextBtn.disabled = false;
@@ -1841,6 +2296,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
         // Option 2: Manual via kubectl
         if (execCard) execCard.style.display = 'none';
         if (skipBox) skipBox.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (manualBox) {
           manualBox.style.display = 'block';
           manualBox.style.animation = 'fadeIn 0.3s ease-out';
@@ -1855,6 +2311,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
         // Option 3: Skip autoscaling
         if (execCard) execCard.style.display = 'none';
         if (manualBox) manualBox.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (skipBox) {
           skipBox.style.display = 'block';
           skipBox.style.animation = 'fadeIn 0.3s ease-out';
@@ -1868,14 +2325,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
-    function proceedFromStep5() {
-      if (selectedHpaIdx === -1) {
-        selectHpaOpt(0);
-        return;
-      }
-      goToStep(5);
-    }
-
     function selectWpOpt(idx) {
       selectedWpIdx = idx;
       for (let i = 0; i < 2; i++) {
@@ -1887,15 +2336,20 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
 
       const execCard = document.getElementById('exec-card-5');
+      const drawer = document.getElementById('drawer-step-5');
       const skipBox = document.getElementById('wp-skip-box');
       const nextBtn = document.getElementById('btn-next-step-5');
 
       if (idx === 0) {
-        // Option 1: Yes, deploy default -> Show progress checklist
+        // Option 1: Yes, deploy default -> Show progress checklist & GitOps drawer
         if (skipBox) skipBox.style.display = 'none';
         if (execCard) {
           execCard.style.display = 'block';
           execCard.style.animation = 'fadeIn 0.3s ease-out';
+        }
+        if (drawer) {
+          drawer.style.display = 'block';
+          drawer.style.animation = 'fadeIn 0.3s ease-out';
         }
         if (nextBtn) {
           nextBtn.disabled = false;
@@ -1907,6 +2361,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (idx === 1) {
         // Option 2: No, skip default
         if (execCard) execCard.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (skipBox) {
           skipBox.style.display = 'block';
           skipBox.style.animation = 'fadeIn 0.3s ease-out';
@@ -1920,20 +2375,21 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
-    function proceedFromStep6() {
-      if (selectedWpIdx === -1) {
-        selectWpOpt(0);
-        return;
-      }
-      goToStep(6);
-    }
-
     function goToStep(idx) {
       if (idx < 0 || idx >= totalSteps) return;
       currentStep = idx;
 
       document.getElementById('view-welcome').classList.remove('active');
       document.getElementById('view-wizard').classList.add('active');
+
+      const headerBadge = document.getElementById('header-cluster-badge');
+      if (headerBadge) {
+        if (currentStep >= 1) {
+          headerBadge.style.display = 'flex';
+        } else {
+          headerBadge.style.display = 'none';
+        }
+      }
 
       for (let i = 0; i < totalSteps; i++) {
         const navItem = document.getElementById(`nav-step-${i}`);
@@ -1971,11 +2427,13 @@ atectl logs workerpool/default-worker-pool --follow</div>
         }
         const optContainer = document.getElementById('nodepool-options-container');
         const execCard = document.getElementById('exec-card-3');
+        const drawer = document.getElementById('drawer-step-3');
         const manualBox = document.getElementById('nodepool-manual-box');
         const nextBtn = document.getElementById('btn-next-step-3');
 
         if (optContainer) optContainer.style.display = 'none';
         if (execCard) execCard.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (manualBox) manualBox.style.display = 'none';
 
         // Run scanner animation first
@@ -1993,9 +2451,11 @@ atectl logs workerpool/default-worker-pool --follow</div>
           if (card) card.classList.remove('selected');
         }
         const execCard = document.getElementById('exec-card-4');
+        const drawer = document.getElementById('drawer-step-4');
         const manualBox = document.getElementById('hpa-manual-box');
         const skipBox = document.getElementById('hpa-skip-box');
         if (execCard) execCard.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (manualBox) manualBox.style.display = 'none';
         if (skipBox) skipBox.style.display = 'none';
       } else if (currentStep === 5) {
@@ -2006,8 +2466,10 @@ atectl logs workerpool/default-worker-pool --follow</div>
           if (card) card.classList.remove('selected');
         }
         const execCard = document.getElementById('exec-card-5');
+        const drawer = document.getElementById('drawer-step-5');
         const skipBox = document.getElementById('wp-skip-box');
         if (execCard) execCard.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
         if (skipBox) skipBox.style.display = 'none';
       } else {
         animateChecklistForStep(currentStep);
@@ -2062,6 +2524,8 @@ atectl logs workerpool/default-worker-pool --follow</div>
         } else if (currentStep === 5) {
           if (e.key === '1') selectWpOpt(0);
           else if (e.key === '2') selectWpOpt(1);
+        } else if (currentStep === 6) {
+          if (e.key === 't' || e.key === 'T') runLiveTestTurn();
         }
         
         if (e.key === '0') {

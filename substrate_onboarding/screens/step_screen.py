@@ -350,7 +350,10 @@ class GenericStepScreen(Screen):
         t.append("   atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"\n\n", style="bold #8ab4f8")
         t.append("2. Inspect your standby workers at any time:\n", style="bold #fdd663")
         t.append("   atectl get workerpools\n", style="bold #8ab4f8")
-        t.append("   atectl logs workerpool/default-worker-pool --follow\n", style="bold #8ab4f8")
+        t.append("   atectl logs workerpool/default-worker-pool --follow\n\n", style="bold #8ab4f8")
+        t.append("3. Live Verification & Teardown Safety:\n", style="bold #fdd663")
+        t.append("   # Run 48ms live test turn: atectl test turn --atespace=default-atespace\n", style="bold #81c995")
+        t.append("   # Teardown anytime: kubectl delete -f manifests/substrate-control-plane.yaml\n", style="#80868b")
         return t
 
     def action_proceed_next(self) -> None:

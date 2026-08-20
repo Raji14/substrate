@@ -285,8 +285,12 @@ def render_step_frame(step_idx):
     draw.rectangle([wx, wy, wx + ww, wy + 34], fill=(9, 13, 22))
     draw.ellipse([wx + 14, wy + 12, wx + 24, wy + 22], fill=(255, 95, 86))
     draw.ellipse([wx + 30, wy + 12, wx + 40, wy + 22], fill=(255, 189, 46))
-    draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
-    draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 70, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
+    if step_idx >= 1:
+        # Top Header Cluster Context Badge
+        draw.rounded_rectangle([wx + ww - 380, wy + 6, wx + ww - 14, wy + 28], radius=11, fill=(18, 30, 48), outline=ACCENT_CYAN, width=1)
+        draw.ellipse([wx + ww - 370, wy + 14, wx + ww - 364, wy + 20], fill=ACCENT_GREEN)
+        draw.text((wx + ww - 358, wy + 9), "Connected: gke_enterprise_us-central1_prod", fill=ACCENT_CYAN, font=font_xs)
 
     # Left Sidebar (width 230)
     sw = 230
@@ -427,39 +431,46 @@ def render_step_frame(step_idx):
         by = ey + card_h + 10
 
     elif data.get("custom_box") == "celebration_complete":
-        # STEP 7: CELEBRATION & NEXT STEPS
-        ey = cy + 62
+        # STEP 7: CELEBRATION, LIVE TEST TURN PLAYGROUND & NEXT STEPS
+        ey = cy + 54
         # Celebratory Banner
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 64], radius=8, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
-        draw.text((cx + 16, ey + 10), "🎉✨ Installation Complete! ✨🎉", fill=ACCENT_GREEN, font=font_sm)
-        draw.text((cx + 16, ey + 32), "Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.", fill=TEXT_WHITE, font=font_xs)
-        ey += 76
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 50], radius=8, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
+        draw.text((cx + 16, ey + 8), "🎉✨ Installation Complete! ✨🎉", fill=ACCENT_GREEN, font=font_sm)
+        draw.text((cx + 16, ey + 26), "Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.", fill=TEXT_WHITE, font=font_xs)
+        ey += 58
+
+        # Live Verification Cold-Start Playground
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 72], radius=8, fill=(15, 25, 38), outline=ACCENT_CYAN, width=1)
+        draw.text((cx + 14, ey + 8), "⚡ LIVE VERIFICATION PLAYGROUND  •  48ms total round-trip (<100ms verified)", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 26), "✓ Warm microVM Allocated (14ms)  │  ✓ Prompt Dispatched (22ms)  │  ✓ Output: ready", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((cx + 14, ey + 46), "{\"status\": \"ready\", \"worker\": \"default-worker-pool-8f4b\", \"cold_start\": \"0ms\"}", fill=GOOGLE_BLUE, font=font_xs)
+        ey += 80
 
         # Next Step 1: Deploy actor
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 120], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, ey + 8), "🤖 1. Get started by deploying your first actor session:", fill=ACCENT_YELLOW, font=font_xs)
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 92], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, ey + 8), "🤖 1. Deploy your first actor session (atectl actor create):", fill=ACCENT_YELLOW, font=font_xs)
         draw.text((cx + 14, ey + 28), "curl -sSL https://ate.dev/atectl | sh", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 48), "atectl actor create my-first-actor --template=default-agent --atespace=default-atespace", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 68), "atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"", fill=ACCENT_CYAN, font=font_xs)
-        ey += 130
+        draw.text((cx + 14, ey + 46), "atectl actor create my-first-actor --template=default-agent --atespace=default-atespace", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 64), "atectl actor execute my-first-actor --prompt=\"Analyze recent logs and report status\"", fill=ACCENT_CYAN, font=font_xs)
+        ey += 100
 
-        # Next Step 2: Inspect standby workers
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 80], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, ey + 8), "📊 2. Inspect your standby workers at any time:", fill=ACCENT_YELLOW, font=font_xs)
-        draw.text((cx + 14, ey + 28), "atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 48), "atectl logs workerpool/default-worker-pool --follow", fill=ACCENT_CYAN, font=font_xs)
-        by = ey + 92
+        # Next Step 2 & Teardown footnote
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 52], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, ey + 8), "📊 2. Inspect standby workers & teardown anytime:", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((cx + 14, ey + 28), "atectl get workerpools  │  Teardown: kubectl delete -f manifests/turn-on-substrate.yaml", fill=GOOGLE_BLUE, font=font_xs)
+        by = ey + 62
 
     else:
-        # Step 1 & 3: Command Callout + Checklist
-        cby = cy + 62
-        draw.rounded_rectangle([cx, cby, cx + cw, cby + 52], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.rounded_rectangle([cx + 12, cby + 6, cx + 180, cby + 22], radius=4, fill=ACCENT_BLUE)
-        draw.text((cx + 18, cby + 7), "▼ Show the real command", fill=TEXT_WHITE, font=font_xs)
-        draw.text((cx + 14, cby + 30), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
+        # Step 1 (Clean Preflight Checklist) or Step 3 (GitOps Manifest + Checklist)
+        ey = cy + 56
+        if data["num"] == 3:
+            # Declarative GitOps Drawer
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 38], radius=6, fill=BG_CMD, outline=ACCENT_CYAN, width=1)
+            draw.text((cx + 12, ey + 8), "</> Declarative Control-Plane Manifest: manifests/substrate-control-plane.yaml", fill=ACCENT_CYAN, font=font_xs)
+            draw.text((cx + 12, ey + 22), "kubectl apply -f manifests/substrate-control-plane.yaml", fill=TEXT_WHITE, font=font_xs)
+            ey += 46
 
-        ey = cby + 60
-        card_h = 200
+        card_h = 180 if data["num"] == 1 else 150
         draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
         draw.text((cx + 20, ey + 10), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
 
