@@ -196,6 +196,9 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
+    # Shaded ambient container for ASCII art
+    draw.rounded_rectangle([wx + 150, wy + 42, wx + 970, wy + 128], radius=8, fill=(11, 16, 25), outline=(25, 45, 65), width=1)
+
     ly = wy + 48
     vibrant_colors = [
         (0, 240, 255),   # Bright Electric Cyan
@@ -205,10 +208,13 @@ def render_welcome_screen(typewriter_progress=1.0):
         (56, 182, 255),  # Bright Sky Blue
     ]
     for i, line in enumerate(LOGO_LINES):
+        # 3D Drop Shadow Shading
+        draw.text((wx + 182, ly + 2), line, fill=(0, 0, 0), font=font_xs)
+        draw.text((wx + 181, ly + 1), line, fill=(10, 20, 30), font=font_xs)
         draw.text((wx + 180, ly), line, fill=vibrant_colors[i % len(vibrant_colors)], font=font_xs)
         ly += 14
 
-    tag_y = ly + 8
+    tag_y = ly + 10
     draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=(0, 240, 255), font=font_sm)
 
     tw_y = tag_y + 24

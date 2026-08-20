@@ -162,7 +162,7 @@
     }
 
     /* ========================================================= */
-    /* VIBRANT & BRIGHT NEON ASCII ART LOGO STYLES               */
+    /* VIBRANT & 3D SHADED NEON ASCII ART LOGO STYLES            */
     /* ========================================================= */
     .ascii-logo {
       font-family: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
@@ -170,25 +170,54 @@
       line-height: 1.15;
       white-space: pre;
       text-align: center;
-      margin: 6px auto 10px auto;
+      margin: 4px auto 8px auto;
       font-weight: 900;
       letter-spacing: 0.6px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.08) 0%, rgba(13, 17, 23, 0) 72%);
+      padding: 8px 18px 4px 18px;
+      border-radius: 8px;
+      position: relative;
     }
 
-    .ascii-line-1 { color: #00f0ff; text-shadow: 0 0 14px rgba(0, 240, 255, 0.7); }
-    .ascii-line-2 { color: #ff3b69; text-shadow: 0 0 14px rgba(255, 59, 105, 0.7); }
-    .ascii-line-3 { color: #ffd000; text-shadow: 0 0 14px rgba(255, 208, 0, 0.7); }
-    .ascii-line-4 { color: #00ff88; text-shadow: 0 0 14px rgba(0, 255, 136, 0.7); }
-    .ascii-line-5 { color: #38b6ff; text-shadow: 0 0 14px rgba(56, 182, 255, 0.7); }
+    /* 3D Extruded Deep Shading & Neon Ambient Highlights */
+    .ascii-line-1 {
+      color: #00f0ff;
+      text-shadow: 0 1px 0 #005f73, 0 2px 0 #003844, 0 3px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(0, 240, 255, 0.8), 0 0 28px rgba(0, 240, 255, 0.4);
+    }
+    .ascii-line-2 {
+      color: #ff3b69;
+      text-shadow: 0 1px 0 #9b1136, 0 2px 0 #59091e, 0 3px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 59, 105, 0.8), 0 0 28px rgba(255, 59, 105, 0.4);
+    }
+    .ascii-line-3 {
+      color: #ffd000;
+      text-shadow: 0 1px 0 #997a00, 0 2px 0 #594700, 0 3px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 208, 0, 0.8), 0 0 28px rgba(255, 208, 0, 0.4);
+    }
+    .ascii-line-4 {
+      color: #00ff88;
+      text-shadow: 0 1px 0 #008f4c, 0 2px 0 #004d29, 0 3px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(0, 255, 136, 0.8), 0 0 28px rgba(0, 255, 136, 0.4);
+    }
+    .ascii-line-5 {
+      color: #38b6ff;
+      text-shadow: 0 1px 0 #126699, 0 2px 0 #093854, 0 3px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(56, 182, 255, 0.8), 0 0 28px rgba(56, 182, 255, 0.4);
+    }
+
+    .ascii-logo::after {
+      content: '';
+      width: 75%;
+      height: 3px;
+      background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.45) 0%, transparent 80%);
+      filter: blur(2px);
+      margin-top: 5px;
+    }
 
     .welcome-tagline {
       font-size: 12px;
       font-weight: 700;
       color: #00f0ff;
-      text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
       text-align: center;
       margin-bottom: 8px;
       letter-spacing: 0.4px;
