@@ -1,4 +1,4 @@
-"""Welcome Screen with the iconic static Google 4-color gradient ASCII logo, animated typewriter description, and feature capabilities card."""
+"""Welcome Screen with 'Agent Substrate' splash title, two streamlined setup choices, and tactile keyboard shortcuts."""
 
 from __future__ import annotations
 
@@ -14,18 +14,18 @@ from substrate_onboarding.config import OnboardingStep, SETUP_TRACKS, OptionItem
 from substrate_onboarding.widgets.status_bar import TopHeader, BottomBar
 
 LOGO_LINES = [
-    "   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
-    "  / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
-    "  \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
-    "   ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
-    "  |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
+    "    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
+    "   / \\  / ___| ____| \\ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
+    "  / _ \\| |  _|  _| |  \\| | | |   \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
+    " / ___ \\ |_| | |___| |\\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
+    "/_/   \\_\\____|_____|_| \\_| |_|   |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
 INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA)."
 
 
 class WelcomeScreen(Screen[None]):
-    """The iconic, wonder-filled welcome screen with classic Google 4-color gradient and streaming typewriter description."""
+    """The iconic, wonder-filled welcome screen with 'Agent Substrate' splash title and 2 setup tracks."""
 
     selected_index: reactive[int] = reactive(0)
     typewriter_idx: reactive[int] = reactive(0)
@@ -37,9 +37,8 @@ class WelcomeScreen(Screen[None]):
         ("k", "navigate_up", "Previous Track"),
         ("down", "navigate_down", "Next Track"),
         ("j", "navigate_down", "Next Track"),
-        ("1", "select_track_1", "Pre-configured K8s"),
-        ("2", "select_track_2", "Local Sandbox"),
-        ("3", "select_track_3", "Enterprise Fleet"),
+        ("1", "select_track_1", "Quickstart"),
+        ("2", "select_track_2", "Advanced"),
     ]
 
     def __init__(self, name: Optional[str] = "welcome"):
@@ -50,12 +49,12 @@ class WelcomeScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         yield TopHeader(initial_step=OnboardingStep.WELCOME)
         with Vertical(id="welcome-main-container"):
-            # Static 4-Color Gradient Hero Logo
+            # Static 4-Color Gradient Hero Logo for AGENT SUBSTRATE
             yield Static(self._render_hero_logo(), id="welcome-hero-logo")
 
-            # Subtitle with letter spacing style
+            # Punchy Tagline (No repetition of 'Agent Substrate')
             yield Label(
-                "⚡ A G E N T   S U B S T R A T E ⚡",
+                "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)",
                 id="welcome-hero-subtitle",
             )
 
@@ -66,10 +65,10 @@ class WelcomeScreen(Screen[None]):
             with Vertical(id="welcome-features-card"):
                 yield Static(self._render_features_card(), id="welcome-features-content")
 
-            # Mode / Track Selection Title
-            yield Label("Select your getting-started path:", id="welcome-tracks-title")
+            # Mode / Track Selection Title with Keyboard Shortcuts Hint
+            yield Label("Choose your installation path (Press [1] or [2]):", id="welcome-tracks-title")
 
-            # Track Cards Container
+            # Track Cards Container (2 Choices)
             with Vertical(id="welcome-tracks-list"):
                 for idx, track in enumerate(self.tracks):
                     yield Static(self._render_track_card(idx), id=f"track-card-{idx}", classes="track-option-card")
@@ -77,10 +76,10 @@ class WelcomeScreen(Screen[None]):
             # Diagnostics Summary Badge
             yield Static(self._render_preflight_badge(), id="welcome-preflight-badge")
 
-            # Action Button
+            # Action Button with prominent keyboard indicator
             with Horizontal(id="welcome-action-row"):
                 btn_start = Button(
-                    "▶ Press [ENTER] to Begin Getting Set Up →",
+                    "▶  Press [Enter ↵] to Begin Getting Set Up →",
                     variant="primary",
                     id="btn-start-onboarding",
                     classes="action-button",
@@ -89,8 +88,8 @@ class WelcomeScreen(Screen[None]):
                 yield btn_start
 
         yield BottomBar(
-            initial_tip="Welcome to Agent Substrate! Press [Enter] to begin Getting Set Up.",
-            initial_hints="[↑/↓] Select Path  [Enter] Start  [/help] Shortcuts  [Ctrl+C] Exit",
+            initial_tip="Welcome to Agent Substrate! Press [1] for Quickstart, [2] for Advanced, or [Enter ↵] to start.",
+            initial_hints="[1/2] Quick Select  [↑/↓] Navigate  [Enter ↵] Proceed  [b] Back  [/help] Help",
         )
 
     def on_mount(self) -> None:
@@ -111,7 +110,7 @@ class WelcomeScreen(Screen[None]):
 
     def _render_hero_logo(self) -> Text:
         t = Text()
-        # Classic Google 4-Color Gradient lines
+        # Google 4-Color Gradient lines
         line_styles = [
             "#8ab4f8",  # Google Blue
             "#f28b82",  # Google Red
@@ -135,13 +134,13 @@ class WelcomeScreen(Screen[None]):
     def _render_features_card(self) -> Text:
         t = Text()
         t.append("⚡ CORE SUBSTRATE CAPABILITIES:\n", style="bold #70d6ff")
-        t.append("  🛠️ Platform Fleet   : ", style="bold #8ab4f8")
+        t.append("  🛠️   Platform Fleet   : ", style="bold #8ab4f8")
         t.append("Warm worker pools on pre-existing K8s with MicroVM & capacity buffers\n", style="#ffffff")
-        t.append("  🤖 Agent Workloads  : ", style="bold #81c995")
+        t.append("  🤖   Agent Workloads  : ", style="bold #81c995")
         t.append("No-YAML container templates, turn hooks & request parking\n", style="#ffffff")
-        t.append("  ⚡ Instant Resume   : ", style="bold #fdd663")
+        t.append("  ⚡   Instant Resume   : ", style="bold #fdd663")
         t.append("Suspend idle actors to 0% CPU; restore state in <200ms\n", style="#ffffff")
-        t.append("  🔒 Private GA Gated : ", style="bold #f28b82")
+        t.append("  🔒   Private GA Gated : ", style="bold #f28b82")
         t.append("Customer registration & explicit Google support terms acknowledgment", style="#ffffff")
         return t
 
@@ -150,28 +149,29 @@ class WelcomeScreen(Screen[None]):
         is_selected = idx == self.selected_index
         t = Text()
 
+        keycap = f" [{idx + 1}] "
         if is_selected:
-            t.append(" ▶ ", style="bold #ffffff on #1565c0")
-            t.append(f" {track.icon} {track.title}\n", style="bold #70d6ff on #1565c0")
-            t.append(f"    {track.description}\n", style="#e3e3e3 on #1565c0")
-            t.append(f"    💡 {track.tip}", style="italic #81c995 on #1565c0")
+            t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
+            t.append(f" {track.icon}   {track.title}\n", style="bold #70d6ff on #1565c0")
+            t.append(f"        {track.description}\n", style="#e3e3e3 on #1565c0")
+            t.append(f"        💡 {track.tip}", style="italic #81c995 on #1565c0")
         else:
-            t.append(" ○ ", style="#5f6368")
-            t.append(f" {track.icon} {track.title}\n", style="bold #e3e3e3")
-            t.append(f"    {track.description}\n", style="#80868b")
-            t.append(f"    💡 {track.tip}", style="italic #5f6368")
+            t.append(f" ○ {keycap}", style="#80868b")
+            t.append(f" {track.icon}   {track.title}\n", style="bold #e3e3e3")
+            t.append(f"        {track.description}\n", style="#80868b")
+            t.append(f"        💡 {track.tip}", style="italic #5f6368")
 
         return t
 
     def _render_preflight_badge(self) -> Text:
         t = Text()
-        t.append(" ✔ ", style="bold #81c995")
-        t.append("Pre-configured K8s: Connected  │  ", style="#e3e3e3")
-        t.append("✔ ", style="bold #81c995")
-        t.append("Python 3.10+: Ready  │  ", style="#e3e3e3")
-        t.append("⚡ ", style="bold #81c995")
-        t.append("MicroVM Sandbox: Ready  │  ", style="#e3e3e3")
-        t.append("★ ", style="bold #fdd663")
+        t.append(" ✔  ", style="bold #81c995")
+        t.append("Pre-configured K8s: Connected    │    ", style="#e3e3e3")
+        t.append("✔  ", style="bold #81c995")
+        t.append("Python 3.10+: Ready    │    ", style="#e3e3e3")
+        t.append("⚡  ", style="bold #81c995")
+        t.append("MicroVM Sandbox: Ready    │    ", style="#e3e3e3")
+        t.append("★  ", style="bold #fdd663")
         t.append("Private GA: Gated", style="#fdd663")
         return t
 
@@ -195,10 +195,6 @@ class WelcomeScreen(Screen[None]):
 
     def action_select_track_2(self) -> None:
         self.selected_index = 1
-        self._refresh_tracks()
-
-    def action_select_track_3(self) -> None:
-        self.selected_index = 2
         self._refresh_tracks()
 
     def _refresh_tracks(self) -> None:

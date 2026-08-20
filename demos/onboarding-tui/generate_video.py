@@ -1,10 +1,14 @@
 """High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Onboarding.
 
 Features:
-- Restored classic Google 4-color gradient Substrate ASCII Logo
+- "Agent Substrate" Google 4-color gradient splash title (without duplicate subtitle)
+- Tagline: "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)"
 - Animated typewriter description
-- Core capabilities feature card
-- Pre-existing cluster portability & Private GA gated agreement flow
+- Core capabilities feature card with spacious icon layout
+- 2 Streamlined installation choices:
+    1) Quickstart — Automatic cluster detection & default configuration (Recommended)
+    2) Advanced — Custom installation with kubectl
+- Keyboard shortcut indicators throughout the flow
 """
 
 import os
@@ -54,11 +58,11 @@ font_md = ImageFont.truetype(FONT_PATH, 17)
 font_lg = ImageFont.truetype(FONT_PATH, 20)
 
 LOGO_LINES = [
-    "   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
-    "  / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
-    "  \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
-    "   ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
-    "  |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
+    "    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ ",
+    "   / \\  / ___| ____| \\ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
+    "  / _ \\| |  _|  _| |  \\| | | |   \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|  ",
+    " / ___ \\ |_| | |___| |\\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___ ",
+    "/_/   \\_\\____|_____|_| \\_| |_|   |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
 INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers (Private GA)."
@@ -78,7 +82,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Prerequisites verified. Let's connect your pre-configured cluster next.",
-        "btn": "Connect your cluster (Enter) →",
+        "btn": "Connect your cluster [Enter ↵] →",
     },
     {
         "num": 2,
@@ -94,7 +98,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Pre-configured cluster verified! Now let's complete the Private GA agreement.",
-        "btn": "Private GA Agreement (Enter) →",
+        "btn": "Private GA Agreement [Enter ↵] →",
         "custom_box": "cluster",
     },
     {
@@ -111,7 +115,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Private GA agreement acknowledged! Now let's turn on Substrate.",
-        "btn": "Turn on Substrate (Enter) →",
+        "btn": "Turn on Substrate [Enter ↵] →",
         "custom_box": "agreement",
     },
     {
@@ -129,7 +133,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Substrate is active! Next, let's install the CLI.",
-        "btn": "Install the CLI (Enter) →",
+        "btn": "Install the CLI [Enter ↵] →",
     },
     {
         "num": 5,
@@ -145,7 +149,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "CLI is installed and ready. Let's deploy your first actor!",
-        "btn": "Deploy first actor (Enter) →",
+        "btn": "Deploy first actor [Enter ↵] →",
     },
     {
         "num": 6,
@@ -161,7 +165,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Actor is running! Let's send it an interactive request.",
-        "btn": "Send a request (Enter) →",
+        "btn": "Send a request [Enter ↵] →",
     },
     {
         "num": 7,
@@ -177,7 +181,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Great response! Now let's see how Substrate saves compute when idle.",
-        "btn": "Test Pause & Resume (Enter) →",
+        "btn": "Test Pause & Resume [Enter ↵] →",
         "benchmark": "Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     },
     {
@@ -194,7 +198,7 @@ STEPS_DATA = [
         ],
         "done": "Done",
         "prompt": "Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
-        "btn": "Scale it up (Enter) →",
+        "btn": "Scale it up [Enter ↵] →",
         "benchmark": "Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)",
     },
     {
@@ -211,13 +215,13 @@ STEPS_DATA = [
         ],
         "done": "Complete 🎉",
         "prompt": "You're all set! Enjoy building high-density AI agents with Agent Substrate.",
-        "btn": "Finish Onboarding (Enter)",
+        "btn": "Finish Onboarding [Enter ↵]",
     },
 ]
 
 
 def render_welcome_screen(typewriter_progress=1.0):
-    """Renders the Substrate Welcome Screen with the iconic Google 4-color gradient ASCII logo & animated typewriter description."""
+    """Renders the Substrate Welcome Screen with the 'Agent Substrate' Google 4-color gradient ASCII logo & 2 choices."""
     img = Image.new("RGB", (WIDTH, HEIGHT), BG_CANVAS)
     draw = ImageDraw.Draw(img)
 
@@ -233,22 +237,21 @@ def render_welcome_screen(typewriter_progress=1.0):
     draw.ellipse([wx + 46, wy + 12, wx + 56, wy + 22], fill=(39, 201, 63))
     draw.text((wx + 360, wy + 10), "rajithal@rajithal: ~/workspaces/substrate — substrate onboard", fill=TEXT_MUTED, font=font_xs)
 
-    # Classic Google 4-Color Gradient ASCII Logo
+    # Classic Google 4-Color Gradient ASCII Logo for "AGENT SUBSTRATE"
     ly = wy + 42
     logo_colors = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN, GOOGLE_BLUE]
     for i, line in enumerate(LOGO_LINES):
-        draw.text((wx + 260, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_base)
+        draw.text((wx + 180, ly), line, fill=logo_colors[i % len(logo_colors)], font=font_sm)
         ly += 16
 
-    # Subtitle
-    draw.text((wx + 390, ly + 4), "⚡ A G E N T   S U B S T R A T E ⚡", fill=ACCENT_CYAN, font=font_sm)
+    # Tagline (replacing redundant Agent Substrate subtitle)
+    draw.text((wx + 270, ly + 4), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)", fill=ACCENT_CYAN, font=font_sm)
 
     # Animated Typewriter Description
     num_chars = int(len(INTRO_TEXT) * typewriter_progress)
     typed_str = INTRO_TEXT[:num_chars]
     cursor = " ▌" if typewriter_progress < 1.0 else ""
     
-    # Split into 2 centered lines
     if len(typed_str) > 78:
         split_pt = typed_str[:78].rfind(" ")
         line1 = typed_str[:split_pt]
@@ -259,46 +262,45 @@ def render_welcome_screen(typewriter_progress=1.0):
         draw.text((wx + 180, ly + 26), typed_str + cursor, fill=TEXT_PRIMARY, font=font_xs)
 
     # Core Capabilities Feature Card
-    fy = ly + 80
+    fy = ly + 76
     draw.rounded_rectangle([wx + 100, fy, wx + ww - 100, fy + 88], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
     # Badge
     draw.rounded_rectangle([wx + 116, fy - 10, wx + 360, fy + 10], radius=4, fill=ACCENT_BLUE, outline=ACCENT_CYAN)
     draw.text((wx + 126, fy - 6), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
 
-    draw.text((wx + 120, fy + 16), "* Platform Fleet   : Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", fill=GOOGLE_BLUE, font=font_xs)
-    draw.text((wx + 120, fy + 32), "* Agent Workloads  : No-YAML container templates, turn hooks & request parking", fill=GOOGLE_GREEN, font=font_xs)
-    draw.text((wx + 120, fy + 48), "* Instant Resume   : Suspend idle actors to 0% CPU; restore state in <200ms", fill=GOOGLE_YELLOW, font=font_xs)
-    draw.text((wx + 120, fy + 64), "* Private GA Gated : Customer registration & explicit Google support terms acknowledgment", fill=GOOGLE_RED, font=font_xs)
+    draw.text((wx + 120, fy + 16), "*   Platform Fleet   : Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", fill=GOOGLE_BLUE, font=font_xs)
+    draw.text((wx + 120, fy + 32), "*   Agent Workloads  : No-YAML container templates, turn hooks & request parking", fill=GOOGLE_GREEN, font=font_xs)
+    draw.text((wx + 120, fy + 48), "*   Instant Resume   : Suspend idle actors to 0% CPU; restore state in <200ms", fill=GOOGLE_YELLOW, font=font_xs)
+    draw.text((wx + 120, fy + 64), "*   Private GA Gated : Customer registration & explicit Google support terms acknowledgment", fill=GOOGLE_RED, font=font_xs)
 
-    # Track Selection
+    # 2 Installation Choices (Quickstart vs Advanced)
     ty = fy + 100
-    draw.text((wx + 100, ty), "Select your getting-started path:", fill=TEXT_WHITE, font=font_sm)
+    draw.text((wx + 100, ty), "Choose your installation path (Press [1] or [2]):", fill=TEXT_WHITE, font=font_sm)
 
     tracks = [
-        ("[1] Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)", "Connect your pre-configured cluster. Ensures total infrastructure portability with zero lock-in.", True),
-        ("[2] Local Sandbox Cluster (Kind / Minikube / Docker)", "Connect to an existing local development cluster on your workstation.", False),
-        ("[3] Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)", "Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.", False),
+        ("[1]  *  Quickstart — Automatic cluster detection & default configuration (Recommended)", "Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.", True),
+        ("[2]  #  Advanced — Custom installation with kubectl", "Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.", False),
     ]
-    toy = ty + 20
+    toy = ty + 22
     for title, desc, is_sel in tracks:
         bg = ACCENT_BLUE if is_sel else BG_CARD
         out = ACCENT_CYAN if is_sel else BORDER_SUBTLE
-        draw.rounded_rectangle([wx + 100, toy, wx + ww - 100, toy + 38], radius=6, fill=bg, outline=out, width=1)
-        draw.text((wx + 112, toy + 6), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
-        draw.text((wx + 130, toy + 5), title, fill=TEXT_WHITE, font=font_xs)
-        draw.text((wx + 130, toy + 20), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
-        toy += 44
+        draw.rounded_rectangle([wx + 100, toy, wx + ww - 100, toy + 42], radius=6, fill=bg, outline=out, width=1)
+        draw.text((wx + 114, toy + 7), "▶" if is_sel else "○", fill=TEXT_WHITE if is_sel else ACCENT_CYAN, font=font_sm)
+        draw.text((wx + 134, toy + 6), title, fill=TEXT_WHITE, font=font_xs)
+        draw.text((wx + 134, toy + 22), desc, fill=(211, 227, 253) if is_sel else TEXT_MUTED, font=font_xs)
+        toy += 48
 
     # Diagnostics Badge
-    dy = toy + 6
+    dy = toy + 8
     draw.rounded_rectangle([wx + 100, dy, wx + ww - 100, dy + 26], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
     diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Private GA: Gated"
     draw.text((wx + 130, dy + 7), diag_str, fill=ACCENT_GREEN, font=font_xs)
 
-    # Call to Action Button
+    # Call to Action Button with keyboard hint
     by = dy + 34
-    draw.rounded_rectangle([wx + ww - 440, by, wx + ww - 100, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((wx + ww - 420, by + 9), "▶ Press [ENTER] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
+    draw.rounded_rectangle([wx + ww - 460, by, wx + ww - 100, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
+    draw.text((wx + ww - 440, by + 9), "▶  Press [Enter ↵] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
 
     return img
 
@@ -410,12 +412,12 @@ def render_step_frame(step_idx=0):
     else:
         by = ey + card_h + 12
 
-    # Action Button Row
-    draw.rounded_rectangle([cx + cw - 360, by, cx + cw - 280, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-    draw.text((cx + cw - 345, by + 8), "← Back", fill=TEXT_PRIMARY, font=font_sm)
+    # Action Button Row with tactile keycap badges
+    draw.rounded_rectangle([cx + cw - 380, by, cx + cw - 290, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+    draw.text((cx + cw - 365, by + 8), "← Back [b]", fill=TEXT_PRIMARY, font=font_xs)
 
-    draw.rounded_rectangle([cx + cw - 270, by, cx + cw, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((cx + cw - 255, by + 8), data["btn"], fill=TEXT_WHITE, font=font_sm)
+    draw.rounded_rectangle([cx + cw - 280, by, cx + cw, by + 34], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
+    draw.text((cx + cw - 265, by + 8), data["btn"], fill=TEXT_WHITE, font=font_xs)
 
     return img
 

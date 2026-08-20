@@ -1,8 +1,11 @@
 """Configuration schemas, options, and state models for Agent Substrate Onboarding.
 
-Addresses core enterprise requirements:
-1. Pre-existing Cluster Requirement: Users must have a pre-configured Kubernetes cluster (portability across GKE, EKS, AKS, OpenShift, on-prem, or local Kind).
-2. Gated Access for Private GA: Interactive sign-up form and contractual agreement acknowledging that production support requires an explicit agreement with Google.
+Addresses:
+1. Splash Title: "Agent Substrate" ASCII logo without duplicate subtitle.
+2. Two Installation Choices:
+   - [1] Quickstart: Automatic cluster detection & default configuration (Recommended)
+   - [2] Advanced: Custom installation with kubectl
+3. Pre-existing Cluster Requirement & Private GA Gated Agreement.
 """
 
 from __future__ import annotations
@@ -45,30 +48,26 @@ class OptionItem:
     description: str
     icon: str = "⚡"
     tip: str = ""
+    shortcut_key: str = "1"
 
 
-# Setup Tracks for Welcome Screen
+# Two Streamlined Setup Tracks for Welcome Screen
 SETUP_TRACKS: List[OptionItem] = [
     OptionItem(
-        id="track_existing_k8s",
-        title="Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)",
-        description="Connect your pre-configured cluster. Ensures total infrastructure portability with zero vendor lock-in.",
-        icon="🌐",
-        tip="Uses your active kubeconfig context. Compatible with K8s v1.28+.",
+        id="track_quickstart",
+        title="Quickstart — Automatic cluster detection & default configuration (Recommended)",
+        description="Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.",
+        icon="🚀",
+        tip="Press [1] or [Enter] for 1-click automatic bootstrap.",
+        shortcut_key="1",
     ),
     OptionItem(
-        id="track_local_sandbox",
-        title="Local Sandbox Cluster (Kind / Minikube / Docker)",
-        description="Connect to an existing local development cluster on your workstation.",
-        icon="🧪",
-        tip="Perfect for local testing and lightweight agent prototyping.",
-    ),
-    OptionItem(
-        id="track_enterprise_fleet",
-        title="Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)",
-        description="Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.",
-        icon="🏢",
-        tip="For enterprise Private GA customers with signed Google support agreements.",
+        id="track_advanced",
+        title="Advanced — Custom installation with kubectl",
+        description="Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.",
+        icon="⚙️",
+        tip="Press [2] for tailored manifest configuration.",
+        shortcut_key="2",
     ),
 ]
 
@@ -92,7 +91,7 @@ CLUSTER_OPTIONS: List[OptionItem] = [
 NODEPOOL_OPTIONS: List[OptionItem] = [
     OptionItem(
         id="ccc_auto",
-        title="Automatically create a compatible Node Pool using Custom Compute Class (Recommended)",
+        title="Automatically configure Custom Compute Class (Recommended)",
         description="Applies manifest (agent-spot-ccc) with n2-standard-48, Spot fallback, and nested-virt",
         icon="⚡",
         tip="Auto provisions node pool.",
@@ -167,7 +166,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Kubectl command utility ready in PATH",
         ],
         done_message="Prerequisites verified. Let's connect your pre-configured cluster next.",
-        next_action_label="Connect your cluster (Enter) →",
+        next_action_label="Connect your cluster [Enter ↵] →",
     ),
     OnboardingStep.CONNECT_CLUSTER: StepMetadata(
         step_num=2,
@@ -182,13 +181,13 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Validating node capacity (12 ready nodes, hardware virtualization enabled)",
         ],
         done_message="Pre-configured cluster verified! Now let's complete the Private GA agreement.",
-        next_action_label="Private GA Agreement (Enter) →",
+        next_action_label="Private GA Agreement [Enter ↵] →",
     ),
     OnboardingStep.PRIVATE_GA_AGREEMENT: StepMetadata(
         step_num=3,
         title="Private GA Agreement",
         heading="Private GA Access & Contractual Agreement",
-        description="Because this is a Private General Availability release, customers must acknowledge that production support and SLAs require an explicit executed agreement with Google.",
+        description="Because this is a Private General Availability release, customers must acknowledge that production support and SLAs require an explicit agreement with Google.",
         real_command='atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"',
         checklist_title="Registering Private GA customer...",
         checklist_items=[
@@ -197,7 +196,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Acknowledgment recorded: Production support requires an explicit agreement with Google",
         ],
         done_message="Private GA agreement acknowledged! Now let's turn on Substrate.",
-        next_action_label="Turn on Substrate (Enter) →",
+        next_action_label="Turn on Substrate [Enter ↵] →",
         is_agreement_step=True,
     ),
     OnboardingStep.TURN_ON_SUBSTRATE: StepMetadata(
@@ -214,7 +213,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Initializing eBPF network routing controller in [substrate-system]",
         ],
         done_message="Substrate is active! Next, let's install the CLI.",
-        next_action_label="Install the CLI (Enter) →",
+        next_action_label="Install the CLI [Enter ↵] →",
     ),
     OnboardingStep.INSTALL_CLI: StepMetadata(
         step_num=5,
@@ -229,7 +228,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "CLI verified: atectl version v0.2.1-ga",
         ],
         done_message="CLI is installed and ready. Let's deploy your first actor!",
-        next_action_label="Deploy first actor (Enter) →",
+        next_action_label="Deploy first actor [Enter ↵] →",
     ),
     OnboardingStep.FIRST_ACTOR: StepMetadata(
         step_num=6,
@@ -244,7 +243,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Actor [my-first-actor] is live and listening on port 8080",
         ],
         done_message="Actor is running! Let's send it an interactive request.",
-        next_action_label="Send a request (Enter) →",
+        next_action_label="Send a request [Enter ↵] →",
     ),
     OnboardingStep.SEND_REQUEST: StepMetadata(
         step_num=7,
@@ -259,7 +258,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             'Response received: "System operating normally. 0 errors detected."',
         ],
         done_message="Great response! Now let's see how Substrate saves compute when idle.",
-        next_action_label="Test Pause & Resume (Enter) →",
+        next_action_label="Test Pause & Resume [Enter ↵] →",
         benchmark_text="Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     ),
     OnboardingStep.PAUSE_RESUME: StepMetadata(
@@ -275,7 +274,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Restoring actor memory state on wake event in 115ms",
         ],
         done_message="Sub-200ms instant resume confirmed! Finally, let's scale your fleet.",
-        next_action_label="Scale it up (Enter) →",
+        next_action_label="Scale it up [Enter ↵] →",
         benchmark_text="Cold Start (890ms)  ➔  Suspend (38ms, 0% CPU)  ➔  Warm Resume (115ms)",
     ),
     OnboardingStep.SCALE_UP: StepMetadata(
@@ -291,7 +290,7 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
             "Live inspection verified: atectl get workerpools (Ready: 20/20)",
         ],
         done_message="You're all set! Enjoy building high-density AI agents with Agent Substrate.",
-        next_action_label="🚀 Finish Onboarding (Enter)",
+        next_action_label="🚀 Finish Onboarding [Enter ↵]",
     ),
 }
 
@@ -314,7 +313,7 @@ class CheckResult:
 @dataclass
 class UserSetupState:
     current_step: OnboardingStep = OnboardingStep.WELCOME
-    selected_track: str = "track_existing_k8s"
+    selected_track: str = "track_quickstart"
     selected_cluster: str = "demo-cluster"
     customer_org: str = "Acme Corp"
     customer_email: str = "rajithal@enterprise.com"

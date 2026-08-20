@@ -71,7 +71,7 @@
       color: var(--accent-cyan);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .badge {
@@ -96,6 +96,7 @@
 
     .controls-group {
       display: flex;
+      align-items: center;
       gap: 8px;
     }
 
@@ -120,6 +121,21 @@
       background: var(--accent-blue);
       color: #ffffff;
       border-color: var(--accent-cyan);
+    }
+
+    /* Keycap styling for tactile shortcut badges */
+    kbd, .kbd-key {
+      background: #21262d;
+      color: var(--accent-cyan);
+      border: 1px solid var(--border-subtle);
+      border-bottom: 2px solid var(--accent-cyan);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: inherit;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      margin: 0 2px;
     }
 
     /* Terminal Container */
@@ -171,8 +187,8 @@
     }
 
     .ascii-logo {
-      font-size: 12px;
-      line-height: 1.18;
+      font-size: 11px;
+      line-height: 1.15;
       white-space: pre;
       text-align: center;
       margin-bottom: 6px;
@@ -183,10 +199,9 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .ascii-subtitle {
-      font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 2.5px;
+    .welcome-tagline {
+      font-size: 12px;
+      font-weight: 700;
       color: var(--accent-cyan);
       text-align: center;
       margin-bottom: 10px;
@@ -198,7 +213,7 @@
       line-height: 1.5;
       text-align: center;
       margin: 4px auto 14px auto;
-      max-width: 760px;
+      max-width: 780px;
       min-height: 38px;
     }
 
@@ -207,10 +222,10 @@
       background: rgba(22, 27, 34, 0.85);
       border: 1px solid var(--accent-cyan);
       border-radius: 10px;
-      padding: 12px 18px;
-      margin: 8px auto 14px auto;
+      padding: 14px 20px;
+      margin: 8px auto 16px auto;
       width: 100%;
-      max-width: 780px;
+      max-width: 800px;
       position: relative;
       text-align: left;
     }
@@ -232,7 +247,7 @@
     .welcome-feature-row {
       display: flex;
       align-items: baseline;
-      gap: 12px;
+      gap: 14px;
       padding: 5px 0;
       font-size: 11px;
       line-height: 1.4;
@@ -244,42 +259,45 @@
 
     .welcome-feature-label {
       font-weight: bold;
-      min-width: 150px;
+      min-width: 160px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .welcome-feature-desc {
       color: var(--text-white);
     }
 
-    /* Track Option Cards */
+    /* Track Option Cards (2 Streamlined Tracks) */
     .tracks-section {
       width: 100%;
-      max-width: 780px;
-      margin-bottom: 12px;
+      max-width: 800px;
+      margin-bottom: 14px;
     }
     .tracks-header {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-white);
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .tracks-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
     .track-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 12px 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       transition: all 0.15s;
     }
     .track-card:hover {
@@ -291,28 +309,37 @@
       border-color: var(--accent-cyan);
       box-shadow: 0 4px 14px rgba(21, 101, 192, 0.4);
     }
-    .track-icon { font-size: 14px; }
-    .track-info { display: flex; flex-direction: column; gap: 2px; }
-    .track-title { font-size: 11px; font-weight: 700; color: var(--text-white); }
-    .track-desc { font-size: 10px; color: var(--text-muted); }
-    .track-card.selected .track-desc { color: rgba(255, 255, 255, 0.85); }
+    .track-key-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-white);
+      background: rgba(0,0,0,0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .track-icon { font-size: 18px; margin-right: 2px; }
+    .track-info { display: flex; flex-direction: column; gap: 3px; }
+    .track-title { font-size: 12px; font-weight: 700; color: var(--text-white); }
+    .track-desc { font-size: 11px; color: var(--text-muted); }
+    .track-card.selected .track-desc { color: rgba(255, 255, 255, 0.9); }
 
     /* Diagnostics Badge */
     .preflight-badge {
       width: 100%;
-      max-width: 780px;
+      max-width: 800px;
       background: #0d1117;
       border: 1px solid var(--border-dark);
       border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 10px;
+      padding: 7px 14px;
+      font-size: 11px;
       display: flex;
       justify-content: space-around;
       color: var(--text-muted);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
-    .badge-ok { color: var(--accent-green); font-weight: 700; }
-    .badge-warn { color: var(--accent-yellow); font-weight: 700; }
+    .badge-ok { color: var(--accent-green); font-weight: 700; margin-right: 4px; }
+    .badge-warn { color: var(--accent-yellow); font-weight: 700; margin-right: 4px; }
 
     /* ========================================================= */
     /* 2-COLUMN WIZARD (STEPS 1-9) STYLES                         */
@@ -551,6 +578,7 @@
     .action-row {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
       gap: 12px;
       margin-top: auto;
     }
@@ -564,6 +592,9 @@
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     .btn-secondary:hover {
       background: #21262d;
@@ -581,6 +612,9 @@
       cursor: pointer;
       font-family: inherit;
       box-shadow: 0 4px 12px rgba(21, 101, 192, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-primary:hover {
       background: var(--accent-blue-hover);
@@ -592,12 +626,12 @@
   <!-- Top Control Toolbar -->
   <div class="toolbar">
     <div class="toolbar-title">
-      <span>Substrate</span>
+      <span>Agent Substrate</span>
       <span class="badge">Interactive Onboarding Experience</span>
       <span class="badge-ga">Private GA</span>
     </div>
     <div class="controls-group">
-      <button class="btn-tool" onclick="showWelcomeScreen()">🏠 Welcome Screen</button>
+      <button class="btn-tool" onclick="showWelcomeScreen()">🏠 Welcome <kbd>0</kbd></button>
       <button class="btn-tool" id="btn-autopilot" onclick="toggleAutopilot()">
         <span id="autopilot-icon">▶</span> <span id="autopilot-text">Autopilot Tour</span>
       </button>
@@ -615,18 +649,18 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- VIEW 0: WELCOME SCREEN (ICONIC SUBSTRATE VISUALIZATION)    -->
+    <!-- VIEW 0: WELCOME SCREEN (AGENT SUBSTRATE SPLASH TITLE)     -->
     <!-- ========================================================= -->
     <div class="welcome-screen-view active" id="view-welcome">
       <div class="ascii-logo">
-   ____  _   _ ____  ____ _____ ____     _  _____ _____ 
-  / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|
-  \___ \| | | |  _ \\___ \ | | | |_) | / _ \ | | |  _|  
-   ___) | |_| | |_) |___) || | |  _ < / ___ \| | | |___ 
-  |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|
+    _    ____ _____ _   _ _____   ____  _   _ ____  ____ _____ ____     _  _____ _____ 
+   / \  / ___| ____| \ | |_   _| / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|
+  / _ \| |  _|  _| |  \| | | |   \___ \| | | |  _ \\___ \ | | | |_) | / _ \ | | |  _|  
+ / ___ \ |_| | |___| |\  | | |    ___) | |_| | |_) |___) || | |  _ < / ___ \| | | |___ 
+/_/   \_\____|_____|_| \_| |_|   |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|
       </div>
 
-      <div class="ascii-subtitle">⚡ A G E N T   S U B S T R A T E ⚡</div>
+      <div class="welcome-tagline">⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)</div>
 
       <!-- Animated Typewriter Description -->
       <div class="welcome-typewriter" id="typewriter-box">
@@ -637,46 +671,44 @@
       <div class="welcome-features-card">
         <div class="welcome-features-badge">⚡ CORE SUBSTRATE CAPABILITIES</div>
         <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-blue);">🛠️ Platform Fleet :</div>
+          <div class="welcome-feature-label" style="color: var(--google-blue);">🛠️ &nbsp;Platform Fleet :</div>
           <div class="welcome-feature-desc">Warm worker pools on pre-existing K8s with MicroVM & capacity buffers</div>
         </div>
         <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-green);">🤖 Agent Workloads :</div>
+          <div class="welcome-feature-label" style="color: var(--google-green);">🤖 &nbsp;Agent Workloads :</div>
           <div class="welcome-feature-desc">No-YAML container templates, turn hooks & request parking</div>
         </div>
         <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-yellow);">⚡ Instant Resume :</div>
+          <div class="welcome-feature-label" style="color: var(--google-yellow);">⚡ &nbsp;Instant Resume :</div>
           <div class="welcome-feature-desc">Suspend idle actors to 0% CPU; restore state in &lt;200ms</div>
         </div>
         <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-red);">🔒 Private GA Gated :</div>
+          <div class="welcome-feature-label" style="color: var(--google-red);">🔒 &nbsp;Private GA Gated :</div>
           <div class="welcome-feature-desc">Customer registration & explicit Google support terms acknowledgment</div>
         </div>
       </div>
 
-      <!-- Track Selection -->
+      <!-- 2 Streamlined Installation Choices -->
       <div class="tracks-section">
-        <div class="tracks-header">Select your getting-started path:</div>
+        <div class="tracks-header">
+          <span>Choose your installation path:</span>
+          <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1</kbd> or <kbd>2</kbd></span>
+        </div>
         <div class="tracks-list">
           <div class="track-card selected" id="track-0" onclick="selectTrack(0)">
-            <div class="track-icon">🌐</div>
+            <span class="track-key-badge">1</span>
+            <span class="track-icon">🚀</span>
             <div class="track-info">
-              <div class="track-title">Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)</div>
-              <div class="track-desc">Connect your pre-configured cluster. Ensures total infrastructure portability with zero vendor lock-in.</div>
+              <div class="track-title">Quickstart — Automatic cluster detection & default configuration (Recommended)</div>
+              <div class="track-desc">Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.</div>
             </div>
           </div>
           <div class="track-card" id="track-1" onclick="selectTrack(1)">
-            <div class="track-icon">🧪</div>
+            <span class="track-key-badge">2</span>
+            <span class="track-icon">⚙️</span>
             <div class="track-info">
-              <div class="track-title">Local Sandbox Cluster (Kind / Minikube / Docker)</div>
-              <div class="track-desc">Connect to an existing local development cluster on your workstation.</div>
-            </div>
-          </div>
-          <div class="track-card" id="track-2" onclick="selectTrack(2)">
-            <div class="track-icon">🏢</div>
-            <div class="track-info">
-              <div class="track-title">Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)</div>
-              <div class="track-desc">Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.</div>
+              <div class="track-title">Advanced — Custom installation with kubectl</div>
+              <div class="track-desc">Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.</div>
             </div>
           </div>
         </div>
@@ -690,8 +722,8 @@
         <span><span class="badge-warn">★</span> Private GA: Gated</span>
       </div>
 
-      <button class="btn-primary" style="font-size: 13px; padding: 9px 26px;" onclick="startWizardFromWelcome()">
-        ▶ Press [ENTER] to Begin Getting Set Up →
+      <button class="btn-primary" style="font-size: 13px; padding: 10px 28px;" onclick="startWizardFromWelcome()">
+        <span>▶</span> <span>Press <kbd>Enter ↵</kbd> to Begin Getting Set Up →</span>
       </button>
     </div>
 
@@ -768,8 +800,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="showWelcomeScreen()">🏠 Welcome</button>
-            <button class="btn-primary" onclick="goToStep(1)">Connect your cluster (Enter) →</button>
+            <button class="btn-secondary" onclick="showWelcomeScreen()">🏠 Welcome <kbd>0</kbd></button>
+            <button class="btn-primary" onclick="goToStep(1)">Connect your cluster <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -804,8 +836,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(0)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(2)">Private GA Agreement (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(0)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(2)">Private GA Agreement <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -843,8 +875,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(3)">Turn on Substrate (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(1)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(3)">Turn on Substrate <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -872,8 +904,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(2)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(4)">Install the CLI (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(2)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(4)">Install the CLI <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -900,8 +932,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(5)">Deploy first actor (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(3)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(5)">Deploy first actor <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -928,8 +960,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(6)">Send a request (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(4)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(6)">Send a request <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -962,8 +994,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(5)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(7)">Test Pause & Resume (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(5)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(7)">Test Pause & Resume <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -996,8 +1028,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(6)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(8)">Scale it up (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(6)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="goToStep(8)">Scale it up <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -1031,8 +1063,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(7)">← Back</button>
-            <button class="btn-primary" onclick="alert('🎉 Substrate Private GA onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding (Enter)</button>
+            <button class="btn-secondary" onclick="goToStep(7)">← Back <kbd>b</kbd></button>
+            <button class="btn-primary" onclick="alert('🎉 Agent Substrate Private GA onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding <kbd>Enter ↵</kbd></button>
           </div>
         </div>
 
@@ -1085,12 +1117,14 @@
 
     function selectTrack(idx) {
       selectedTrackIdx = idx;
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 2; i++) {
         const card = document.getElementById(`track-${i}`);
-        if (i === idx) {
-          card.classList.add('selected');
-        } else {
-          card.classList.remove('selected');
+        if (card) {
+          if (i === idx) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
         }
       }
     }
@@ -1182,9 +1216,21 @@
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const welcomeView = document.getElementById('view-welcome');
-        if (welcomeView.classList.contains('active')) {
+      const welcomeView = document.getElementById('view-welcome');
+      const isWelcome = welcomeView.classList.contains('active');
+
+      if (e.key === '1') {
+        if (isWelcome) {
+          selectTrack(0);
+        }
+      } else if (e.key === '2') {
+        if (isWelcome) {
+          selectTrack(1);
+        }
+      } else if (e.key === '0') {
+        showWelcomeScreen();
+      } else if (e.key === 'Enter') {
+        if (isWelcome) {
           startWizardFromWelcome();
         } else if (currentStep < totalSteps - 1) {
           goToStep(currentStep + 1);
