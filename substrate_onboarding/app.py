@@ -21,7 +21,7 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     """Delightful, high-taste Textual TUI for developer onboarding with Welcome Screen."""
 
     CSS = APP_CSS
-    TITLE = "Substrate — Getting set up"
+    TITLE = "Substrate — Getting set up (Private GA)"
 
     BINDINGS = [
         Binding("ctrl+c", "request_exit", "Exit", show=False, priority=True),
@@ -34,7 +34,8 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     SCREENS = {
         "welcome": WelcomeScreen,
         "check_setup": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
-        "create_cluster": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
+        "connect_cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
+        "private_ga": lambda: GenericStepScreen(OnboardingStep.PRIVATE_GA_AGREEMENT, name="private_ga"),
         "turn_on_sub": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
         "install_cli": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
         "first_actor": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
@@ -42,15 +43,16 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         "pause_resume": lambda: GenericStepScreen(OnboardingStep.PAUSE_RESUME, name="pause_resume"),
         "scale_up": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
         # Backward compatibility aliases
-        "cluster": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
-        "control_plane": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
+        "cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
+        "create_cluster": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
+        "control_plane": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
         "node_pool": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
         "autoscaling": lambda: GenericStepScreen(OnboardingStep.INSTALL_CLI, name="install_cli"),
         "deploy_wp": lambda: GenericStepScreen(OnboardingStep.FIRST_ACTOR, name="first_actor"),
         "launchpad": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
         "doctor": lambda: GenericStepScreen(OnboardingStep.CHECK_SETUP, name="check_setup"),
-        "questionnaire": lambda: GenericStepScreen(OnboardingStep.CREATE_CLUSTER, name="create_cluster"),
-        "auth": lambda: GenericStepScreen(OnboardingStep.TURN_ON_SUBSTRATE, name="turn_on_sub"),
+        "questionnaire": lambda: GenericStepScreen(OnboardingStep.CONNECT_CLUSTER, name="connect_cluster"),
+        "auth": lambda: GenericStepScreen(OnboardingStep.PRIVATE_GA_AGREEMENT, name="private_ga"),
         "summary": lambda: GenericStepScreen(OnboardingStep.SCALE_UP, name="scale_up"),
     }
 

@@ -1,4 +1,4 @@
-"""State Machine for Onboarding Workflow with Welcome Screen & 8-Step Interactive Journey."""
+"""State Machine for Onboarding Workflow with Pre-existing Cluster Verification & Private GA Agreement."""
 
 from __future__ import annotations
 
@@ -10,22 +10,24 @@ class OnboardingStateMachine:
     """Manages consecutive onboarding state transitions with history and rollback support.
     
     Sequence:
-      0. Welcome & Track Selection (WELCOME)
+      0. Welcome & Setup Track (WELCOME)
       1. Check your setup (CHECK_SETUP)
-      2. Create a cluster (CREATE_CLUSTER)
-      3. Turn on Substrate (TURN_ON_SUBSTRATE)
-      4. Install the CLI (INSTALL_CLI)
-      5. First actor (FIRST_ACTOR)
-      6. Send a request (SEND_REQUEST)
-      7. Pause & resume (PAUSE_RESUME)
-      8. Scale it up (SCALE_UP)
-      9. Complete (COMPLETE)
+      2. Connect pre-existing cluster (CONNECT_CLUSTER)
+      3. Private GA Agreement & Gated Access (PRIVATE_GA_AGREEMENT)
+      4. Turn on Substrate (TURN_ON_SUBSTRATE)
+      5. Install the CLI (INSTALL_CLI)
+      6. First actor (FIRST_ACTOR)
+      7. Send a request (SEND_REQUEST)
+      8. Pause & resume (PAUSE_RESUME)
+      9. Scale it up & Live Launchpad (SCALE_UP)
+      10. Complete (COMPLETE)
     """
 
     STEPS_ORDER: List[OnboardingStep] = [
         OnboardingStep.WELCOME,
         OnboardingStep.CHECK_SETUP,
-        OnboardingStep.CREATE_CLUSTER,
+        OnboardingStep.CONNECT_CLUSTER,
+        OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
         OnboardingStep.INSTALL_CLI,
         OnboardingStep.FIRST_ACTOR,
@@ -105,5 +107,5 @@ class OnboardingStateMachine:
             return 0
 
     def total_steps(self) -> int:
-        """Total number of interactive steps (8 steps following Welcome)."""
-        return 8
+        """Total number of interactive steps (9 steps following Welcome)."""
+        return 9

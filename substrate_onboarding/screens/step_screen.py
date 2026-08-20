@@ -1,4 +1,4 @@
-"""Generic interactive StepScreen with persistent wonder visualizations."""
+"""Generic interactive StepScreen with persistent wonder visualizations and Private GA gated agreement."""
 
 from __future__ import annotations
 
@@ -38,12 +38,18 @@ class GenericStepScreen(Screen[None]):
             with Vertical(id="content-area"):
                 with Vertical(id="content-panel"):
                     # Step Number & Title
-                    yield Label(f"Step {self.meta.step_num} of 8", classes="step-indicator-label")
+                    yield Label(f"Step {self.meta.step_num} of 9", classes="step-indicator-label")
                     yield Label(self.meta.heading, classes="wizard-step-title")
                     yield Label(self.meta.description, classes="wizard-step-description")
 
                     # Real Command Callout Card
                     yield Static(self._render_command_callout(), id="command-callout-card")
+
+                    # Specialized Interactive Box (Agreement / Cluster Info)
+                    if self.step_key == OnboardingStep.PRIVATE_GA_AGREEMENT:
+                        yield Static(self._render_agreement_box(), id="agreement-card")
+                    elif self.step_key == OnboardingStep.CONNECT_CLUSTER:
+                        yield Static(self._render_cluster_info_box(), id="cluster-info-card")
 
                     # Live Execution Checklist Card
                     yield Static(self._render_checklist_box(), id="execution-checklist-card")
@@ -92,9 +98,27 @@ class GenericStepScreen(Screen[None]):
 
     def _render_command_callout(self) -> Text:
         t = Text()
-        # Blue pill badge
         t.append(" ▼ Show the real command \n", style="bold #ffffff on #1565c0")
         t.append(f"\n  {self.meta.real_command}", style="#70d6ff")
+        return t
+
+    def _render_cluster_info_box(self) -> Text:
+        t = Text()
+        t.append("🌐 PRE-CONFIGURED KUBERNETES CLUSTER (PORTABLE INFRASTRUCTURE):\n", style="bold #70d6ff")
+        t.append("  Context:        gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)\n", style="bold #ffffff")
+        t.append("  Kubernetes Ver: v1.31.1-gke (Compatible with any standard K8s v1.28+)\n", style="#e3e3e3")
+        t.append("  Node Fleet:     12 ready nodes (96 cores, hardware nested-virt enabled)\n", style="#81c995")
+        t.append("  Portability:    Zero cloud vendor lock-in (Deployable on GKE, EKS, AKS, On-Prem)", style="italic #80868b")
+        return t
+
+    def _render_agreement_box(self) -> Text:
+        t = Text()
+        t.append("📝 PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:\n\n", style="bold #fdd663")
+        t.append("  Customer Org:  Acme Corporation\n", style="bold #ffffff")
+        t.append("  Contact Email: rajithal@enterprise.com\n", style="#e3e3e3")
+        t.append("  GA Token:      ga-sub-8f92a-live-contract  [Verified ✓]\n\n", style="bold #81c995")
+        t.append("  [✓] I acknowledge that Agent Substrate is provided under Private GA terms.\n", style="bold #70d6ff")
+        t.append("      Production support and enterprise SLAs require an explicit agreement with Google Cloud.", style="italic #80868b")
         return t
 
     def _render_checklist_box(self) -> Text:

@@ -1,8 +1,8 @@
 """High-Definition (720p/1080p) Video Recording Generator for Agent Substrate Onboarding.
 
-Renders:
-- Scene 0: Welcome Screen with ASCII Logo, Gradient, Wonder Highlights, and Track Selection
-- Scenes 1-8: 8-Step Getting Set Up Journey with Left Sidebar Navigation and Wonder Visualizations
+Addresses:
+1. Pre-existing Cluster Requirement (Portability across GKE, EKS, AKS, On-Prem)
+2. Gated Access for Private GA (Customer registration & Support terms agreement)
 """
 
 import os
@@ -60,39 +60,57 @@ STEPS_DATA = [
         "num": 1,
         "title": "Check your setup",
         "heading": "Check your environment",
-        "desc": "We'll check if you have everything needed to run Substrate locally — a container runtime, Python, and cluster tools.",
+        "desc": "We'll check if you have everything needed to run Substrate — a container runtime, Python, and kubectl CLI.",
         "cmd": "which docker && which kubectl && which python3",
         "chk_title": "Checking prerequisites...",
         "chk_items": [
-            "Container runtime detected (Docker / Podman / Colima)",
+            "Container runtime detected (Docker / Podman / Containerd)",
             "Python 3.10+ runtime available",
             "Kubectl command utility ready in PATH",
         ],
         "done": "Done",
-        "prompt": "Everything's ready. Let's create your cluster next.",
-        "btn": "Create a cluster (Enter) →",
+        "prompt": "Prerequisites verified. Let's connect your pre-configured cluster next.",
+        "btn": "Connect your cluster (Enter) →",
     },
     {
         "num": 2,
-        "title": "Create a cluster",
-        "heading": "Create a local cluster",
-        "desc": "This spins up a small Kubernetes cluster right on your machine — a private sandbox that's fully yours.",
-        "cmd": "hack/create-kind-cluster.sh",
-        "chk_title": "Creating your cluster...",
+        "title": "Connect your cluster",
+        "heading": "Verify Pre-configured Kubernetes Cluster",
+        "desc": "Substrate runs on any pre-existing Kubernetes cluster — ensuring infrastructure\nportability across GKE, EKS, AKS, OpenShift, or on-prem with zero cloud lock-in.",
+        "cmd": "kubectl cluster-info && kubectl get nodes -o wide",
+        "chk_title": "Verifying pre-configured cluster...",
         "chk_items": [
-            "Creating your local cluster",
-            "Setting up a place to store container images",
-            "Your cluster is up and ready",
+            "Connecting to active kubeconfig cluster: [demo-cluster]",
+            "Verified Kubernetes API server compatibility (v1.31.1-gke / Portable)",
+            "Validating node capacity (12 ready nodes, hardware virtualization enabled)",
         ],
         "done": "Done",
-        "prompt": "Cluster's ready. Now let's install Substrate itself.",
-        "btn": "Turn on Substrate (Enter) →",
+        "prompt": "Pre-configured cluster verified! Now let's complete the Private GA agreement.",
+        "btn": "Private GA Agreement (Enter) →",
+        "custom_box": "cluster",
     },
     {
         "num": 3,
+        "title": "Private GA Agreement",
+        "heading": "Private GA Access & Contractual Agreement",
+        "desc": "Because this is a Private General Availability release, customers must acknowledge\nthat production support and SLAs require an explicit agreement with Google.",
+        "cmd": 'atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"',
+        "chk_title": "Registering Private GA customer...",
+        "chk_items": [
+            "Customer credentials & organization verified (Acme Corp)",
+            "Private GA License Token registered: [ga-sub-8f92a-live-contract]",
+            "Acknowledgment recorded: Production support requires an explicit agreement with Google",
+        ],
+        "done": "Done",
+        "prompt": "Private GA agreement acknowledged! Now let's turn on Substrate.",
+        "btn": "Turn on Substrate (Enter) →",
+        "custom_box": "agreement",
+    },
+    {
+        "num": 4,
         "title": "Turn on Substrate",
         "heading": "Turn on Substrate Control Plane",
-        "desc": "Installing the Substrate core controllers, state registry, and high-speed networking into your cluster.",
+        "desc": "Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].",
         "cmd": "kubectl apply -f manifests/substrate-control-plane.yaml",
         "chk_title": "Installing Substrate components...",
         "chk_items": [
@@ -106,7 +124,7 @@ STEPS_DATA = [
         "btn": "Install the CLI (Enter) →",
     },
     {
-        "num": 4,
+        "num": 5,
         "title": "Install the CLI",
         "heading": "Install the atectl CLI",
         "desc": "The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.",
@@ -122,7 +140,7 @@ STEPS_DATA = [
         "btn": "Deploy first actor (Enter) →",
     },
     {
-        "num": 5,
+        "num": 6,
         "title": "First actor",
         "heading": "Deploy your first actor",
         "desc": "Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.",
@@ -138,7 +156,7 @@ STEPS_DATA = [
         "btn": "Send a request (Enter) →",
     },
     {
-        "num": 6,
+        "num": 7,
         "title": "Send a request",
         "heading": "Send a request to your actor",
         "desc": "Communicate with your running actor through the Substrate Gateway with real-time response streaming.",
@@ -155,7 +173,7 @@ STEPS_DATA = [
         "benchmark": "Turn Latency: 82ms  │  TTFT (First Token): 14ms  │  Throughput: 120 tok/s",
     },
     {
-        "num": 7,
+        "num": 8,
         "title": "Pause & resume",
         "heading": "Pause & resume (0% idle CPU)",
         "desc": "When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.",
@@ -172,7 +190,7 @@ STEPS_DATA = [
         "benchmark": "Cold Start (890ms) ➔ Suspend (38ms, 0% CPU) ➔ Warm Resume (115ms)",
     },
     {
-        "num": 8,
+        "num": 9,
         "title": "Scale it up",
         "heading": "Scale worker fleet & Day-2 Operations",
         "desc": "Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.",
@@ -190,7 +208,7 @@ STEPS_DATA = [
 ]
 
 
-def render_welcome_screen(frame_idx=0):
+def render_welcome_screen():
     """Renders the Substrate Welcome Screen with ASCII Logo, Wonder Cards, and Tracks."""
     img = Image.new("RGB", (WIDTH, HEIGHT), BG_CANVAS)
     draw = ImageDraw.Draw(img)
@@ -215,7 +233,7 @@ def render_welcome_screen(frame_idx=0):
         ly += 14
 
     # Subtitle
-    draw.text((wx + 220, ly + 6), "⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime", fill=ACCENT_CYAN, font=font_sm)
+    draw.text((wx + 190, ly + 6), "⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)", fill=ACCENT_CYAN, font=font_sm)
 
     # 4 Wonder Cards
     wy_cards = ly + 34
@@ -223,8 +241,8 @@ def render_welcome_screen(frame_idx=0):
     wonders = [
         ("<100ms Cold Start", "MicroVM standby pre-warming"),
         ("0% Idle CPU", "Auto memory suspend/resume"),
-        ("Hardware Isolation", "GKE CCC nested virtualization"),
-        ("Zero-YAML CLI", "Direct atectl commands"),
+        ("Cluster Portability", "Runs on any pre-configured K8s"),
+        ("Private GA Gated", "Registration & support terms"),
     ]
     for i, (w_title, w_desc) in enumerate(wonders):
         cx = wx + 40 + i * (card_w + 10)
@@ -237,9 +255,9 @@ def render_welcome_screen(frame_idx=0):
     draw.text((wx + 40, ty), "Select your getting-started path:", fill=TEXT_WHITE, font=font_sm)
 
     tracks = [
-        ("[1] Local Sandbox (Kind / Docker Desktop) (Recommended)", "Zero cloud costs. Spins up a local Kubernetes cluster on your machine in 30 seconds.", True),
-        ("[2] Google Kubernetes Engine (GKE Production Fleet)", "High-density MicroVM isolation, Custom Compute Class (CCC), and Spot autoscaling.", False),
-        ("[3] Custom Existing Kubernetes Cluster", "Installs Substrate onto your current active kubeconfig context.", False),
+        ("[1] Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)", "Connect your pre-configured cluster. Ensures total infrastructure portability with zero lock-in.", True),
+        ("[2] Local Sandbox Cluster (Kind / Minikube / Docker)", "Connect to an existing local development cluster on your workstation.", False),
+        ("[3] Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)", "Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.", False),
     ]
     toy = ty + 24
     for title, desc, is_sel in tracks:
@@ -254,7 +272,7 @@ def render_welcome_screen(frame_idx=0):
     # Diagnostics Badge
     dy = toy + 6
     draw.rounded_rectangle([wx + 40, dy, wx + ww - 40, dy + 28], radius=6, fill=BG_CONTENT, outline=BORDER_DARK, width=1)
-    diag_str = "✓ Container Runtime: Active   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Valkey: Standby"
+    diag_str = "✓ Pre-configured K8s: Connected   │   ✓ Python 3.10+: Ready   │   * MicroVM Sandbox: Ready   │   * Private GA: Gated"
     draw.text((wx + 100, dy + 8), diag_str, fill=ACCENT_GREEN, font=font_xs)
 
     # Call to Action Button
@@ -292,72 +310,85 @@ def render_step_frame(step_idx=0):
     draw.text((wx + 20, wy + 75), "Getting set up", fill=TEXT_MUTED, font=font_sm)
 
     # Progress Line
-    draw.line([wx + 20, wy + 105, wx + sw - 20, wy + 105], fill=(33, 38, 45), width=3)
-    fill_w = int(((step_idx + 1) / 8.0) * (sw - 40))
-    draw.line([wx + 20, wy + 105, wx + 20 + fill_w, wy + 105], fill=ACCENT_CYAN, width=3)
+    draw.line([wx + 20, wy + 100, wx + sw - 20, wy + 100], fill=(33, 38, 45), width=3)
+    fill_w = int(((step_idx + 1) / 9.0) * (sw - 40))
+    draw.line([wx + 20, wy + 100, wx + 20 + fill_w, wy + 100], fill=ACCENT_CYAN, width=3)
 
-    draw.text((wx + 20, wy + 120), f"{step_idx} of 8 steps", fill=TEXT_MUTED, font=font_xs)
+    draw.text((wx + 20, wy + 114), f"{step_idx} of 9 steps", fill=TEXT_MUTED, font=font_xs)
 
-    # 8 Steps List
-    sy = wy + 150
+    # 9 Steps List
+    sy = wy + 140
     for i, s in enumerate(STEPS_DATA):
         num = i + 1
         if i < step_idx:
-            draw.text((wx + 20, sy), "✓", fill=ACCENT_GREEN, font=font_sm)
-            draw.text((wx + 38, sy), s["title"], fill=TEXT_PRIMARY, font=font_sm)
+            draw.text((wx + 20, sy), "✓", fill=ACCENT_GREEN, font=font_xs)
+            draw.text((wx + 36, sy), s["title"], fill=TEXT_PRIMARY, font=font_xs)
         elif i == step_idx:
-            draw.text((wx + 20, sy), str(num), fill=ACCENT_CYAN, font=font_sm)
-            draw.text((wx + 38, sy), s["title"], fill=ACCENT_CYAN, font=font_sm)
+            draw.text((wx + 20, sy), str(num), fill=ACCENT_CYAN, font=font_xs)
+            draw.text((wx + 36, sy), s["title"], fill=ACCENT_CYAN, font=font_xs)
         else:
-            draw.text((wx + 20, sy), str(num), fill=TEXT_DIM, font=font_sm)
-            draw.text((wx + 38, sy), s["title"], fill=TEXT_DIM, font=font_sm)
-        sy += 28
+            draw.text((wx + 20, sy), str(num), fill=TEXT_DIM, font=font_xs)
+            draw.text((wx + 36, sy), s["title"], fill=TEXT_DIM, font=font_xs)
+        sy += 25
 
     # Right Content Area
     cx = wx + sw + 36
-    cy = wy + 55
+    cy = wy + 50
     cw = ww - sw - 72
 
-    draw.text((cx, cy), f"Step {data['num']} of 8", fill=TEXT_MUTED, font=font_xs)
+    draw.text((cx, cy), f"Step {data['num']} of 9", fill=TEXT_MUTED, font=font_xs)
     draw.text((cx, cy + 18), data["heading"], fill=TEXT_WHITE, font=font_md)
-    draw.text((cx, cy + 46), data["desc"], fill=TEXT_PRIMARY, font=font_sm)
+    draw.text((cx, cy + 44), data["desc"], fill=TEXT_PRIMARY, font=font_sm)
 
     # Collapsible Command Box
-    cby = cy + 86
-    draw.rounded_rectangle([cx, cby, cx + cw, cby + 68], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-    # Blue pill badge
-    draw.rounded_rectangle([cx + 12, cby + 10, cx + 180, cby + 28], radius=4, fill=ACCENT_BLUE)
-    draw.text((cx + 18, cby + 12), "▼ Show the real command", fill=TEXT_WHITE, font=font_xs)
-    draw.text((cx + 14, cby + 40), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
+    cby = cy + 80
+    draw.rounded_rectangle([cx, cby, cx + cw, cby + 64], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+    draw.rounded_rectangle([cx + 12, cby + 8, cx + 180, cby + 26], radius=4, fill=ACCENT_BLUE)
+    draw.text((cx + 18, cby + 10), "▼ Show the real command", fill=TEXT_WHITE, font=font_xs)
+    draw.text((cx + 14, cby + 36), data["cmd"], fill=ACCENT_CYAN, font=font_sm)
+
+    # Specialized Box (Cluster / Agreement)
+    ey = cby + 76
+    if data.get("custom_box") == "cluster":
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 64], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, ey + 8), "* PRE-CONFIGURED KUBERNETES CLUSTER (PORTABLE INFRASTRUCTURE):", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 26), "Context: gke_enterprise_us-central1_prod-cluster (12 ready nodes, 96 cores)", fill=TEXT_WHITE, font=font_xs)
+        draw.text((cx + 14, ey + 44), "Kubernetes Ver: v1.31.1-gke (Compatible with any standard K8s v1.28+)", fill=ACCENT_GREEN, font=font_xs)
+        ey += 74
+    elif data.get("custom_box") == "agreement":
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 68], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+        draw.text((cx + 14, ey + 8), "[!] PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:", fill=ACCENT_YELLOW, font=font_xs)
+        draw.text((cx + 14, ey + 26), "Customer: Acme Corp (rajithal@enterprise.com) │ Token: ga-sub-8f92a-live-contract [✓]", fill=TEXT_WHITE, font=font_xs)
+        draw.text((cx + 14, ey + 46), "[✓] I acknowledge that production support requires an explicit agreement with Google Cloud.", fill=ACCENT_CYAN, font=font_xs)
+        ey += 78
 
     # Execution Checklist Card
-    ey = cby + 86
-    card_h = 210 if "benchmark" in data or data["num"] == 8 else 250
+    card_h = 160 if "custom_box" in data or "benchmark" in data or data["num"] == 9 else 220
     draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=8, fill=BG_CARD, outline=BORDER_DARK, width=1)
-    draw.text((cx + 20, ey + 16), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
+    draw.text((cx + 20, ey + 14), data["chk_title"], fill=ACCENT_CYAN, font=font_sm)
 
-    iy = ey + 42
+    iy = ey + 38
     for item in data["chk_items"]:
         draw.text((cx + 20, iy), "✓", fill=ACCENT_GREEN, font=font_sm)
-        draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_sm)
-        iy += 26
+        draw.text((cx + 40, iy), item, fill=TEXT_WHITE, font=font_xs)
+        iy += 24
 
-    draw.text((cx + 20, iy + 6), data["done"], fill=ACCENT_GREEN if data["num"] < 8 else ACCENT_CYAN, font=font_base)
-    draw.text((cx + 20, iy + 30), data["prompt"], fill=TEXT_PRIMARY, font=font_sm)
+    draw.text((cx + 20, iy + 6), data["done"], fill=ACCENT_GREEN if data["num"] < 9 else ACCENT_CYAN, font=font_base)
+    draw.text((cx + 20, iy + 28), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
 
-    # Visualization widgets if applicable
+    # Latency / Fleet visualization widgets
     vy = ey + card_h + 10
     if "benchmark" in data:
+        draw.rounded_rectangle([cx, vy, cx + cw, vy + 36], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
+        draw.text((cx + 14, vy + 10), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
+        by = vy + 46
+    elif data["num"] == 9:
         draw.rounded_rectangle([cx, vy, cx + cw, vy + 40], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, vy + 12), f"⚡ BENCHMARK: {data['benchmark']}", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((cx + 14, vy + 6), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, vy + 22), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
         by = vy + 50
-    elif data["num"] == 8:
-        draw.rounded_rectangle([cx, vy, cx + cw, vy + 44], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-        draw.text((cx + 14, vy + 8), "$ atectl get workerpools", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, vy + 24), "production-fleet  substrate-system  microvm  20/20  3  4%  8%  0", fill=ACCENT_GREEN, font=font_xs)
-        by = vy + 54
     else:
-        by = ey + card_h + 14
+        by = ey + card_h + 12
 
     # Action Button Row
     draw.rounded_rectangle([cx + cw - 360, by, cx + cw - 280, by + 34], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
@@ -373,15 +404,15 @@ def generate_demo_video(output_path="demos/onboarding-tui/onboarding_demo.mp4"):
     print(f"🎬 Generating HD Demo Video: {output_path}...")
     writer = imageio.get_writer(output_path, fps=FPS, codec="libx264", quality=8)
 
-    # Render Welcome scene (3.0s) + 8 steps
+    # Render Welcome scene (3.0s) + 9 steps
     num_welcome_frames = int(3.0 * FPS)
     welcome_img = render_welcome_screen()
     welcome_np = np.array(welcome_img)
     for _ in range(num_welcome_frames):
         writer.append_data(welcome_np)
 
-    durations = [2.2, 2.8, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
-    for i in range(8):
+    durations = [2.2, 2.5, 2.8, 2.2, 2.2, 2.2, 2.5, 2.8, 3.2]
+    for i in range(9):
         num_frames = int(durations[i] * FPS)
         frame_img = render_step_frame(i)
         frame_np = np.array(frame_img)
@@ -401,7 +432,7 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     w_img.save(os.path.join(out_dir, "step0_welcome.png"))
     print("  ✓ Saved step0_welcome.png")
 
-    for i in range(8):
+    for i in range(9):
         fname = f"step{i+1}_{STEPS_DATA[i]['title'].lower().replace(' ', '_').replace('&', 'and')}.png"
         img = render_step_frame(i)
         img.save(os.path.join(out_dir, fname))
@@ -410,8 +441,8 @@ def export_step_screenshots(out_dir="demos/onboarding-tui/screenshots"):
     # Backward compatibility copies
     render_step_frame(0).save(os.path.join(out_dir, "step1_preflight_doctor.png"))
     render_step_frame(1).save(os.path.join(out_dir, "step2_platform_setup.png"))
-    render_step_frame(4).save(os.path.join(out_dir, "step3_agent_deployment.png"))
-    render_step_frame(7).save(os.path.join(out_dir, "step4_cluster_launchpad.png"))
+    render_step_frame(5).save(os.path.join(out_dir, "step3_agent_deployment.png"))
+    render_step_frame(8).save(os.path.join(out_dir, "step4_cluster_launchpad.png"))
 
 
 if __name__ == "__main__":

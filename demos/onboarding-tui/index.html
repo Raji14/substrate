@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Substrate — Getting set up</title>
+  <title>Substrate — Getting set up (Private GA)</title>
   <style>
     :root {
       --bg-canvas: #090d16;
@@ -76,6 +76,17 @@
       border-radius: 6px;
       font-size: 11px;
       font-weight: 600;
+    }
+
+    .badge-ga {
+      background: rgba(253, 214, 99, 0.18);
+      color: var(--accent-yellow);
+      border: 1px solid var(--accent-yellow);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .controls-group {
@@ -266,7 +277,7 @@
     .badge-warn { color: var(--accent-yellow); font-weight: 700; }
 
     /* ========================================================= */
-    /* 2-COLUMN WIZARD (STEPS 1-8) STYLES                         */
+    /* 2-COLUMN WIZARD (STEPS 1-9) STYLES                         */
     /* ========================================================= */
     .wizard-view {
       display: none;
@@ -323,11 +334,11 @@
     .step-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
     }
 
     .step-item {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
       cursor: pointer;
       display: flex;
@@ -344,7 +355,7 @@
     /* Right Content Area */
     .content-area {
       background: var(--bg-content);
-      padding: 28px 36px;
+      padding: 26px 34px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
@@ -366,8 +377,8 @@
     }
 
     .step-counter { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-    .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 10px; }
-    .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 18px; }
+    .step-heading { font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 8px; }
+    .step-description { font-size: 13px; color: var(--text-primary); line-height: 1.5; margin-bottom: 16px; }
 
     /* Collapsible Real Command Callout */
     .command-box {
@@ -375,7 +386,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 12px 16px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .command-pill {
       display: inline-block;
@@ -398,8 +409,8 @@
       background: #090d16;
       border: 1px solid var(--border-dark);
       border-radius: 8px;
-      padding: 18px 22px;
-      margin-bottom: 18px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
       flex: 1;
     }
     .checklist-title {
@@ -411,8 +422,8 @@
     .checklist-items {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 9px;
+      margin-bottom: 14px;
     }
     .check-line {
       font-size: 12px;
@@ -425,13 +436,63 @@
     .done-status { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 6px; }
     .done-prompt { font-size: 12px; color: var(--text-primary); font-style: italic; }
 
+    /* Pre-existing Cluster Info Box */
+    .cluster-info-box {
+      background: #11151c;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cluster-info-title { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px; }
+    .cluster-info-line { font-size: 11px; color: var(--text-primary); }
+
+    /* Private GA Agreement Box */
+    .agreement-box {
+      background: #191c14;
+      border: 1px solid var(--accent-yellow);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .agreement-title { font-size: 12px; font-weight: 700; color: var(--accent-yellow); }
+    .agreement-item { font-size: 11px; color: var(--text-white); }
+    .agreement-checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      border: 1px solid rgba(253, 214, 99, 0.4);
+      cursor: pointer;
+    }
+    .checkbox-box {
+      color: var(--accent-green);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .checkbox-text {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
     /* Benchmark Latency Gauge Visualization */
     .benchmark-card {
       background: #11151c;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 12px 16px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .benchmark-title { font-size: 11px; font-weight: 700; color: var(--accent-yellow); margin-bottom: 4px; }
     .benchmark-value { font-size: 12px; font-weight: 600; color: var(--accent-green); }
@@ -442,7 +503,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 12px 16px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .table-cmd { font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
     .table-head { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
@@ -495,6 +556,7 @@
     <div class="toolbar-title">
       <span>Substrate</span>
       <span class="badge">Interactive Onboarding Experience</span>
+      <span class="badge-ga">Private GA</span>
     </div>
     <div class="controls-group">
       <button class="btn-tool" onclick="showWelcomeScreen()">🏠 Welcome Screen</button>
@@ -527,7 +589,7 @@
   ╚══════╝ ╚═════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
       </div>
 
-      <div class="welcome-subtitle">⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime</div>
+      <div class="welcome-subtitle">⚡ High-Density Agent Sandboxing & Sub-100ms Cold-Start Runtime (Private GA)</div>
 
       <!-- 4 Wonder Highlights -->
       <div class="wonder-grid">
@@ -540,12 +602,12 @@
           <div class="wonder-desc">Auto memory suspend and resume to NVMe storage.</div>
         </div>
         <div class="wonder-card">
-          <div class="wonder-title">🛡️ Hardware Isolation</div>
-          <div class="wonder-desc">Nested virtualization sandboxing for multi-tenancy.</div>
+          <div class="wonder-title">🌐 Cluster Portability</div>
+          <div class="wonder-desc">Runs on any pre-configured K8s cluster without lock-in.</div>
         </div>
         <div class="wonder-card">
-          <div class="wonder-title">🚀 Zero-YAML CLI</div>
-          <div class="wonder-desc">Direct atectl commands for application engineers.</div>
+          <div class="wonder-title">🔒 Private GA Gated</div>
+          <div class="wonder-desc">Customer registration & support terms acknowledgment.</div>
         </div>
       </div>
 
@@ -554,24 +616,24 @@
         <div class="tracks-header">Select your getting-started path:</div>
         <div class="tracks-list">
           <div class="track-card selected" id="track-0" onclick="selectTrack(0)">
-            <div class="track-icon">🧪</div>
+            <div class="track-icon">🌐</div>
             <div class="track-info">
-              <div class="track-title">Local Sandbox (Kind / Docker Desktop) (Recommended)</div>
-              <div class="track-desc">Zero cloud costs. Spins up a local Kubernetes cluster on your machine in 30 seconds.</div>
+              <div class="track-title">Pre-configured Kubernetes Cluster (GKE / EKS / AKS / On-Prem) (Recommended)</div>
+              <div class="track-desc">Connect your pre-configured cluster. Ensures total infrastructure portability with zero vendor lock-in.</div>
             </div>
           </div>
           <div class="track-card" id="track-1" onclick="selectTrack(1)">
-            <div class="track-icon">⚡</div>
+            <div class="track-icon">🧪</div>
             <div class="track-info">
-              <div class="track-title">Google Kubernetes Engine (GKE Production Fleet)</div>
-              <div class="track-desc">High-density MicroVM isolation, Custom Compute Class (CCC), and Spot autoscaling.</div>
+              <div class="track-title">Local Sandbox Cluster (Kind / Minikube / Docker)</div>
+              <div class="track-desc">Connect to an existing local development cluster on your workstation.</div>
             </div>
           </div>
           <div class="track-card" id="track-2" onclick="selectTrack(2)">
             <div class="track-icon">🏢</div>
             <div class="track-info">
-              <div class="track-title">Custom Existing Kubernetes Cluster</div>
-              <div class="track-desc">Installs Substrate onto your current active kubeconfig context.</div>
+              <div class="track-title">Enterprise Multi-Cluster Fleet (Anthos / GKE Multi-Cloud)</div>
+              <div class="track-desc">Deploy Substrate across dedicated enterprise worker pools with hardware nested virtualization.</div>
             </div>
           </div>
         </div>
@@ -579,10 +641,10 @@
 
       <!-- Preflight Diagnostics Summary -->
       <div class="preflight-badge">
-        <span><span class="badge-ok">✔</span> Container Runtime: Active</span>
+        <span><span class="badge-ok">✔</span> Pre-configured K8s: Connected</span>
         <span><span class="badge-ok">✔</span> Python 3.10+: Ready</span>
         <span><span class="badge-ok">⚡</span> MicroVM Sandbox: Ready</span>
-        <span><span class="badge-warn">★</span> Valkey: Standby</span>
+        <span><span class="badge-warn">★</span> Private GA: Gated</span>
       </div>
 
       <button class="btn-primary" style="font-size: 13px; padding: 10px 28px;" onclick="startWizardFromWelcome()">
@@ -591,7 +653,7 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-8)                       -->
+    <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-9)                       -->
     <!-- ========================================================= -->
     <div class="wizard-view" id="view-wizard">
       
@@ -604,32 +666,35 @@
           <div class="progress-bar-fill" id="progress-fill"></div>
         </div>
 
-        <div class="sidebar-step-count" id="sidebar-count">1 of 8 steps</div>
+        <div class="sidebar-step-count" id="sidebar-count">1 of 9 steps</div>
 
         <div class="step-list">
           <div class="step-item active" id="nav-step-0" onclick="goToStep(0)">
             <span class="step-icon">1</span> Check your setup
           </div>
           <div class="step-item" id="nav-step-1" onclick="goToStep(1)">
-            <span class="step-icon">2</span> Create a cluster
+            <span class="step-icon">2</span> Connect your cluster
           </div>
           <div class="step-item" id="nav-step-2" onclick="goToStep(2)">
-            <span class="step-icon">3</span> Turn on Substrate
+            <span class="step-icon">3</span> Private GA Agreement
           </div>
           <div class="step-item" id="nav-step-3" onclick="goToStep(3)">
-            <span class="step-icon">4</span> Install the CLI
+            <span class="step-icon">4</span> Turn on Substrate
           </div>
           <div class="step-item" id="nav-step-4" onclick="goToStep(4)">
-            <span class="step-icon">5</span> First actor
+            <span class="step-icon">5</span> Install the CLI
           </div>
           <div class="step-item" id="nav-step-5" onclick="goToStep(5)">
-            <span class="step-icon">6</span> Send a request
+            <span class="step-icon">6</span> First actor
           </div>
           <div class="step-item" id="nav-step-6" onclick="goToStep(6)">
-            <span class="step-icon">7</span> Pause & resume
+            <span class="step-icon">7</span> Send a request
           </div>
           <div class="step-item" id="nav-step-7" onclick="goToStep(7)">
-            <span class="step-icon">8</span> Scale it up
+            <span class="step-icon">8</span> Pause & resume
+          </div>
+          <div class="step-item" id="nav-step-8" onclick="goToStep(8)">
+            <span class="step-icon">9</span> Scale it up
           </div>
         </div>
       </div>
@@ -639,9 +704,9 @@
         
         <!-- STEP 1: Check your setup -->
         <div class="step-screen active" id="screen-0">
-          <div class="step-counter">Step 1 of 8</div>
+          <div class="step-counter">Step 1 of 9</div>
           <div class="step-heading">Check your environment</div>
-          <div class="step-description">We'll check if you have everything needed to run Substrate locally — a container runtime, Python, and cluster tools.</div>
+          <div class="step-description">We'll check if you have everything needed to run Substrate — a container runtime, Python, and kubectl CLI.</div>
 
           <div class="command-box">
             <div class="command-pill">▼ Show the real command</div>
@@ -651,53 +716,100 @@
           <div class="execution-card">
             <div class="checklist-title">Checking prerequisites...</div>
             <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Container runtime detected (Docker / Podman / Colima)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Container runtime detected (Docker / Podman / Containerd)</div>
               <div class="check-line"><span class="check-icon">✓</span> Python 3.10+ runtime available</div>
               <div class="check-line"><span class="check-icon">✓</span> Kubectl command utility ready in PATH</div>
             </div>
             <div class="done-status">Done</div>
-            <div class="done-prompt">Everything's ready. Let's create your cluster next.</div>
+            <div class="done-prompt">Prerequisites verified. Let's connect your pre-configured cluster next.</div>
           </div>
 
           <div class="action-row">
             <button class="btn-secondary" onclick="showWelcomeScreen()">🏠 Welcome</button>
-            <button class="btn-primary" onclick="goToStep(1)">Create a cluster (Enter) →</button>
+            <button class="btn-primary" onclick="goToStep(1)">Connect your cluster (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 2: Create a cluster -->
+        <!-- STEP 2: Connect your cluster (Pre-existing requirement) -->
         <div class="step-screen" id="screen-1">
-          <div class="step-counter">Step 2 of 8</div>
-          <div class="step-heading">Create a local cluster</div>
-          <div class="step-description">This spins up a small Kubernetes cluster right on your machine — a private sandbox that's fully yours.</div>
+          <div class="step-counter">Step 2 of 9</div>
+          <div class="step-heading">Verify Pre-configured Kubernetes Cluster</div>
+          <div class="step-description">Substrate runs on any pre-existing Kubernetes cluster — ensuring infrastructure portability across GKE, EKS, AKS, OpenShift, or on-prem with zero cloud lock-in.</div>
 
           <div class="command-box">
             <div class="command-pill">▼ Show the real command</div>
-            <div class="command-text">hack/create-kind-cluster.sh</div>
+            <div class="command-text">kubectl cluster-info && kubectl get nodes -o wide</div>
+          </div>
+
+          <div class="cluster-info-box">
+            <div class="cluster-info-title">🌐 PRE-CONFIGURED KUBERNETES CLUSTER (PORTABLE INFRASTRUCTURE):</div>
+            <div class="cluster-info-line"><strong>Context:</strong> gke_enterprise_us-central1_prod-cluster (Active Kubeconfig)</div>
+            <div class="cluster-info-line"><strong>Kubernetes Ver:</strong> v1.31.1-gke (Compatible with any standard K8s v1.28+)</div>
+            <div class="cluster-info-line"><strong>Node Fleet:</strong> 12 ready nodes (96 cores, hardware nested-virt enabled)</div>
+            <div class="cluster-info-line" style="color: var(--text-muted);"><strong>Portability:</strong> Zero cloud vendor lock-in (Deployable on GKE, EKS, AKS, On-Prem)</div>
           </div>
 
           <div class="execution-card">
-            <div class="checklist-title">Creating your cluster...</div>
+            <div class="checklist-title">Verifying pre-configured cluster...</div>
             <div class="checklist-items">
-              <div class="check-line"><span class="check-icon">✓</span> Creating your local cluster</div>
-              <div class="check-line"><span class="check-icon">✓</span> Setting up a place to store container images</div>
-              <div class="check-line"><span class="check-icon">✓</span> Your cluster is up and ready</div>
+              <div class="check-line"><span class="check-icon">✓</span> Connecting to active kubeconfig cluster: [demo-cluster]</div>
+              <div class="check-line"><span class="check-icon">✓</span> Verified Kubernetes API server compatibility (v1.31.1-gke / Portable)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Validating node capacity (12 ready nodes, hardware virtualization enabled)</div>
             </div>
             <div class="done-status">Done</div>
-            <div class="done-prompt">Cluster's ready. Now let's install Substrate itself.</div>
+            <div class="done-prompt">Pre-configured cluster verified! Now let's complete the Private GA agreement.</div>
           </div>
 
           <div class="action-row">
             <button class="btn-secondary" onclick="goToStep(0)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(2)">Turn on Substrate (Enter) →</button>
+            <button class="btn-primary" onclick="goToStep(2)">Private GA Agreement (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 3: Turn on Substrate -->
+        <!-- STEP 3: Private GA Agreement (Gated access & Support terms) -->
         <div class="step-screen" id="screen-2">
-          <div class="step-counter">Step 3 of 8</div>
+          <div class="step-counter">Step 3 of 9</div>
+          <div class="step-heading">Private GA Access & Contractual Agreement</div>
+          <div class="step-description">Because this is a Private General Availability release, customers must acknowledge that production support and SLAs require an explicit agreement with Google.</div>
+
+          <div class="command-box">
+            <div class="command-pill">▼ Show the real command</div>
+            <div class="command-text">atectl auth register --customer="Acme Corp" --token="ga-sub-8f92a-live-contract"</div>
+          </div>
+
+          <div class="agreement-box">
+            <div class="agreement-title">📝 PRIVATE GA GATED REGISTRATION & CONTRACTUAL AGREEMENT:</div>
+            <div class="agreement-item"><strong>Customer Org:</strong> Acme Corporation</div>
+            <div class="agreement-item"><strong>Contact Email:</strong> rajithal@enterprise.com</div>
+            <div class="agreement-item"><strong>GA License Key:</strong> ga-sub-8f92a-live-contract <span style="color: var(--accent-green);">[Verified ✓]</span></div>
+            <div class="agreement-checkbox-row">
+              <div class="checkbox-box">✓</div>
+              <div class="checkbox-text">I acknowledge that Agent Substrate is provided under Private GA terms. Production support and enterprise SLAs require an explicit agreement with Google Cloud.</div>
+            </div>
+          </div>
+
+          <div class="execution-card">
+            <div class="checklist-title">Registering Private GA customer...</div>
+            <div class="checklist-items">
+              <div class="check-line"><span class="check-icon">✓</span> Customer credentials & organization verified (Acme Corp)</div>
+              <div class="check-line"><span class="check-icon">✓</span> Private GA License Token registered: [ga-sub-8f92a-live-contract]</div>
+              <div class="check-line"><span class="check-icon">✓</span> Acknowledgment recorded: Production support requires an explicit agreement with Google</div>
+            </div>
+            <div class="done-status">Done</div>
+            <div class="done-prompt">Private GA agreement acknowledged! Now let's turn on Substrate.</div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(3)">Turn on Substrate (Enter) →</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Turn on Substrate -->
+        <div class="step-screen" id="screen-3">
+          <div class="step-counter">Step 4 of 9</div>
           <div class="step-heading">Turn on Substrate Control Plane</div>
-          <div class="step-description">Installing the Substrate core controllers, state registry, and high-speed networking into your cluster.</div>
+          <div class="step-description">Installing the Substrate core controllers, state registry, and high-speed networking onto your cluster in namespace [substrate-system].</div>
 
           <div class="command-box">
             <div class="command-pill">▼ Show the real command</div>
@@ -717,14 +829,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(3)">Install the CLI (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(2)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(4)">Install the CLI (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 4: Install the CLI -->
-        <div class="step-screen" id="screen-3">
-          <div class="step-counter">Step 4 of 8</div>
+        <!-- STEP 5: Install the CLI -->
+        <div class="step-screen" id="screen-4">
+          <div class="step-counter">Step 5 of 9</div>
           <div class="step-heading">Install the atectl CLI</div>
           <div class="step-description">The atectl tool lets you manage actors, worker pools, and memory snapshots with simple commands — zero Kubernetes YAML required.</div>
 
@@ -745,14 +857,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(2)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(4)">Deploy first actor (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(5)">Deploy first actor (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 5: First actor -->
-        <div class="step-screen" id="screen-4">
-          <div class="step-counter">Step 5 of 8</div>
+        <!-- STEP 6: First actor -->
+        <div class="step-screen" id="screen-5">
+          <div class="step-counter">Step 6 of 9</div>
           <div class="step-heading">Deploy your first actor</div>
           <div class="step-description">Launch an AI agent container from a standard template into a pre-warmed sandbox — no YAML manifests required.</div>
 
@@ -773,14 +885,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(5)">Send a request (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(6)">Send a request (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 6: Send a request -->
-        <div class="step-screen" id="screen-5">
-          <div class="step-counter">Step 6 of 8</div>
+        <!-- STEP 7: Send a request -->
+        <div class="step-screen" id="screen-6">
+          <div class="step-counter">Step 7 of 9</div>
           <div class="step-heading">Send a request to your actor</div>
           <div class="step-description">Communicate with your running actor through the Substrate Gateway with real-time response streaming.</div>
 
@@ -807,14 +919,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(6)">Test Pause & Resume (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(5)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(7)">Test Pause & Resume (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 7: Pause & resume -->
-        <div class="step-screen" id="screen-6">
-          <div class="step-counter">Step 7 of 8</div>
+        <!-- STEP 8: Pause & resume -->
+        <div class="step-screen" id="screen-7">
+          <div class="step-counter">Step 8 of 9</div>
           <div class="step-heading">Pause & resume (0% idle CPU)</div>
           <div class="step-description">When agents are idle waiting for human input, Substrate checkpoints their memory to disk to save 90% compute, waking them in under 200ms.</div>
 
@@ -841,14 +953,14 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(5)">← Back</button>
-            <button class="btn-primary" onclick="goToStep(7)">Scale it up (Enter) →</button>
+            <button class="btn-secondary" onclick="goToStep(6)">← Back</button>
+            <button class="btn-primary" onclick="goToStep(8)">Scale it up (Enter) →</button>
           </div>
         </div>
 
-        <!-- STEP 8: Scale it up -->
-        <div class="step-screen" id="screen-7">
-          <div class="step-counter">Step 8 of 8</div>
+        <!-- STEP 9: Scale it up -->
+        <div class="step-screen" id="screen-8">
+          <div class="step-counter">Step 9 of 9</div>
           <div class="step-heading">Scale worker fleet & Day-2 Operations</div>
           <div class="step-description">Scale worker pools with pre-warmed standby capacity buffers so your agent swarms are always ready for traffic spikes.</div>
 
@@ -876,8 +988,8 @@
           </div>
 
           <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(6)">← Back</button>
-            <button class="btn-primary" onclick="alert('🎉 Substrate onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding (Enter)</button>
+            <button class="btn-secondary" onclick="goToStep(7)">← Back</button>
+            <button class="btn-primary" onclick="alert('🎉 Substrate Private GA onboarding complete! Enjoy building high-density agents.')">🚀 Finish Onboarding (Enter)</button>
           </div>
         </div>
 
@@ -889,7 +1001,7 @@
 
   <script>
     let currentStep = 0;
-    const totalSteps = 8;
+    const totalSteps = 9;
     let autopilotInterval = null;
     let selectedTrackIdx = 0;
 

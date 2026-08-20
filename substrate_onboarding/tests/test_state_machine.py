@@ -1,4 +1,4 @@
-"""Unit tests for OnboardingStateMachine with Welcome Screen & 8-Step Interactive Journey."""
+"""Unit tests for OnboardingStateMachine with Pre-existing Cluster & Private GA Agreement."""
 
 import pytest
 from substrate_onboarding.config import OnboardingStep, UserSetupState
@@ -20,7 +20,8 @@ def test_state_machine_sequential_transitions():
 
     expected_steps = [
         OnboardingStep.CHECK_SETUP,
-        OnboardingStep.CREATE_CLUSTER,
+        OnboardingStep.CONNECT_CLUSTER,
+        OnboardingStep.PRIVATE_GA_AGREEMENT,
         OnboardingStep.TURN_ON_SUBSTRATE,
         OnboardingStep.INSTALL_CLI,
         OnboardingStep.FIRST_ACTOR,
@@ -35,15 +36,15 @@ def test_state_machine_sequential_transitions():
         assert step == expected
 
     assert sm.state.is_complete
-    assert len(transitions) == 9
+    assert len(transitions) == 10
 
 
 def test_state_machine_previous_step():
     sm = OnboardingStateMachine()
     sm.next_step()  # To CHECK_SETUP
-    sm.next_step()  # To CREATE_CLUSTER
+    sm.next_step()  # To CONNECT_CLUSTER
 
-    assert sm.current_step == OnboardingStep.CREATE_CLUSTER
+    assert sm.current_step == OnboardingStep.CONNECT_CLUSTER
     prev = sm.previous_step()
     assert prev == OnboardingStep.CHECK_SETUP
     assert sm.current_step == OnboardingStep.CHECK_SETUP
@@ -55,10 +56,10 @@ def test_state_machine_previous_step():
 
 def test_state_machine_direct_transition():
     sm = OnboardingStateMachine()
-    res = sm.transition_to(OnboardingStep.CREATE_CLUSTER)
+    res = sm.transition_to(OnboardingStep.CONNECT_CLUSTER)
     assert res is True
-    assert sm.current_step == OnboardingStep.CREATE_CLUSTER
+    assert sm.current_step == OnboardingStep.CONNECT_CLUSTER
 
     # Transitioning to same step returns False
-    res2 = sm.transition_to(OnboardingStep.CREATE_CLUSTER)
+    res2 = sm.transition_to(OnboardingStep.CONNECT_CLUSTER)
     assert res2 is False

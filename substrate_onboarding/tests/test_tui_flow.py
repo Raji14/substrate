@@ -1,4 +1,4 @@
-"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 8 steps."""
+"""End-to-end headless Textual test suite for Substrate Onboarding TUI with Welcome Screen & 9 steps."""
 
 import pytest
 from substrate_onboarding.app import SubstrateOnboardingApp
@@ -17,43 +17,48 @@ async def test_tui_full_flow():
         assert app.state_machine.current_step == OnboardingStep.WELCOME
         assert isinstance(app.screen, WelcomeScreen)
 
-        # Transition to Step 1: Check your setup
+        # Step 1: Check your setup
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.CHECK_SETUP
         assert isinstance(app.screen, GenericStepScreen)
 
-        # Transition to Step 2: Create a cluster
+        # Step 2: Connect pre-existing cluster (portability)
         await pilot.press("enter")
         await pilot.pause(0.1)
-        assert app.state_machine.current_step == OnboardingStep.CREATE_CLUSTER
+        assert app.state_machine.current_step == OnboardingStep.CONNECT_CLUSTER
 
-        # Transition to Step 3: Turn on Substrate
+        # Step 3: Private GA Agreement (gated access & terms)
+        await pilot.press("enter")
+        await pilot.pause(0.1)
+        assert app.state_machine.current_step == OnboardingStep.PRIVATE_GA_AGREEMENT
+
+        # Step 4: Turn on Substrate
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.TURN_ON_SUBSTRATE
 
-        # Transition to Step 4: Install the CLI
+        # Step 5: Install the CLI
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.INSTALL_CLI
 
-        # Transition to Step 5: First actor
+        # Step 6: First actor
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.FIRST_ACTOR
 
-        # Transition to Step 6: Send a request
+        # Step 7: Send a request
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SEND_REQUEST
 
-        # Transition to Step 7: Pause & resume
+        # Step 8: Pause & resume
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.PAUSE_RESUME
 
-        # Transition to Step 8: Scale it up
+        # Step 9: Scale it up
         await pilot.press("enter")
         await pilot.pause(0.1)
         assert app.state_machine.current_step == OnboardingStep.SCALE_UP
