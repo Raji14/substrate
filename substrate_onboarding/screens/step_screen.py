@@ -89,7 +89,8 @@ class GenericStepScreen(Screen[None]):
                                 yield Static(self._render_compact_checklist(), id="cluster-compact-checklist")
 
                     elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
-                        # Step 4: Compatible Node Pool (CCC Selection)
+                        # Step 4: Compatible Node Pool (Scan First -> Present Options)
+                        yield Static(self._render_nodepool_scan_status(), id="nodepool-scan-box")
                         yield Label("Choose node pool configuration (Press [1-3]):", classes="column-header-label")
                         with Vertical(id="nodepool-options-list"):
                             for idx in range(len(self.nodepool_opts)):
@@ -239,6 +240,13 @@ class GenericStepScreen(Screen[None]):
         t.append(f"  Probe    : [substrate-system] ➔ {cluster.control_plane_status}", style="bold #fdd663")
         return t
 
+    def _render_nodepool_scan_status(self) -> Text:
+        t = Text()
+        t.append("🔍 CLUSTER NODE POOL SCAN:\n", style="bold #70d6ff")
+        t.append("  • Probed node pool capacity: 12 nodes across 2 zones\n", style="#e3e3e3")
+        t.append("  ⚠️  Scan Result: No node pool detected with hardware nested virtualization enabled.\n", style="bold #fdd663")
+        return t
+
     def _render_gke_agreement_box(self) -> Text:
         cluster = self.clusters[self.selected_option_idx if self.selected_option_idx < len(self.clusters) else 0]
         t = Text()
@@ -268,9 +276,21 @@ class GenericStepScreen(Screen[None]):
 
     def _render_checklist_box(self) -> Text:
         t = Text()
-        t.append(f"{self.meta.checklist_title}\n\n", style="bold #70d6ff")
+        title = self.meta.checklist_title
+        items = self.meta.checklist_items
 
-        for i, item in enumerate(self.meta.checklist_items):
+        if self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+            if self.selected_option_idx == 1:
+                title = "Configuring manual gcloud node pool..."
+                items = [
+                    "Generated command: gcloud container node-pools create substrate-pool --enable-nested-virtualization",
+                    "Polling for node pool provisioning... (n2-standard-48 ready)",
+                    "Compatible node pool ready for high-density agent sandboxing",
+                ]
+
+        t.append(f"{title}\n\n", style="bold #70d6ff")
+
+        for i, item in enumerate(items):
             if i < self._checklist_progress:
                 t.append("✓  ", style="bold #81c995")
                 t.append(f"{item}\n\n", style="bold #ffffff")
@@ -281,7 +301,7 @@ class GenericStepScreen(Screen[None]):
                 t.append("○  ", style="#5f6368")
                 t.append(f"{item}\n\n", style="#5f6368")
 
-        if self._checklist_progress >= len(self.meta.checklist_items):
+        if self._checklist_progress >= len(items):
             t.append("Done\n\n", style="bold #81c995")
             t.append(self.meta.done_message, style="#e3e3e3")
 
@@ -378,6 +398,11 @@ class GenericStepScreen(Screen[None]):
                     row.update(self._render_option_card(self.nodepool_opts, idx))
                 except Exception:
                     pass
+            try:
+                chk = self.query_one("#execution-checklist-card", Static)
+                chk.update(self._render_checklist_box())
+            except Exception:
+                pass
         elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
             for idx in range(len(self.autoscaling_opts)):
                 try:

@@ -431,6 +431,10 @@ def render_step_frame(step_idx=0):
         ey += 18
 
         if data["custom_box"] == "nodepool_ccc":
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 40], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+            draw.text((cx + 10, ey + 6), "🔍 CLUSTER NODE POOL SCAN: Probed 12 nodes across 2 zones", fill=ACCENT_CYAN, font=font_xs)
+            draw.text((cx + 10, ey + 22), "⚠️ Scan Result: No node pool detected with hardware nested virtualization enabled.", fill=ACCENT_YELLOW, font=font_xs)
+            ey += 48
             opts = [
                 ("[1] * Automatically create a compatible node pool using Custom Compute Class (Recommended)", "Applies manifest with n2-standard-48, Spot fallback, and nested virtualization enabled.", True),
                 ("[2] # Create a compatible node pool manually via gcloud", "Generates gcloud container node-pools create command with --enable-nested-virtualization.", False),
