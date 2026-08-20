@@ -297,7 +297,7 @@ def render_step_frame(step_idx):
     draw.rectangle([wx, wy + 35, wx + sw, wy + wh], fill=BG_CANVAS)
     draw.line([wx + sw, wy + 35, wx + sw, wy + wh], fill=BORDER_DARK, width=1)
 
-    draw.text((wx + 16, wy + 48), "Substrate", fill=ACCENT_CYAN, font=font_base)
+    draw.text((wx + 16, wy + 48), "Agent Substrate", fill=ACCENT_CYAN, font=font_base)
     draw.text((wx + 16, wy + 66), "Getting set up", fill=TEXT_MUTED, font=font_xs)
 
     draw.line([wx + 16, wy + 86, wx + sw - 16, wy + 86], fill=(33, 38, 45), width=3)

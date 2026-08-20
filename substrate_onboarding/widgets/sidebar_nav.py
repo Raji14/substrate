@@ -55,7 +55,7 @@ class SidebarNav(Widget):
         curr_idx = STEP_MAP.get(self.current_step, 1)
 
         # Header Title
-        t.append("Substrate\n", style="bold #70d6ff")
+        t.append("Agent Substrate\n", style="bold #70d6ff")
         t.append("Getting set up\n\n", style="#80868b")
 
         # Thin Progress Bar
