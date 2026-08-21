@@ -242,9 +242,10 @@ class GenericStepScreen(Screen):
 
     def _render_nodepool_scan_status(self) -> Text:
         t = Text()
-        t.append("🔍 CLUSTER NODE POOL SCAN:\n", style="bold #70d6ff")
+        t.append("🔍 CLUSTER NODE POOL COMPATIBILITY SCAN:\n", style="bold #70d6ff")
         t.append("  • Probed node pool capacity: 12 nodes across 2 zones\n", style="#e3e3e3")
-        t.append("  ⚠️  Scan Result: No node pool detected with hardware nested virtualization enabled.\n", style="bold #fdd663")
+        t.append("  ⚠️  Scan Result: No existing node pool detected with /dev/kvm enabled (0/12 nodes compatible).\n", style="bold #fdd663")
+        t.append("  💡  Sandboxed microVM execution requires a compatible node pool.\n", style="italic #80868b")
         return t
 
     def _render_compact_checklist(self) -> Text:

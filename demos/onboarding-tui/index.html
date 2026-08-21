@@ -2168,12 +2168,15 @@ atectl logs workerpool/default-worker-pool --follow</div>
       const scanIcon = document.getElementById('node-scan-icon');
       const scanTitle = document.getElementById('node-scan-title');
       const scanResult = document.getElementById('node-scan-result');
+      const optContainer = document.getElementById('nodepool-options-container');
       if (!scanIcon || !scanTitle) return;
 
-      scanResult.style.display = 'none';
+      // Phase 1: Active Scanning State
+      if (optContainer) optContainer.style.display = 'none';
+      if (scanResult) scanResult.style.display = 'none';
       scanIcon.textContent = '⠋';
       scanIcon.style.color = 'var(--accent-cyan)';
-      scanTitle.textContent = 'Scanning existing cluster node pools for hardware nested virtualization...';
+      scanTitle.textContent = 'Scanning existing cluster node pools across zones for hardware nested virtualization (/dev/kvm)...';
 
       let spinIdx = 0;
       const spinTimer = setInterval(() => {
@@ -2182,15 +2185,23 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }, 70);
       activeAnimationIntervals.push(spinTimer);
 
-      // Slower, deliberate scanning animation (~900ms)
+      // Phase 2: Scan Completes -> Show Status: None Found
       setTimeout(() => {
         clearInterval(spinTimer);
         scanIcon.textContent = '⚠️';
         scanIcon.style.color = 'var(--accent-yellow)';
-        scanTitle.textContent = 'Cluster node pool scan complete';
-        scanResult.style.display = 'block';
-        if (callback) callback();
-      }, 900);
+        scanTitle.textContent = 'Cluster node pool scan complete (0 / 12 nodes compatible)';
+        if (scanResult) {
+          scanResult.style.display = 'block';
+          scanResult.style.animation = 'fadeIn 0.3s ease-out';
+          scanResult.innerHTML = '⚠️ <strong>Scan Result:</strong> No existing node pool detected with hardware nested virtualization (<code>/dev/kvm</code>) enabled. Sandboxed microVM execution requires a compatible node pool.';
+        }
+
+        // Phase 3: Progressive Disclosure -> Present Options after user absorbs diagnosis
+        setTimeout(() => {
+          if (callback) callback();
+        }, 750);
+      }, 950);
     }
 
     function animateChecklistForStep(stepIdx) {
