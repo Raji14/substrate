@@ -1560,7 +1560,7 @@
           <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1</kbd> or <kbd>2</kbd></span>
         </div>
         <div class="tracks-list">
-          <div class="track-card selected" id="track-0" onclick="selectTrack(0)">
+          <div class="track-card selected" id="track-0" onclick="selectTrack(0); startWizardFromWelcome();" style="cursor: pointer;">
             <span class="track-key-badge">1</span>
             <span class="track-icon">🚀</span>
             <div class="track-info">
@@ -1568,7 +1568,7 @@
               <div class="track-desc">Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.</div>
             </div>
           </div>
-          <div class="track-card" id="track-1" onclick="selectTrack(1)">
+          <div class="track-card" id="track-1" onclick="selectTrack(1); startWizardFromWelcome();" style="cursor: pointer;">
             <span class="track-key-badge">2</span>
             <span class="track-icon">⚙️</span>
             <div class="track-info">
@@ -1586,7 +1586,7 @@
         <span><span class="badge-ok">★</span> GKE & Kubernetes: Supported</span>
       </div>
 
-      <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-primary);">
+      <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-primary); cursor: pointer;" onclick="startWizardFromWelcome()">
         <span style="color: var(--accent-cyan); font-weight: bold;">▸</span> Press <kbd style="background: #1976d2; border: 1px solid var(--accent-cyan); color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: bold;">Enter ↵</kbd> or <kbd style="background: #161b22; border: 1px solid var(--border-subtle); color: var(--accent-cyan); padding: 2px 7px; border-radius: 4px; font-weight: bold;">1-2</kbd> to begin setup
       </div>
     </div>
@@ -1625,7 +1625,7 @@
           <div class="step-heading">Check your environment</div>
           <div class="step-description">We'll check if you have everything needed to run Substrate — a container runtime, Python, and kubectl CLI.</div>
 
-          <div class="execution-card" id="exec-card-0">
+          <div class="execution-card" id="exec-card-0" onclick="goToStep(1)" style="cursor: pointer;">
             <div class="checklist-title">Checking prerequisites...</div>
             <div class="checklist-items" id="check-items-0"></div>
             <div class="done-status" id="done-status-0" style="opacity: 0;">Done</div>
@@ -1646,7 +1646,7 @@
                 <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1-4</kbd></span>
               </div>
               <div class="cluster-compact-list">
-                <div class="cluster-compact-card selected" id="cluster-card-0" onclick="selectCluster(0)">
+                <div class="cluster-compact-card selected" id="cluster-card-0" onclick="selectCluster(0); goToStep(2);" style="cursor: pointer;">
                   <span class="track-key-badge">1</span>
                   <span style="font-size: 16px;">🌐</span>
                   <div>
@@ -1655,7 +1655,7 @@
                   </div>
                 </div>
 
-                <div class="cluster-compact-card" id="cluster-card-1" onclick="selectCluster(1)">
+                <div class="cluster-compact-card" id="cluster-card-1" onclick="selectCluster(1); goToStep(2);" style="cursor: pointer;">
                   <span class="track-key-badge">2</span>
                   <span style="font-size: 16px;">☁️</span>
                   <div>
@@ -1664,7 +1664,7 @@
                   </div>
                 </div>
 
-                <div class="cluster-compact-card" id="cluster-card-2" onclick="selectCluster(2)">
+                <div class="cluster-compact-card" id="cluster-card-2" onclick="selectCluster(2); goToStep(2);" style="cursor: pointer;">
                   <span class="track-key-badge">3</span>
                   <span style="font-size: 16px;">🔷</span>
                   <div>
@@ -1673,7 +1673,7 @@
                   </div>
                 </div>
 
-                <div class="cluster-compact-card" id="cluster-card-3" onclick="selectCluster(3)">
+                <div class="cluster-compact-card" id="cluster-card-3" onclick="selectCluster(3); goToStep(2);" style="cursor: pointer;">
                   <span class="track-key-badge">4</span>
                   <span style="font-size: 16px;">🧪</span>
                   <div>
@@ -1735,13 +1735,12 @@ spec:
           limits: { cpu: 500m, memory: 512Mi }</div>
           </div>
 
-          <div class="execution-card" id="exec-card-2">
+          <div class="execution-card" id="exec-card-2" onclick="goToStep(3)" style="cursor: pointer;">
             <div class="checklist-title">Installing Substrate components...</div>
             <div class="checklist-items" id="check-items-2"></div>
             <div class="done-status" id="done-status-2" style="opacity: 0;">Done</div>
             <div class="done-prompt" id="done-prompt-2" style="opacity: 0;">Substrate control plane is active! Next, let's configure the worker pool node fleet.</div>
           </div>
-        </div>
         </div>
 
         <!-- STEP 4: Compatible Node Pool (PROGRESSIVE DISCLOSURE: SCAN -> OPTIONS -> ACTION STATUS) -->
@@ -1769,7 +1768,7 @@ spec:
             </div>
 
             <div class="option-cards-container">
-              <div class="option-card-row" id="nodepool-card-0" onclick="selectNodepoolOpt(0)">
+              <div class="option-card-row" id="nodepool-card-0" onclick="selectNodepoolOpt(0); proceedFromStep4();" style="cursor: pointer;">
                 <span class="track-key-badge">1</span>
                 <span style="font-size: 16px;">⚡</span>
                 <div style="flex: 1;">
@@ -1777,7 +1776,7 @@ spec:
                   <div class="option-desc">Applies Custom Compute Class manifest with n2-standard-48, Spot fallback, and nested virtualization enabled.</div>
                 </div>
               </div>
-              <div class="option-card-row" id="nodepool-card-1" onclick="selectNodepoolOpt(1)">
+              <div class="option-card-row" id="nodepool-card-1" onclick="selectNodepoolOpt(1); proceedFromStep4();" style="cursor: pointer;">
                 <span class="track-key-badge">2</span>
                 <span style="font-size: 16px;">🛠️</span>
                 <div style="flex: 1;">
@@ -1785,7 +1784,7 @@ spec:
                   <div class="option-desc">Generates gcloud container node-pools create command with --enable-nested-virtualization.</div>
                 </div>
               </div>
-              <div class="option-card-row" id="nodepool-card-2" onclick="selectNodepoolOpt(2)">
+              <div class="option-card-row" id="nodepool-card-2" onclick="selectNodepoolOpt(2); goToStep(1);" style="cursor: pointer;">
                 <span class="track-key-badge">3</span>
                 <span style="font-size: 16px;">🔄</span>
                 <div style="flex: 1;">
@@ -1855,29 +1854,30 @@ spec:
             <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1-3</kbd></span>
           </div>
 
-          <div class="option-cards-container">
-            <div class="option-card-row" id="hpa-card-0" onclick="selectHpaOpt(0)">
-              <span class="track-key-badge">1</span>
-              <span style="font-size: 16px;">⚡</span>
-              <div style="flex: 1;">
-                <div class="option-title">Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)</div>
-                <div class="option-desc">Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant &lt;100ms agent session injection.</div>
+            <div class="option-cards-container">
+              <div class="option-card-row" id="hpa-card-0" onclick="selectHpaOpt(0); proceedFromStep5();" style="cursor: pointer;">
+                <span class="track-key-badge">1</span>
+                <span style="font-size: 16px;">⚡</span>
+                <div style="flex: 1;">
+                  <div class="option-title">Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)</div>
+                  <div class="option-desc">Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant &lt;100ms agent session injection.</div>
+                </div>
               </div>
-            </div>
-            <div class="option-card-row" id="hpa-card-1" onclick="selectHpaOpt(1)">
-              <span class="track-key-badge">2</span>
-              <span style="font-size: 16px;">🛠️</span>
-              <div style="flex: 1;">
-                <div class="option-title">Configure autoscaling manually via kubectl</div>
-                <div class="option-desc">Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.</div>
+              <div class="option-card-row" id="hpa-card-1" onclick="selectHpaOpt(1); proceedFromStep5();" style="cursor: pointer;">
+                <span class="track-key-badge">2</span>
+                <span style="font-size: 16px;">🛠️</span>
+                <div style="flex: 1;">
+                  <div class="option-title">Configure autoscaling manually via kubectl</div>
+                  <div class="option-desc">Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.</div>
+                </div>
               </div>
-            </div>
-            <div class="option-card-row" id="hpa-card-2" onclick="selectHpaOpt(2)">
-              <span class="track-key-badge">3</span>
-              <span style="font-size: 16px;">⏭️</span>
-              <div style="flex: 1;">
-                <div class="option-title">Skip autoscaling configuration</div>
-                <div class="option-desc">Keep fixed worker pool replica count without horizontal dynamic scaling.</div>
+              <div class="option-card-row" id="hpa-card-2" onclick="selectHpaOpt(2); proceedFromStep5();" style="cursor: pointer;">
+                <span class="track-key-badge">3</span>
+                <span style="font-size: 16px;">⏭️</span>
+                <div style="flex: 1;">
+                  <div class="option-title">Skip autoscaling configuration</div>
+                  <div class="option-desc">Keep fixed worker pool replica count without horizontal dynamic scaling.</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1958,7 +1958,7 @@ spec:
           </div>
 
           <div class="option-cards-container">
-            <div class="option-card-row" id="wp-card-0" onclick="selectWpOpt(0)">
+            <div class="option-card-row" id="wp-card-0" onclick="selectWpOpt(0); proceedFromStep6();" style="cursor: pointer;">
               <span class="track-key-badge">1</span>
               <span style="font-size: 16px;">🚀</span>
               <div style="flex: 1;">
@@ -1966,7 +1966,7 @@ spec:
                 <div class="option-desc">Bootstraps 10 warm worker sandboxes with microVM isolation and instant actor attachment in [substrate-system].</div>
               </div>
             </div>
-            <div class="option-card-row" id="wp-card-1" onclick="selectWpOpt(1)">
+            <div class="option-card-row" id="wp-card-1" onclick="selectWpOpt(1); proceedFromStep6();" style="cursor: pointer;">
               <span class="track-key-badge">2</span>
               <span style="font-size: 16px;">⏭️</span>
               <div style="flex: 1;">
@@ -2901,25 +2901,9 @@ atectl logs workerpool/default-worker-pool --follow</div>
     window.addEventListener('DOMContentLoaded', () => {
       runTypewriter();
       handleTerminalResize();
+      updateKeymapFooter();
     });
 
-    document.addEventListener('keydown', (e) => {
-      // Global Help Modal keybindings (? / F1 / Esc)
-      if (e.key === '?' || e.key === 'F1' || (e.key === '/' && !e.target.matches('input, textarea'))) {
-        e.preventDefault();
-        toggleHelpModal();
-        return;
-      }
-      if (e.key === 'Escape') {
-        const modal = document.getElementById('modal-help');
-        if (modal && modal.classList.contains('active')) {
-          e.preventDefault();
-          modal.classList.remove('active');
-          return;
-        }
-      }
-
-      const welcomeView = document.getElementById('view-welcome');
     function updateKeymapFooter() {
       const legend = document.getElementById('keymap-legend');
       const badge = document.getElementById('keymap-step-badge');
@@ -2950,7 +2934,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (currentStep === 1) {
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="goToStep(2)"><kbd>Enter ↵</kbd> Next: Turn on Substrate</span>
-          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-4</kbd> Pick & Advance</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);" onclick="selectCluster(0); goToStep(2);"><kbd>1-4</kbd> Pick & Advance</span>
           <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
           <span class="keymap-action" onclick="goToStep(0)"><kbd>b</kbd> Back</span>
           <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
@@ -2965,7 +2949,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (currentStep === 3) {
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="proceedFromStep4()"><kbd>Enter ↵</kbd> Next: Autoscaling</span>
-          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-3</kbd> Pick & Advance</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);" onclick="selectNodepoolOpt(0); proceedFromStep4();"><kbd>1-3</kbd> Pick & Advance</span>
           <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
           <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-3')"><kbd>m</kbd> YAML Manifest</span>
           <span class="keymap-action" onclick="goToStep(2)"><kbd>b</kbd> Back</span>
@@ -2974,7 +2958,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (currentStep === 4) {
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="proceedFromStep5()"><kbd>Enter ↵</kbd> Next: WorkerPool</span>
-          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-3</kbd> Pick & Advance</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);" onclick="selectHpaOpt(0); proceedFromStep5();"><kbd>1-3</kbd> Pick & Advance</span>
           <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
           <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-4')"><kbd>m</kbd> YAML Manifest</span>
           <span class="keymap-action" onclick="goToStep(3)"><kbd>b</kbd> Back</span>
@@ -2983,7 +2967,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (currentStep === 5) {
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="proceedFromStep6()"><kbd>Enter ↵</kbd> Finish Installation</span>
-          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-2</kbd> Pick & Advance</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);" onclick="selectWpOpt(0); proceedFromStep6();"><kbd>1-2</kbd> Pick & Advance</span>
           <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
           <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-5')"><kbd>m</kbd> YAML Manifest</span>
           <span class="keymap-action" onclick="goToStep(4)"><kbd>b</kbd> Back</span>
@@ -3002,7 +2986,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
 
     // Keyboard Event Handling
     document.addEventListener('keydown', function(e) {
-      // Global Help Overlay Trigger (F1 or ?)
+      // Global Help Modal keybindings (? / F1 / Esc)
       if (e.key === 'F1' || (e.key === '?' && !e.ctrlKey && !e.metaKey)) {
         e.preventDefault();
         toggleHelpModal();
@@ -3149,9 +3133,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
         }
       }
     });
-
-    // Initialize keymap footer on load
-    updateKeymapFooter();
   </script>
 </body>
 </html>
