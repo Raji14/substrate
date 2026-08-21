@@ -380,6 +380,11 @@ class GenericStepScreen(Screen):
         return t
 
     def action_proceed_next(self) -> None:
+        # Default-Forward Enter: Fast-forward preflight checklist if in progress
+        if self.step_key == OnboardingStep.CHECK_SETUP:
+            self._checklist_progress = len(self.meta.checklist_items)
+        if self.selected_option_idx < 0:
+            self.selected_option_idx = 0
         if hasattr(self.app, "advance_step"):
             self.app.advance_step()
 

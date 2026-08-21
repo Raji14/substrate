@@ -2594,7 +2594,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
     function proceedFromStep4() {
       if (selectedNodepoolIdx === -1) {
         selectNodepoolOpt(0);
-        return;
       }
       goToStep(4);
     }
@@ -2602,7 +2601,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
     function proceedFromStep5() {
       if (selectedHpaIdx === -1) {
         selectHpaOpt(0);
-        return;
       }
       goToStep(5);
     }
@@ -2610,7 +2608,6 @@ atectl logs workerpool/default-worker-pool --follow</div>
     function proceedFromStep6() {
       if (selectedWpIdx === -1) {
         selectWpOpt(0);
-        return;
       }
       goToStep(6);
     }
@@ -3035,7 +3032,14 @@ atectl logs workerpool/default-worker-pool --follow</div>
         if (e.key === '0') {
           showWelcomeScreen();
         } else if (e.key === 'Enter') {
-          if (currentStep === 3) {
+          if (currentStep === 0) {
+            goToStep(1);
+          } else if (currentStep === 1) {
+            if (selectedClusterIdx === -1) selectCluster(0);
+            goToStep(2);
+          } else if (currentStep === 2) {
+            goToStep(3);
+          } else if (currentStep === 3) {
             proceedFromStep4();
           } else if (currentStep === 4) {
             proceedFromStep5();
