@@ -440,7 +440,7 @@ def render_step_frame(step_idx):
         for line in ascii_lines_sm:
             draw.text((cx + 14, ay), line, fill=ACCENT_CYAN, font=font_mono)
             ay += 11
-        draw.text((cx + 14, ay + 3), "🎉✨ AGENT SUBSTRATE IS FULLY OPERATIONAL! (Ready for high-density agent workloads) ✨🎉", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((cx + 14, ay + 3), "⚡ High-Density MicroVM Runtime Active (Ready for workloads)", fill=ACCENT_GREEN, font=font_xs)
         ey += 90
 
         # Live Verification Cold-Start Playground

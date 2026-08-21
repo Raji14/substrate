@@ -367,8 +367,8 @@ STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
     OnboardingStep.COMPLETE: StepMetadata(
         step_num=7,
         title="Installation Complete",
-        heading="Agent Substrate Installation Complete! 🎉",
-        description="Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.",
+        heading="Installation Complete 🎉",
+        description="Your cluster is fully configured and ready to host low-latency AI agent workloads.",
         real_command="atectl get workerpools",
         checklist_title="Cluster Readiness Status",
         checklist_items=[
