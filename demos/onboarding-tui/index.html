@@ -352,6 +352,42 @@
       gap: 8px;
     }
 
+    /* Persistent Bottom Keyboard Legend Bar */
+    .bottom-status-bar {
+      background: #090d16;
+      border-top: 1px solid var(--border-dark);
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      user-select: none;
+    }
+    .status-tip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-primary);
+    }
+    .status-legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-legend kbd {
+      background: #161b22;
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 10px;
+      margin-right: 3px;
+    }
+
     /* Teardown Footnote */
     .cleanup-footnote {
       background: rgba(22, 27, 34, 0.7);
@@ -1970,6 +2006,19 @@ atectl logs workerpool/default-worker-pool --follow</div>
 
     </div>
 
+    <!-- Persistent Bottom Keyboard Legend Bar -->
+    <div class="bottom-status-bar" id="bottom-status-bar">
+      <div class="status-tip">💡 <span id="status-tip-text">Use arrow keys or [1-4] to select • [Enter ↵] to advance</span></div>
+      <div class="status-legend">
+        <span><kbd>1-4</kbd> Select</span>
+        <span><kbd>Enter ↵</kbd> Proceed</span>
+        <span><kbd>b</kbd> Back</span>
+        <span><kbd>m</kbd> YAML</span>
+        <span><kbd>t</kbd> Test</span>
+        <span onclick="toggleHelpModal()" style="cursor: pointer; color: var(--accent-cyan);"><kbd>?</kbd> Help</span>
+      </div>
+    </div>
+
   </div>
 
   <!-- GLOBAL HELP & DOCUMENTATION MODAL OVERLAY -->
@@ -2285,9 +2334,20 @@ atectl logs workerpool/default-worker-pool --follow</div>
     }
 
     let isTestTurnRunning = false;
+    let testTurnRunCount = 0;
+    const testTurnScenarios = [
+      { alloc: '14ms', dispatch: '22ms', exec: '12ms', total: '48ms', worker: 'default-worker-pool-8f4b' },
+      { alloc: '11ms', dispatch: '18ms', exec: '10ms', total: '39ms', worker: 'default-worker-pool-4a2c' },
+      { alloc: '13ms', dispatch: '20ms', exec: '11ms', total: '44ms', worker: 'default-worker-pool-9e7f' },
+      { alloc: '12ms', dispatch: '19ms', exec: '11ms', total: '42ms', worker: 'default-worker-pool-1d3a' }
+    ];
+
     function runLiveTestTurn() {
       if (isTestTurnRunning) return;
       isTestTurnRunning = true;
+
+      const scenario = testTurnScenarios[testTurnRunCount % testTurnScenarios.length];
+      testTurnRunCount++;
 
       const consoleBox = document.getElementById('test-turn-console');
       const btn = document.getElementById('btn-run-test-turn');
@@ -2305,18 +2365,21 @@ atectl logs workerpool/default-worker-pool --follow</div>
         step1.style.opacity = '1';
         step1.querySelector('.tt-icon').textContent = '⠋';
         step1.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
+        step1.querySelector('.tt-time').textContent = scenario.alloc;
       }
       if (step2) {
         step2.style.opacity = '0.3';
         step2.querySelector('.tt-icon').textContent = '○';
+        step2.querySelector('.tt-time').textContent = scenario.dispatch;
       }
       if (step3) {
         step3.style.opacity = '0.3';
         step3.querySelector('.tt-icon').textContent = '○';
+        step3.querySelector('.tt-time').textContent = scenario.exec;
       }
       if (result) result.style.display = 'none';
 
-      // Stage 1: MicroVM Allocation (14ms simulation)
+      // Stage 1: MicroVM Allocation
       setTimeout(() => {
         if (step1) {
           step1.querySelector('.tt-icon').textContent = '✓';
@@ -2328,7 +2391,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
           step2.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
         }
 
-        // Stage 2: Prompt Dispatch (22ms simulation)
+        // Stage 2: Prompt Dispatch
         setTimeout(() => {
           if (step2) {
             step2.querySelector('.tt-icon').textContent = '✓';
@@ -2340,7 +2403,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
             step3.querySelector('.tt-icon').style.color = 'var(--accent-cyan)';
           }
 
-          // Stage 3: Execution Response (12ms simulation)
+          // Stage 3: Execution Response
           setTimeout(() => {
             if (step3) {
               step3.querySelector('.tt-icon').textContent = '✓';
@@ -2349,15 +2412,17 @@ atectl logs workerpool/default-worker-pool --follow</div>
             if (result) {
               result.style.display = 'block';
               result.style.animation = 'fadeIn 0.3s ease-out';
+              result.querySelector('.tt-banner').textContent = `✅ Agent Turn Complete: ${scenario.total} total round-trip! Sub-100ms latency verified.`;
+              result.querySelector('.tt-output').textContent = `{"status": "ready", "worker": "${scenario.worker}", "latency": "${scenario.total}", "message": "Agent Substrate microVM is warm and listening."}`;
             }
             if (btn) {
               btn.disabled = false;
               btn.innerHTML = '<span>↺</span> <span>Re-run Test Turn</span> <kbd>t</kbd>';
             }
             isTestTurnRunning = false;
-          }, 350);
-        }, 350);
-      }, 350);
+          }, 320);
+        }, 320);
+      }, 320);
     }
 
     function selectCluster(idx) {
