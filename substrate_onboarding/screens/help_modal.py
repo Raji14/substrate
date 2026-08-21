@@ -32,17 +32,35 @@ class HelpModal(ModalScreen[None]):
 
             yield Label("\nKeyboard Navigation Shortcuts:", classes="wizard-step-title")
             shortcuts = [
-                ("[Up / Down]", "Navigate items, options, and lists"),
-                ("[Enter]", "Select option / Submit input / Proceed to next state"),
-                ("[Space]", "Toggle selection or buttons"),
+                ("[1 - 4]", "Direct instant option/track selection"),
+                ("[Up / Down / j / k]", "Navigate items, options, and lists"),
+                ("[Enter ↵]", "Select option / Proceed to next state"),
+                ("[b / Backspace]", "Step back to previous screen"),
+                ("[m]", "Expand / collapse declarative YAML drawer"),
+                ("[c]", "Copy active YAML manifest to clipboard"),
+                ("[t]", "Run live cold-start test turn (Step 7)"),
                 ("[Tab / Shift+Tab]", "Move focus across interactive controls"),
+                ("[0]", "Return to Welcome Screen"),
                 ("[Ctrl+C / Ctrl+D]", "Pause onboarding & prompt exit confirmation"),
-                ("[Esc]", "Close modal dialogs"),
+                ("[Esc / ? / F1]", "Close modal dialogs / Toggle Help"),
             ]
             for key, desc in shortcuts:
                 t = Text()
                 t.append(f"  {key.ljust(22)}", style="bold #c084fc")
                 t.append(f"{desc}", style="#f0f6fc")
+                yield Static(t)
+
+            yield Label("\nDocumentation & Guides:", classes="wizard-step-title")
+            docs = [
+                ("GitHub Repo", "https://github.com/agent-substrate/substrate"),
+                ("Architecture Guide", "docs/dev/code-layout.md"),
+                ("Onboarding Runbook", "docs/blog/agent-substrate-onboarding-walkthrough.md"),
+                ("Roadmap & MicroVM", "docs/roadmap.md"),
+            ]
+            for title, path in docs:
+                t = Text()
+                t.append(f"  📖 {title.ljust(20)}: ", style="bold #70d6ff")
+                t.append(f"{path}", style="#8ab4f8")
                 yield Static(t)
 
             with Horizontal(classes="auth-button-row"):

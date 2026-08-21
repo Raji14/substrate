@@ -1203,6 +1203,132 @@
     .btn-primary:hover:not(:disabled) {
       background: var(--accent-blue-hover);
     }
+
+    /* Modal Backdrop & Help Dialog */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+    .modal-dialog {
+      background: #0d1117;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 24px rgba(112, 214, 255, 0.2);
+      border-radius: 10px;
+      width: 680px;
+      max-width: 90vw;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      color: var(--text-primary);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 12px;
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.15s;
+    }
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: var(--accent-cyan);
+    }
+    .modal-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-yellow);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+      background: #070a0f;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 11px;
+    }
+    .shortcut-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .shortcut-key-badge {
+      background: #161b22;
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 10px;
+      min-width: 58px;
+      text-align: center;
+    }
+    .docs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .doc-link-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #11151c;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .doc-link-item:hover {
+      border-color: var(--accent-cyan);
+      background: #151d28;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .doc-link-title { font-weight: 700; color: var(--accent-cyan); }
+    .doc-link-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -1213,6 +1339,7 @@
       <span>Agent Substrate</span>
     </div>
     <div class="controls-group">
+      <button class="btn-tool" onclick="toggleHelpModal()">❓ Shortcuts & Docs <kbd style="font-size: 10px; opacity: 0.8; margin-left: 4px;">?</kbd></button>
       <button class="btn-tool" onclick="resetWizard()">↺ Reset</button>
     </div>
   </div>
@@ -1224,7 +1351,8 @@
       <div class="dot dot-min"></div>
       <div class="dot dot-max"></div>
       <div class="window-title">rajithal@rajithal: ~/workspaces/substrate — substrate onboard</div>
-      <div class="header-cluster-badge" id="header-cluster-badge" style="display: none;">
+      <button class="btn-help-titlebar" onclick="toggleHelpModal()" style="margin-left: auto; background: rgba(21, 101, 192, 0.4); border: 1px solid var(--accent-cyan); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer;">? Help [F1]</button>
+      <div class="header-cluster-badge" id="header-cluster-badge" style="display: none; margin-left: 8px;">
         <span class="badge-pulse-dot"></span>
         <span id="header-cluster-text">gke_enterprise_us-central1_prod (us-central1)</span>
         <span class="badge-ns-tag">ns: substrate-system</span>
@@ -1842,6 +1970,81 @@ atectl logs workerpool/default-worker-pool --follow</div>
 
     </div>
 
+  </div>
+
+  <!-- GLOBAL HELP & DOCUMENTATION MODAL OVERLAY -->
+  <div class="modal-backdrop" id="modal-help" onclick="if(event.target === this) toggleHelpModal()">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title">⚡ AGENT SUBSTRATE — SHORTCUTS & DOCUMENTATION</span>
+        <button class="modal-close-btn" onclick="toggleHelpModal()">✕ Close <kbd>Esc</kbd></button>
+      </div>
+
+      <!-- KEYBOARD SHORTCUTS SECTION -->
+      <div>
+        <div class="modal-section-title">⌨️ Keyboard Navigation Shortcuts:</div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-row"><span class="shortcut-key-badge">Enter ↵</span> <span>Proceed to next step / Confirm</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">Space</span> <span>Toggle option or button</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">b / ⌫</span> <span>Go back to previous step</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">1 - 4</span> <span>Instant direct option selection</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">↑ / ↓</span> <span>Navigate items & lists</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">j / k</span> <span>Vim-style up / down navigation</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">Tab</span> <span>Cycle focus (Shift+Tab for prev)</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">m</span> <span>Expand / Collapse YAML drawer</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">c</span> <span>Copy YAML manifest to clipboard</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">t</span> <span>Run live test turn (Step 7)</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">0</span> <span>Return to Welcome Screen</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">? / F1</span> <span>Toggle this Help & Docs modal</span></div>
+        </div>
+      </div>
+
+      <!-- DOCUMENTATION LINKS SECTION -->
+      <div>
+        <div class="modal-section-title">📖 Documentation & Developer References:</div>
+        <div class="docs-list">
+          <a class="doc-link-item" href="https://github.com/agent-substrate/substrate" target="_blank">
+            <div>
+              <div class="doc-link-title">🌐 Agent Substrate GitHub Repository</div>
+              <div class="doc-link-desc">Open-source codebase, architecture diagrams, and release changelogs.</div>
+            </div>
+            <span>↗</span>
+          </a>
+          <a class="doc-link-item" href="../../docs/blog/agent-substrate-onboarding-walkthrough.md" target="_blank">
+            <div>
+              <div class="doc-link-title">🛠️ Production Onboarding & SRE Runbook</div>
+              <div class="doc-link-desc">Comprehensive step-by-step engineering walkthrough and manifest reference.</div>
+            </div>
+            <span>↗</span>
+          </a>
+          <a class="doc-link-item" href="../../docs/dev/code-layout.md" target="_blank">
+            <div>
+              <div class="doc-link-title">📐 Architecture & Code Layout Guide</div>
+              <div class="doc-link-desc">Deep-dive into ateapi, atelet, atenet, and the pierceable abstraction layer.</div>
+            </div>
+            <span>↗</span>
+          </a>
+          <a class="doc-link-item" href="../../docs/roadmap.md" target="_blank">
+            <div>
+              <div class="doc-link-title">⚡ MicroVM Sandboxing & Performance Roadmap</div>
+              <div class="doc-link-desc">Benchmarks for sub-100ms cold starts and hardware nested virtualization (/dev/kvm).</div>
+            </div>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- GLOBAL SLASH COMMANDS SECTION -->
+      <div>
+        <div class="modal-section-title">💻 Built-In Slash Commands:</div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-row"><span class="shortcut-key-badge" style="color: var(--accent-green);">/help</span> <span>Open shortcuts and documentation modal</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge" style="color: var(--accent-green);">/status</span> <span>Display active cluster context & controller probe</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge" style="color: var(--accent-green);">/yaml</span> <span>Expand declarative GitOps manifest drawer</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge" style="color: var(--accent-green);">/back</span> <span>Step back to previous onboarding screen</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2481,6 +2684,12 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
     }
 
+    function toggleHelpModal() {
+      const modal = document.getElementById('modal-help');
+      if (!modal) return;
+      modal.classList.toggle('active');
+    }
+
     // Enforce Dynamic Terminal Width Calculation & Strict Responsive Wrapping
     function handleTerminalResize() {
       const terminalWin = document.querySelector('.terminal-window');
@@ -2504,6 +2713,21 @@ atectl logs workerpool/default-worker-pool --follow</div>
     });
 
     document.addEventListener('keydown', (e) => {
+      // Global Help Modal keybindings (? / F1 / Esc)
+      if (e.key === '?' || e.key === 'F1' || (e.key === '/' && !e.target.matches('input, textarea'))) {
+        e.preventDefault();
+        toggleHelpModal();
+        return;
+      }
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('modal-help');
+        if (modal && modal.classList.contains('active')) {
+          e.preventDefault();
+          modal.classList.remove('active');
+          return;
+        }
+      }
+
       const welcomeView = document.getElementById('view-welcome');
       const isWelcome = welcomeView.classList.contains('active');
 
