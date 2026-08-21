@@ -447,11 +447,11 @@ def render_step_frame(step_idx):
         ey += 90
 
         # Live Verification Cold-Start Playground
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 70], radius=8, fill=(15, 25, 38), outline=ACCENT_CYAN, width=1)
-        draw.text((cx + 14, ey + 8), "⚡ LIVE VERIFICATION PLAYGROUND  •  48ms total round-trip (<100ms verified)", fill=ACCENT_CYAN, font=font_xs)
-        draw.text((cx + 14, ey + 26), "✓ Warm microVM Allocated (14ms)  │  ✓ Prompt Dispatched (22ms)  │  ✓ Output: ready", fill=ACCENT_GREEN, font=font_xs)
-        draw.text((cx + 14, ey + 46), "{\"status\": \"ready\", \"worker\": \"default-worker-pool-8f4b\", \"cold_start\": \"0ms\"}", fill=GOOGLE_BLUE, font=font_xs)
-        ey += 78
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 64], radius=8, fill=(15, 25, 38), outline=ACCENT_CYAN, width=1)
+        draw.text((cx + 14, ey + 8), "⚡ LIVE VERIFICATION PLAYGROUND  •  Run live cold-start verification? [y/n]", fill=ACCENT_CYAN, font=font_xs)
+        draw.text((cx + 14, ey + 25), "✓ [y] Yes, run test turn (48ms verified)   │   [n] No, skip test turn", fill=ACCENT_GREEN, font=font_xs)
+        draw.text((cx + 14, ey + 42), "{\"status\": \"ready\", \"worker\": \"default-worker-pool-8f4b\", \"latency\": \"48ms\"}", fill=GOOGLE_BLUE, font=font_xs)
+        ey += 72
 
         # Next Step 1: Deploy actor & Port-forward
         draw.rounded_rectangle([cx, ey, cx + cw, ey + 92], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
@@ -508,7 +508,7 @@ def render_step_frame(step_idx):
     elif step_idx == 5:
         keymap_str = "[↵] Finish Installation   [1-2] Pick & Advance   [↑/↓] Select   [m] YAML   [b] Back   [?] Help"
     elif step_idx == 6:
-        keymap_str = "[↵] Close   [t] Live Test Turn   [0] Restart Setup   [b] Back   [?] Help"
+        keymap_str = "[↵] Close   [y] Run Test Turn   [n] Skip   [0] Restart Setup   [b] Back   [?] Help"
 
     draw.text((wx + 16, wy + wh - 22), keymap_str, fill=ACCENT_CYAN, font=font_xs)
     draw.text((wx + ww - 110, wy + wh - 22), f"Step {step_idx + 1} of 7", fill=TEXT_MUTED, font=font_xs)

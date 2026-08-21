@@ -2061,13 +2061,15 @@ spec:
             </div>
           </div>
 
-          <!-- LIVE TEST TURN PLAYGROUND -->
-          <div class="test-turn-container">
-            <div class="test-turn-header">
+          <!-- LIVE TEST TURN PLAYGROUND (Y/N Prompt) -->
+          <div class="test-turn-container" id="test-turn-card">
+            <div class="test-turn-header" id="test-turn-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
               <span class="test-turn-badge">⚡ LIVE VERIFICATION PLAYGROUND</span>
-              <button class="btn-test-turn" id="btn-run-test-turn" onclick="runLiveTestTurn()">
-                <span>▶</span> <span>Run Live Cold-Start Test Turn</span> <kbd>t</kbd>
-              </button>
+              <div id="test-turn-prompt-row" style="font-size: 11px; display: flex; align-items: center; gap: 8px; color: var(--text-primary);">
+                <span>Run live cold-start verification test turn on warm microVM?</span>
+                <span class="keymap-action primary-action" id="btn-run-test-turn" onclick="runLiveTestTurn()" style="padding: 3px 10px; cursor: pointer;"><kbd style="background: #1976d2; color: #fff; font-weight: bold;">y</kbd> Yes</span>
+                <span class="keymap-action" id="btn-skip-test-turn" onclick="skipLiveTestTurn()" style="padding: 3px 10px; cursor: pointer;"><kbd>n</kbd> No (Skip)</span>
+              </div>
             </div>
             <div class="test-turn-console" id="test-turn-console" style="display: none;">
               <div class="test-turn-line" id="tt-step-1"><span class="tt-icon">⠋</span> <span class="tt-msg">Allocating warm microVM from default-worker-pool...</span> <span class="tt-time">14ms</span></div>
@@ -2476,16 +2478,23 @@ atectl logs workerpool/default-worker-pool --follow</div>
       testTurnRunCount++;
 
       const consoleBox = document.getElementById('test-turn-console');
-      const btn = document.getElementById('btn-run-test-turn');
+      const promptRow = document.getElementById('test-turn-prompt-row');
       const step1 = document.getElementById('tt-step-1');
       const step2 = document.getElementById('tt-step-2');
       const step3 = document.getElementById('tt-step-3');
       const result = document.getElementById('tt-result');
 
+      if (promptRow) {
+        promptRow.innerHTML = `
+          <span style="color: var(--accent-green); font-weight: bold;">⚡ Live test turn active...</span>
+          <span class="keymap-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>y</kbd> Re-run</span>
+          <span class="keymap-action" onclick="skipLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>n</kbd> Clear</span>
+        `;
+      }
+
       if (!consoleBox) return;
       consoleBox.style.display = 'flex';
       consoleBox.style.animation = 'fadeIn 0.3s ease-out';
-      if (btn) btn.disabled = true;
 
       if (step1) {
         step1.style.opacity = '1';
@@ -2541,14 +2550,29 @@ atectl logs workerpool/default-worker-pool --follow</div>
               result.querySelector('.tt-banner').textContent = `✅ Agent Turn Complete: ${scenario.total} total round-trip! Sub-100ms latency verified.`;
               result.querySelector('.tt-output').textContent = `{"status": "ready", "worker": "${scenario.worker}", "latency": "${scenario.total}", "message": "Agent Substrate microVM is warm and listening."}`;
             }
-            if (btn) {
-              btn.disabled = false;
-              btn.innerHTML = '<span>↺</span> <span>Re-run Test Turn</span> <kbd>t</kbd>';
+            if (promptRow) {
+              promptRow.innerHTML = `
+                <span style="color: var(--accent-green); font-weight: bold;">✓ Live cold-start verified (${scenario.total})</span>
+                <span class="keymap-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>y</kbd> Re-run</span>
+                <span class="keymap-action" onclick="skipLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>n</kbd> Clear</span>
+              `;
             }
             isTestTurnRunning = false;
           }, 320);
         }, 320);
       }, 320);
+    }
+
+    function skipLiveTestTurn() {
+      const consoleBox = document.getElementById('test-turn-console');
+      if (consoleBox) consoleBox.style.display = 'none';
+      const promptRow = document.getElementById('test-turn-prompt-row');
+      if (promptRow) {
+        promptRow.innerHTML = `
+          <span style="color: var(--text-muted);">⏭️ Verification skipped • Ready for production workloads</span>
+          <span class="keymap-action primary-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd style="background: #1976d2; color: #fff; font-weight: bold;">y</kbd> Run Test Turn</span>
+        `;
+      }
     }
 
     function selectCluster(idx) {
@@ -2975,7 +2999,8 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else if (currentStep === 6) {
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="alert('🎉 Agent Substrate on GKE is fully operational! Ready for high-density agent workloads.')"><kbd>Enter ↵</kbd> Close</span>
-          <span class="keymap-action" onclick="runLiveTestTurn()"><kbd>t</kbd> Live Test Turn</span>
+          <span class="keymap-action" onclick="runLiveTestTurn()"><kbd>y</kbd> Run Test Turn</span>
+          <span class="keymap-action" onclick="skipLiveTestTurn()"><kbd>n</kbd> Skip</span>
           <span class="keymap-action" onclick="showWelcomeScreen()"><kbd>0</kbd> Restart Setup</span>
           <span class="keymap-action" onclick="goToStep(5)"><kbd>b</kbd> Back</span>
           <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
@@ -3098,8 +3123,10 @@ atectl logs workerpool/default-worker-pool --follow</div>
           }
         } else if (currentStep === 6) {
           // Step 7: Installation Complete
-          if (e.key === 't' || e.key === 'T') {
+          if (e.key === 'y' || e.key === 'Y' || e.key === 't' || e.key === 'T') {
             runLiveTestTurn();
+          } else if (e.key === 'n' || e.key === 'N') {
+            skipLiveTestTurn();
           }
         }
         
