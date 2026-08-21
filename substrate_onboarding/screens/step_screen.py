@@ -145,23 +145,9 @@ class GenericStepScreen(Screen):
                         # Step 1: Clean Preflight Checklist (No command noise)
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
-                    # Action Button Row with tactile keycap badges
-                    with Horizontal(classes="action-button-row"):
-                        btn_back = Button("← Back [b]", id="btn-back", classes="secondary-button")
-                        btn_back.can_focus = False
-                        yield btn_back
-
-                        btn_proceed = Button(
-                            self.meta.next_action_label,
-                            variant="primary",
-                            id="btn-proceed",
-                            classes="action-button",
-                        )
-                        btn_proceed.can_focus = False
-                        yield btn_proceed
-
         yield BottomBar(
-            tip="[1-4] Select  •  [Enter ↵] Proceed  •  [b] Back  •  [m] YAML  •  [t] Test  •  [F1] Help"
+            keymaps=self._get_step_keymaps(),
+            step_badge=f"Step {self.meta.step_num} of 7",
         )
 
     def on_mount(self) -> None:
@@ -379,6 +365,65 @@ class GenericStepScreen(Screen):
         t.append("   # Teardown anytime: kubectl delete -f manifests/substrate-control-plane.yaml\n", style="#80868b")
         return t
 
+    def _get_step_keymaps(self) -> List[tuple]:
+        if self.step_key == OnboardingStep.CHECK_SETUP:
+            return [
+                ("Enter ↵", "Next: Connect Cluster", True),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.CONNECT_CLUSTER:
+            return [
+                ("Enter ↵", "Next: Turn on Substrate", True),
+                ("1-4", "Pick & Advance", False),
+                ("↑/↓", "Select", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.TURN_ON_SUBSTRATE:
+            return [
+                ("Enter ↵", "Next: Node Pool", True),
+                ("m", "YAML Manifest", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
+            return [
+                ("Enter ↵", "Next: Autoscaling", True),
+                ("1-3", "Pick & Advance", False),
+                ("↑/↓", "Select", False),
+                ("m", "YAML Manifest", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
+            return [
+                ("Enter ↵", "Next: WorkerPool", True),
+                ("1-3", "Pick & Advance", False),
+                ("↑/↓", "Select", False),
+                ("m", "YAML Manifest", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
+            return [
+                ("Enter ↵", "Finish Installation", True),
+                ("1-2", "Pick & Advance", False),
+                ("↑/↓", "Select", False),
+                ("m", "YAML Manifest", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        elif self.step_key == OnboardingStep.COMPLETE:
+            return [
+                ("Enter ↵", "Close", True),
+                ("t", "Live Test Turn", False),
+                ("0", "Restart Setup", False),
+                ("b", "Back", False),
+                ("?", "Help", False),
+            ]
+        return [("Enter ↵", "Proceed", True), ("b", "Back", False), ("?", "Help", False)]
+
     def action_proceed_next(self) -> None:
         # Default-Forward Enter: Fast-forward preflight checklist if in progress
         if self.step_key == OnboardingStep.CHECK_SETUP:
@@ -395,10 +440,12 @@ class GenericStepScreen(Screen):
     def action_select_opt_1(self) -> None:
         self.selected_option_idx = 0
         self._refresh_screen_options()
+        self.action_proceed_next()
 
     def action_select_opt_2(self) -> None:
         self.selected_option_idx = 1
         self._refresh_screen_options()
+        self.action_proceed_next()
 
     def action_select_opt_3(self) -> None:
         if self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
@@ -409,10 +456,12 @@ class GenericStepScreen(Screen):
             return
         self.selected_option_idx = 2
         self._refresh_screen_options()
+        self.action_proceed_next()
 
     def action_select_opt_4(self) -> None:
         self.selected_option_idx = 3
         self._refresh_screen_options()
+        self.action_proceed_next()
 
     def action_navigate_up(self) -> None:
         if self.selected_option_idx > 0:

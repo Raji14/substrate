@@ -76,20 +76,14 @@ class WelcomeScreen(Screen[None]):
             # Diagnostics Summary Badge
             yield Static(self._render_preflight_badge(), id="welcome-preflight-badge")
 
-            # Action Button with prominent keyboard indicator
-            with Horizontal(id="welcome-action-row"):
-                btn_start = Button(
-                    "▶  Press [Enter ↵] to Begin Getting Set Up →",
-                    variant="primary",
-                    id="btn-start-onboarding",
-                    classes="action-button",
-                )
-                btn_start.can_focus = False
-                yield btn_start
-
         yield BottomBar(
-            initial_tip="Welcome to Agent Substrate! Press [1] for Quickstart, [2] for Advanced, or [Enter ↵] to start.",
-            initial_hints="[1/2] Quick Select  [↑/↓] Navigate  [Enter ↵] Proceed  [b] Back  [/help] Help",
+            keymaps=[
+                ("Enter ↵", "Begin Setup", True),
+                ("1", "Quickstart", False),
+                ("2", "Advanced", False),
+                ("?", "Help", False),
+            ],
+            step_badge="Welcome",
         )
 
     def on_mount(self) -> None:
@@ -192,10 +186,12 @@ class WelcomeScreen(Screen[None]):
     def action_select_track_1(self) -> None:
         self.selected_index = 0
         self._refresh_tracks()
+        self.action_confirm_selection()
 
     def action_select_track_2(self) -> None:
         self.selected_index = 1
         self._refresh_tracks()
+        self.action_confirm_selection()
 
     def _refresh_tracks(self) -> None:
         for idx in range(len(self.tracks)):
@@ -204,7 +200,3 @@ class WelcomeScreen(Screen[None]):
                 card.update(self._render_track_card(idx))
             except Exception:
                 pass
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "btn-start-onboarding":
-            self.action_confirm_selection()

@@ -360,25 +360,30 @@ Button:focus {
     background: #1565c0;
 }
 
-/* Bottom Bar */
+/* Bottom TUI Keymap Dock Bar */
 #bottom-bar {
     dock: bottom;
     height: 3;
     background: #090d16;
     border-top: solid #21262d;
-    padding: 0 2;
+    padding: 0 1;
 }
 
-#status-tip {
-    color: #70d6ff;
-    text-style: italic;
+#bottom-bar-inner {
+    width: 100%;
+    height: 100%;
+    align: left middle;
+}
+
+#keyboard-keymaps {
     width: 1fr;
+    color: #e3e3e3;
 }
 
-#keyboard-hints {
-    color: #80868b;
-    text-align: right;
+#keyboard-step-badge {
     width: auto;
+    color: #70d6ff;
+    text-align: right;
 }
 
 /* Top Header */

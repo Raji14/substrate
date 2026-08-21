@@ -268,9 +268,11 @@ def render_welcome_screen(typewriter_progress=1.0):
         draw.text((badge_x, by + 6), b, fill=ACCENT_GREEN if "✔" in b else (ACCENT_GREEN if "★" in b else ACCENT_CYAN), font=font_xs)
         badge_x += 210
 
-    btn_y = by + 36
-    draw.rounded_rectangle([bx + 260, btn_y, bx + 600, btn_y + 36], radius=8, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((bx + 276, btn_y + 10), "▶ Press [Enter ↵] to Begin Getting Set Up →", fill=TEXT_WHITE, font=font_sm)
+    # Bottom Persistent TUI Keymap Dock Bar
+    draw.rectangle([wx, wy + wh - 30, wx + ww, wy + wh], fill=(9, 13, 22))
+    draw.line([wx, wy + wh - 30, wx + ww, wy + wh - 30], fill=BORDER_DARK, width=1)
+    draw.text((wx + 16, wy + wh - 22), "[↵] Begin Setup   [1] Quickstart   [2] Advanced   [?] Help", fill=ACCENT_CYAN, font=font_xs)
+    draw.text((wx + ww - 90, wy + wh - 22), "Welcome", fill=TEXT_MUTED, font=font_xs)
 
     return img
 
@@ -487,12 +489,28 @@ def render_step_frame(step_idx):
         draw.text((cx + 20, iy + 22), data["prompt"], fill=TEXT_PRIMARY, font=font_xs)
         by = ey + card_h + 10
 
-    # Action Button Row
-    draw.rounded_rectangle([cx + cw - 380, by, cx + cw - 290, by + 32], radius=6, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
-    draw.text((cx + cw - 365, by + 8), "← Back [b]", fill=TEXT_PRIMARY, font=font_xs)
+    # Bottom Persistent TUI Keymap Dock Bar
+    draw.rectangle([wx, wy + wh - 30, wx + ww, wy + wh], fill=(9, 13, 22))
+    draw.line([wx, wy + wh - 30, wx + ww, wy + wh - 30], fill=BORDER_DARK, width=1)
 
-    draw.rounded_rectangle([cx + cw - 280, by, cx + cw, by + 32], radius=6, fill=ACCENT_BLUE, outline=ACCENT_CYAN, width=1)
-    draw.text((cx + cw - 265, by + 8), data["btn"], fill=TEXT_WHITE, font=font_xs)
+    keymap_str = "[↵] Next   [1-4] Pick & Advance   [↑/↓] Select   [b] Back   [m] YAML   [?] Help"
+    if step_idx == 0:
+        keymap_str = "[↵] Next: Connect Cluster   [b] Back   [?] Help"
+    elif step_idx == 1:
+        keymap_str = "[↵] Next: Turn on Substrate   [1-4] Pick & Advance   [↑/↓] Select   [b] Back   [?] Help"
+    elif step_idx == 2:
+        keymap_str = "[↵] Next: Node Pool   [m] YAML Manifest   [b] Back   [?] Help"
+    elif step_idx == 3:
+        keymap_str = "[↵] Next: Autoscaling   [1-3] Pick & Advance   [↑/↓] Select   [m] YAML   [b] Back   [?] Help"
+    elif step_idx == 4:
+        keymap_str = "[↵] Next: WorkerPool   [1-3] Pick & Advance   [↑/↓] Select   [m] YAML   [b] Back   [?] Help"
+    elif step_idx == 5:
+        keymap_str = "[↵] Finish Installation   [1-2] Pick & Advance   [↑/↓] Select   [m] YAML   [b] Back   [?] Help"
+    elif step_idx == 6:
+        keymap_str = "[↵] Close   [t] Live Test Turn   [0] Restart Setup   [b] Back   [?] Help"
+
+    draw.text((wx + 16, wy + wh - 22), keymap_str, fill=ACCENT_CYAN, font=font_xs)
+    draw.text((wx + ww - 110, wy + wh - 22), f"Step {step_idx + 1} of 7", fill=TEXT_MUTED, font=font_xs)
 
     return img
 

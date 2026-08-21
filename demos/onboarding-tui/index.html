@@ -367,7 +367,7 @@
       gap: 8px;
     }
 
-    /* Persistent Bottom Keyboard Legend Bar */
+    /* Persistent Bottom TUI Keymap Dock Bar */
     .bottom-status-bar {
       background: #090d16;
       border-top: 1px solid var(--border-dark);
@@ -380,19 +380,39 @@
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
       user-select: none;
-    }
-    .status-tip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-primary);
+      min-height: 24px;
     }
     .status-legend {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
-    .status-legend kbd {
+    .keymap-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.12s;
+    }
+    .keymap-action:hover {
+      background: #161b22;
+      color: var(--accent-cyan);
+    }
+    .keymap-action.primary-action {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .keymap-action.primary-action kbd {
+      background: #1976d2;
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+      font-weight: bold;
+    }
+    .keymap-action kbd {
       background: #161b22;
       border: 1px solid var(--border-subtle);
       color: var(--accent-cyan);
@@ -400,7 +420,16 @@
       border-radius: 3px;
       font-family: monospace;
       font-size: 10px;
-      margin-right: 3px;
+    }
+    .status-step-badge {
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: rgba(112, 214, 255, 0.08);
+      border: 1px solid rgba(112, 214, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
     }
 
     /* Teardown Footnote */
@@ -1557,9 +1586,9 @@
         <span><span class="badge-ok">★</span> GKE & Kubernetes: Supported</span>
       </div>
 
-      <button class="btn-primary" style="font-size: 13px; padding: 10px 28px;" onclick="startWizardFromWelcome()">
-        <span>▶</span> <span>Press <kbd>Enter ↵</kbd> to Begin Getting Set Up →</span>
-      </button>
+      <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-primary);">
+        <span style="color: var(--accent-cyan); font-weight: bold;">▸</span> Press <kbd style="background: #1976d2; border: 1px solid var(--accent-cyan); color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: bold;">Enter ↵</kbd> or <kbd style="background: #161b22; border: 1px solid var(--border-subtle); color: var(--accent-cyan); padding: 2px 7px; border-radius: 4px; font-weight: bold;">1-2</kbd> to begin setup
+      </div>
     </div>
 
     <!-- VIEW 1: 2-COLUMN WIZARD (STEPS 1-7) -->
@@ -1601,11 +1630,6 @@
             <div class="checklist-items" id="check-items-0"></div>
             <div class="done-status" id="done-status-0" style="opacity: 0;">Done</div>
             <div class="done-prompt" id="done-prompt-0" style="opacity: 0;">Prerequisites verified. Let's connect your pre-configured cluster next.</div>
-          </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="showWelcomeScreen()">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(1)">Connect your cluster <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -1676,11 +1700,6 @@
               </div>
             </div>
           </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(0)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(2)">Turn on Substrate <kbd>Enter ↵</kbd> →</button>
-          </div>
         </div>
 
         <!-- STEP 3: Turn on Substrate -->
@@ -1722,11 +1741,7 @@ spec:
             <div class="done-status" id="done-status-2" style="opacity: 0;">Done</div>
             <div class="done-prompt" id="done-prompt-2" style="opacity: 0;">Substrate control plane is active! Next, let's configure the worker pool node fleet.</div>
           </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(1)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="goToStep(3)">Set up WorkerPool <kbd>Enter ↵</kbd> →</button>
-          </div>
+        </div>
         </div>
 
         <!-- STEP 4: Compatible Node Pool (PROGRESSIVE DISCLOSURE: SCAN -> OPTIONS -> ACTION STATUS) -->
@@ -1826,11 +1841,6 @@ spec:
             <div style="font-size: 11px; color: var(--accent-yellow); margin-top: 8px;">
               💡 Run this command in your cloud console, then press <kbd>Enter ↵</kbd> to proceed to autoscaling.
             </div>
-          </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(2)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" id="btn-next-step-3" onclick="proceedFromStep4()">Configure Autoscaling <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -1934,11 +1944,6 @@ spec:
               Worker pool will run with fixed capacity without horizontal dynamic scaling.
             </div>
           </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(3)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" id="btn-next-step-4" onclick="proceedFromStep5()">Deploy WorkerPool <kbd>Enter ↵</kbd> →</button>
-          </div>
         </div>
 
         <!-- STEP 6: Confirm & Deploy Substrate WorkerPool (NO PRE-SELECTION -> OPTION 2 IS SKIP) -->
@@ -2007,11 +2012,6 @@ spec:
             <div class="scan-status-result">
               Default WorkerPool creation skipped. You can deploy worker pools at any time using 'atectl create workerpools' or YAML manifests.
             </div>
-          </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(4)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" id="btn-next-step-5" onclick="proceedFromStep6()">Complete Installation <kbd>Enter ↵</kbd> →</button>
           </div>
         </div>
 
@@ -2122,28 +2122,16 @@ atectl logs workerpool/default-worker-pool --follow</div>
             <span class="cleanup-icon">💡</span>
             <span>Need to tear down or uninstall? Clean up anytime with: <code class="inline-code">kubectl delete -f manifests/substrate-control-plane.yaml</code> or <code class="inline-code">atectl uninstall</code></span>
           </div>
-
-          <div class="action-row">
-            <button class="btn-secondary" onclick="goToStep(5)">← Back <kbd>b</kbd></button>
-            <button class="btn-primary" onclick="alert('🎉 Agent Substrate on GKE is fully operational! Ready for high-density agent workloads.')">🚀 Finish & Close <kbd>Enter ↵</kbd></button>
-          </div>
         </div>
 
       </div>
 
     </div>
 
-    <!-- Persistent Bottom Keyboard Legend Bar -->
+    <!-- Persistent Bottom TUI Keymap Dock Bar -->
     <div class="bottom-status-bar" id="bottom-status-bar">
-      <div class="status-tip">💡 <span id="status-tip-text">Use arrow keys or [1-4] to select • [Enter ↵] to advance</span></div>
-      <div class="status-legend">
-        <span><kbd>1-4</kbd> Select</span>
-        <span><kbd>Enter ↵</kbd> Proceed</span>
-        <span><kbd>b</kbd> Back</span>
-        <span><kbd>m</kbd> YAML</span>
-        <span><kbd>t</kbd> Test</span>
-        <span onclick="toggleHelpModal()" style="cursor: pointer; color: var(--accent-cyan);"><kbd>?</kbd> Help</span>
-      </div>
+      <div class="status-legend" id="keymap-legend"></div>
+      <div class="status-step-badge" id="keymap-step-badge">Step 1 of 7</div>
     </div>
 
   </div>
@@ -2418,6 +2406,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       document.getElementById('view-welcome').classList.add('active');
       document.getElementById('view-wizard').classList.remove('active');
       runTypewriter();
+      updateKeymapFooter();
     }
 
     function startWizardFromWelcome() {
@@ -2882,6 +2871,8 @@ atectl logs workerpool/default-worker-pool --follow</div>
       } else {
         animateChecklistForStep(currentStep);
       }
+
+      updateKeymapFooter();
     }
 
     function toggleHelpModal() {
@@ -2929,14 +2920,115 @@ atectl logs workerpool/default-worker-pool --follow</div>
       }
 
       const welcomeView = document.getElementById('view-welcome');
-      const isWelcome = welcomeView.classList.contains('active');
+    function updateKeymapFooter() {
+      const legend = document.getElementById('keymap-legend');
+      const badge = document.getElementById('keymap-step-badge');
+      if (!legend || !badge) return;
 
-      // 1. Welcome Screen Keybindings
+      const welcomeView = document.getElementById('view-welcome');
+      const isWelcome = welcomeView && welcomeView.classList.contains('active');
+
+      if (isWelcome) {
+        badge.innerText = "Welcome";
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="startWizardFromWelcome()"><kbd>Enter ↵</kbd> Begin Setup</span>
+          <span class="keymap-action" onclick="selectTrack(0); startWizardFromWelcome();"><kbd>1</kbd> Quickstart</span>
+          <span class="keymap-action" onclick="selectTrack(1); startWizardFromWelcome();"><kbd>2</kbd> Advanced</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+        return;
+      }
+
+      badge.innerText = `Step ${currentStep + 1} of ${totalSteps}`;
+
+      if (currentStep === 0) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="goToStep(1)"><kbd>Enter ↵</kbd> Next: Connect Cluster</span>
+          <span class="keymap-action" onclick="showWelcomeScreen()"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 1) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="goToStep(2)"><kbd>Enter ↵</kbd> Next: Turn on Substrate</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-4</kbd> Pick & Advance</span>
+          <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
+          <span class="keymap-action" onclick="goToStep(0)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 2) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="goToStep(3)"><kbd>Enter ↵</kbd> Next: Node Pool</span>
+          <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-2')"><kbd>m</kbd> YAML Manifest</span>
+          <span class="keymap-action" onclick="goToStep(1)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 3) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="proceedFromStep4()"><kbd>Enter ↵</kbd> Next: Autoscaling</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-3</kbd> Pick & Advance</span>
+          <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
+          <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-3')"><kbd>m</kbd> YAML Manifest</span>
+          <span class="keymap-action" onclick="goToStep(2)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 4) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="proceedFromStep5()"><kbd>Enter ↵</kbd> Next: WorkerPool</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-3</kbd> Pick & Advance</span>
+          <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
+          <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-4')"><kbd>m</kbd> YAML Manifest</span>
+          <span class="keymap-action" onclick="goToStep(3)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 5) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="proceedFromStep6()"><kbd>Enter ↵</kbd> Finish Installation</span>
+          <span class="keymap-action" style="color: var(--accent-cyan);"><kbd>1-2</kbd> Pick & Advance</span>
+          <span class="keymap-action"><kbd>↑/↓</kbd> Select</span>
+          <span class="keymap-action" onclick="toggleManifestDrawer('drawer-step-5')"><kbd>m</kbd> YAML Manifest</span>
+          <span class="keymap-action" onclick="goToStep(4)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      } else if (currentStep === 6) {
+        legend.innerHTML = `
+          <span class="keymap-action primary-action" onclick="alert('🎉 Agent Substrate on GKE is fully operational! Ready for high-density agent workloads.')"><kbd>Enter ↵</kbd> Close</span>
+          <span class="keymap-action" onclick="runLiveTestTurn()"><kbd>t</kbd> Live Test Turn</span>
+          <span class="keymap-action" onclick="showWelcomeScreen()"><kbd>0</kbd> Restart Setup</span>
+          <span class="keymap-action" onclick="goToStep(5)"><kbd>b</kbd> Back</span>
+          <span class="keymap-action" onclick="toggleHelpModal()"><kbd>?</kbd> Help</span>
+        `;
+      }
+    }
+
+    // Keyboard Event Handling
+    document.addEventListener('keydown', function(e) {
+      // Global Help Overlay Trigger (F1 or ?)
+      if (e.key === 'F1' || (e.key === '?' && !e.ctrlKey && !e.metaKey)) {
+        e.preventDefault();
+        toggleHelpModal();
+        return;
+      }
+      // Close Modal on Escape
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('modal-help');
+        if (modal && modal.classList.contains('active')) {
+          e.preventDefault();
+          toggleHelpModal();
+          return;
+        }
+      }
+
+      const welcomeView = document.getElementById('view-welcome');
+      const isWelcome = welcomeView && welcomeView.classList.contains('active');
+
+      // 1. Welcome Screen Keybindings (Pick & Advance)
       if (isWelcome) {
         if (e.key === '1') {
           selectTrack(0);
+          startWizardFromWelcome();
         } else if (e.key === '2') {
           selectTrack(1);
+          startWizardFromWelcome();
         } else if (e.key === 'ArrowUp' || e.key === 'k' || (e.shiftKey && e.key === 'Tab')) {
           e.preventDefault();
           selectTrack(0);
@@ -2948,13 +3040,13 @@ atectl logs workerpool/default-worker-pool --follow</div>
           startWizardFromWelcome();
         }
       } else {
-        // 2. Active Step Keybindings
+        // 2. Active Step Keybindings (Pick & Advance)
         if (currentStep === 1) {
-          // Step 2: Target Cluster Selection
-          if (e.key === '1') selectCluster(0);
-          else if (e.key === '2') selectCluster(1);
-          else if (e.key === '3') selectCluster(2);
-          else if (e.key === '4') selectCluster(3);
+          // Step 2: Target Cluster Selection -> Pick & Advance
+          if (e.key === '1') { selectCluster(0); goToStep(2); }
+          else if (e.key === '2') { selectCluster(1); goToStep(2); }
+          else if (e.key === '3') { selectCluster(2); goToStep(2); }
+          else if (e.key === '4') { selectCluster(3); goToStep(2); }
           else if (e.key === 'ArrowUp' || e.key === 'k' || (e.shiftKey && e.key === 'Tab')) {
             e.preventDefault();
             selectCluster(Math.max(0, selectedClusterIdx - 1));
@@ -2970,10 +3062,10 @@ atectl logs workerpool/default-worker-pool --follow</div>
             copyManifestYaml(null, 'drawer-step-2');
           }
         } else if (currentStep === 3) {
-          // Step 4: Compatible Node Pool
-          if (e.key === '1') selectNodepoolOpt(0);
-          else if (e.key === '2') selectNodepoolOpt(1);
-          else if (e.key === '3') selectNodepoolOpt(2);
+          // Step 4: Compatible Node Pool -> Pick & Advance
+          if (e.key === '1') { selectNodepoolOpt(0); proceedFromStep4(); }
+          else if (e.key === '2') { selectNodepoolOpt(1); proceedFromStep4(); }
+          else if (e.key === '3') { goToStep(1); }
           else if (e.key === 'ArrowUp' || e.key === 'k' || (e.shiftKey && e.key === 'Tab')) {
             e.preventDefault();
             const cur = selectedNodepoolIdx === -1 ? 0 : selectedNodepoolIdx;
@@ -2988,10 +3080,10 @@ atectl logs workerpool/default-worker-pool --follow</div>
             copyManifestYaml(null, 'drawer-step-3');
           }
         } else if (currentStep === 4) {
-          // Step 5: Autoscaling
-          if (e.key === '1') selectHpaOpt(0);
-          else if (e.key === '2') selectHpaOpt(1);
-          else if (e.key === '3') selectHpaOpt(2);
+          // Step 5: Autoscaling -> Pick & Advance
+          if (e.key === '1') { selectHpaOpt(0); proceedFromStep5(); }
+          else if (e.key === '2') { selectHpaOpt(1); proceedFromStep5(); }
+          else if (e.key === '3') { selectHpaOpt(2); proceedFromStep5(); }
           else if (e.key === 'ArrowUp' || e.key === 'k' || (e.shiftKey && e.key === 'Tab')) {
             e.preventDefault();
             const cur = selectedHpaIdx === -1 ? 0 : selectedHpaIdx;
@@ -3006,9 +3098,9 @@ atectl logs workerpool/default-worker-pool --follow</div>
             copyManifestYaml(null, 'drawer-step-4');
           }
         } else if (currentStep === 5) {
-          // Step 6: Deploy WorkerPool
-          if (e.key === '1') selectWpOpt(0);
-          else if (e.key === '2') selectWpOpt(1);
+          // Step 6: Deploy WorkerPool -> Pick & Advance
+          if (e.key === '1') { selectWpOpt(0); proceedFromStep6(); }
+          else if (e.key === '2') { selectWpOpt(1); proceedFromStep6(); }
           else if (e.key === 'ArrowUp' || e.key === 'k' || (e.shiftKey && e.key === 'Tab')) {
             e.preventDefault();
             selectWpOpt(0);
@@ -3057,6 +3149,9 @@ atectl logs workerpool/default-worker-pool --follow</div>
         }
       }
     });
+
+    // Initialize keymap footer on load
+    updateKeymapFooter();
   </script>
 </body>
 </html>

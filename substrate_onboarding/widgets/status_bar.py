@@ -59,40 +59,57 @@ class TopHeader(Widget):
 
 
 class BottomBar(Widget):
-    """Dynamic bottom status bar displaying contextual tips and keyboard legend."""
-
-    tip_text: reactive[str] = reactive("Welcome to Agent Substrate. Press [Enter] to begin.")
-    hint_text: reactive[str] = reactive("[Enter] Proceed  [↑/↓] Select  [b] Back  [/help] Commands")
+    """Dynamic persistent bottom Keymap Footer dock (k9s/lazygit pattern)."""
 
     def __init__(
         self,
-        initial_tip: str = "Welcome to Agent Substrate. Press [Enter] to begin.",
-        initial_hints: str = "[Enter] Proceed  [↑/↓] Select  [b] Back  [/help] Commands",
+        keymaps: Optional[List[tuple]] = None,
+        step_badge: str = "Step 1 of 7",
+        initial_tip: Optional[str] = None,
+        initial_hints: Optional[str] = None,
         tip: Optional[str] = None,
         hints: Optional[str] = None,
         id: str = "bottom-bar",
     ):
         super().__init__(id=id)
-        self.tip_text = tip or initial_tip
-        self.hint_text = hints or initial_hints
+        self.keymaps = keymaps
+        self.step_badge = step_badge
+        self.tip_text = tip or initial_tip or ""
+        self.hint_text = hints or initial_hints or ""
 
     def compose(self) -> ComposeResult:
-        with Horizontal():
-            yield Label(Text(f"💡  {self.tip_text}", style="#d3e3fd"), id="status-tip")
-            yield Label(Text(self.hint_text, style="bold #9aa0a6"), id="keyboard-hints")
+        with Horizontal(id="bottom-bar-inner"):
+            yield Label(self._render_keymaps(), id="keyboard-keymaps")
+            yield Label(self._render_badge(), id="keyboard-step-badge")
+
+    def _render_keymaps(self) -> Text:
+        t = Text()
+        if self.keymaps:
+            for idx, item in enumerate(self.keymaps):
+                key = item[0]
+                label = item[1]
+                is_primary = item[2] if len(item) > 2 else False
+                if idx > 0:
+                    t.append("   ")
+                if is_primary:
+                    t.append(f"[{key}]", style="bold #ffffff on #1565c0")
+                    t.append(f" {label}", style="bold #ffffff")
+                else:
+                    t.append(f"[{key}]", style="bold #70d6ff")
+                    t.append(f" {label}", style="#e3e3e3")
+        else:
+            hint = self.hint_text or self.tip_text or "[Enter ↵] Proceed   [b] Back   [?] Help"
+            t.append(hint, style="#e3e3e3")
+        return t
+
+    def _render_badge(self) -> Text:
+        t = Text()
+        if self.step_badge:
+            t.append(f" {self.step_badge} ", style="bold #70d6ff on #161b22")
+        return t
 
     def set_tip(self, text: str) -> None:
         self.tip_text = text
-        try:
-            tip_label = self.query_one("#status-tip", Label)
-            tip_label.update(Text(f"💡  {text}", style="#d3e3fd"))
-        except Exception:
-            pass
 
     def set_hints(self, text: str) -> None:
         self.hint_text = text
-        try:
-            hint_label = self.query_one("#keyboard-hints", Label)
-            hint_label.update(Text(text, style="bold #9aa0a6"))
-        except Exception:
-            pass
