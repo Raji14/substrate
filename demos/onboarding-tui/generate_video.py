@@ -49,6 +49,7 @@ FONT_PATH = "/System/Library/Fonts/Menlo.ttc"
 if not os.path.exists(FONT_PATH):
     FONT_PATH = "/System/Library/Fonts/SFNSMono.ttf"
 
+font_mono = ImageFont.truetype(FONT_PATH, 9)
 font_xs = ImageFont.truetype(FONT_PATH, 11)
 font_sm = ImageFont.truetype(FONT_PATH, 13)
 font_base = ImageFont.truetype(FONT_PATH, 15)
@@ -424,20 +425,30 @@ def render_step_frame(step_idx):
         by = ey + card_h + 10
 
     elif data.get("custom_box") == "celebration_complete":
-        # STEP 7: CELEBRATION, LIVE TEST TURN PLAYGROUND & NEXT STEPS
-        ey = cy + 54
-        # Celebratory Banner
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 50], radius=8, fill=(20, 35, 25), outline=ACCENT_GREEN, width=1)
-        draw.text((cx + 16, ey + 8), "🎉✨ Installation Complete! ✨🎉", fill=ACCENT_GREEN, font=font_sm)
-        draw.text((cx + 16, ey + 26), "Agent Substrate on GKE installation is complete and the cluster is now ready for high-density agent workloads.", fill=TEXT_WHITE, font=font_xs)
-        ey += 58
+        # STEP 7: CELEBRATION, ASCII LOGO, METRICS & NEXT STEPS
+        ey = cy + 40
+        # Celebratory Banner with ASCII Logo
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 82], radius=8, fill=(18, 30, 24), outline=ACCENT_GREEN, width=1)
+        ascii_lines_sm = [
+            "    _    ____ _____ _   _ _____        ____  _   _ ____  ____ _____ ____     _  _____ _____",
+            "   / \\  / ___| ____| \\ | |_   _|      / ___|| | | | __ )/ ___|_   _|  _ \\   / \\|_   _| ____|",
+            "  / _ \\| |  _|  _| |  \\| | | |        \\___ \\| | | |  _ \\\\___ \\ | | | |_) | / _ \\ | | |  _|",
+            " / ___ \\ |_| | |___| |\\  | | |         ___) | |_| | |_) |___) || | |  _ < / ___ \\| | | |___",
+            "/_/   \\_\\____|_____|_| \\_| |_|        |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|"
+        ]
+        ay = ey + 5
+        for line in ascii_lines_sm:
+            draw.text((cx + 14, ay), line, fill=ACCENT_CYAN, font=font_mono)
+            ay += 11
+        draw.text((cx + 14, ay + 3), "🎉✨ AGENT SUBSTRATE IS FULLY OPERATIONAL! (Ready for high-density agent workloads) ✨🎉", fill=ACCENT_GREEN, font=font_xs)
+        ey += 90
 
         # Live Verification Cold-Start Playground
-        draw.rounded_rectangle([cx, ey, cx + cw, ey + 72], radius=8, fill=(15, 25, 38), outline=ACCENT_CYAN, width=1)
+        draw.rounded_rectangle([cx, ey, cx + cw, ey + 70], radius=8, fill=(15, 25, 38), outline=ACCENT_CYAN, width=1)
         draw.text((cx + 14, ey + 8), "⚡ LIVE VERIFICATION PLAYGROUND  •  48ms total round-trip (<100ms verified)", fill=ACCENT_CYAN, font=font_xs)
         draw.text((cx + 14, ey + 26), "✓ Warm microVM Allocated (14ms)  │  ✓ Prompt Dispatched (22ms)  │  ✓ Output: ready", fill=ACCENT_GREEN, font=font_xs)
         draw.text((cx + 14, ey + 46), "{\"status\": \"ready\", \"worker\": \"default-worker-pool-8f4b\", \"cold_start\": \"0ms\"}", fill=GOOGLE_BLUE, font=font_xs)
-        ey += 80
+        ey += 78
 
         # Next Step 1: Deploy actor & Port-forward
         draw.rounded_rectangle([cx, ey, cx + cw, ey + 92], radius=8, fill=BG_CMD, outline=BORDER_SUBTLE, width=1)
