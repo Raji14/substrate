@@ -47,7 +47,6 @@ class TopHeader(Widget):
         t.append(" [ 🌐 Cluster: ", style="#9aa0a6")
         t.append(f"{self.cluster_name} ", style="bold #8ab4f8")
         t.append("] ", style="#9aa0a6")
-        t.append(" [ ? Help (F1) ] ", style="bold #d3e3fd on #0842a0")
         t.append(" [ ⏻ Exit ] ", style="#9aa0a6")
         return t
 
