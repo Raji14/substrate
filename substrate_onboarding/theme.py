@@ -320,6 +320,13 @@ Static {
     color: #ffffff;
 }
 
+.action-button:focus {
+    border: heavy #ffffff;
+    background: #1976d2;
+    color: #ffffff;
+    text-style: bold;
+}
+
 .secondary-button {
     margin-right: 1;
     background: #161b22;
@@ -332,6 +339,25 @@ Static {
     background: #21262d;
     color: #70d6ff;
     border: solid #70d6ff;
+}
+
+.secondary-button:focus {
+    border: heavy #70d6ff;
+    background: #21262d;
+    color: #70d6ff;
+    text-style: bold;
+}
+
+Button:focus {
+    border: heavy #ffffff;
+    background: #1976d2;
+    color: #ffffff;
+    text-style: bold;
+}
+
+.compact-cluster-card:focus {
+    border: heavy #70d6ff;
+    background: #1565c0;
 }
 
 /* Bottom Bar */
