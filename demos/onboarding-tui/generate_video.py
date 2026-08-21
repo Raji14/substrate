@@ -215,58 +215,31 @@ def render_welcome_screen(typewriter_progress=1.0):
         draw.text((wx + 180, ly), line, fill=vibrant_colors[i % len(vibrant_colors)], font=font_xs)
         ly += 14
 
-    tag_y = ly + 10
-    draw.text((wx + 320, tag_y), "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime", fill=(0, 240, 255), font=font_sm)
+    tag_y = ly + 14
+    draw.text((wx + 340, tag_y), "High-Density AI Agent Sandboxing on Kubernetes", fill=(0, 240, 255), font=font_sm)
 
-    tw_y = tag_y + 24
-    chars_to_show = int(len(INTRO_TEXT) * typewriter_progress)
-    disp_text = INTRO_TEXT[:chars_to_show]
-    if typewriter_progress < 1.0:
-        disp_text += "▌"
-    draw.text((wx + 130, tw_y), disp_text, fill=TEXT_PRIMARY, font=font_xs)
-
-    fx, fy, fw, fh = wx + 130, tw_y + 26, 860, 118
-    draw.rounded_rectangle([fx, fy, fx + fw, fy + fh], radius=8, fill=BG_CARD, outline=ACCENT_CYAN, width=1)
-    draw.rounded_rectangle([fx + 16, fy - 10, fx + 260, fy + 8], radius=4, fill=ACCENT_BLUE)
-    draw.text((fx + 24, fy - 8), "⚡ CORE SUBSTRATE CAPABILITIES", fill=TEXT_WHITE, font=font_xs)
-
-    rows = [
-        ("🛠️  Platform Fleet :", "Warm worker pools on pre-existing K8s with MicroVM & capacity buffers", GOOGLE_BLUE),
-        ("🤖  Agent Workloads :", "No-YAML container templates, turn hooks & request parking", GOOGLE_GREEN),
-        ("⚡  Instant Resume  :", "Suspend idle actors to 0% CPU; restore state in <200ms", GOOGLE_YELLOW),
-        ("🔒  Gated Access    :", "Automatic detection & terms acknowledgment on Google Cloud GKE", GOOGLE_RED),
-    ]
-    ry = fy + 16
-    for lbl, desc, col in rows:
-        draw.text((fx + 16, ry), lbl, fill=col, font=font_xs)
-        draw.text((fx + 180, ry), desc, fill=TEXT_WHITE, font=font_xs)
-        ry += 24
-
-    tx = wx + 130
-    ty = fy + fh + 14
-    draw.text((tx, ty), "Choose your installation path:", fill=TEXT_WHITE, font=font_sm)
-    draw.text((tx + fw - 160, ty), "Press [1] or [2]", fill=ACCENT_CYAN, font=font_xs)
+    tx = wx + 180
+    fw = 760
+    ty = tag_y + 40
+    draw.text((tx, ty), "Choose installation track:", fill=TEXT_WHITE, font=font_sm)
+    draw.text((tx + fw - 140, ty), "Press [1] or [2]", fill=ACCENT_CYAN, font=font_xs)
 
     tracks = [
-        ("[1] * Quickstart — Automatic cluster detection & default configuration (Recommended)", "Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.", True),
-        ("[2] # Advanced — Custom installation with kubectl", "Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.", False),
+        ("[1] * Quickstart — Automated setup with sensible defaults (Recommended)", "Connects to current cluster and configures microVM sandboxes in seconds.", True),
+        ("[2] # Advanced — Custom installation with declarative YAML manifests", "Customize node pools, resource quotas, autoscaling buffers, and eBPF network rules.", False),
     ]
-    card_y = ty + 22
+    card_y = ty + 26
     for t_title, t_desc, t_sel in tracks:
         c_bg = ACCENT_BLUE if t_sel else BG_CARD
         c_outline = ACCENT_CYAN if t_sel else BORDER_SUBTLE
-        draw.rounded_rectangle([tx, card_y, tx + fw, card_y + 44], radius=6, fill=c_bg, outline=c_outline, width=1)
-        draw.text((tx + 12, card_y + 6), t_title, fill=TEXT_WHITE, font=font_xs)
-        draw.text((tx + 12, card_y + 24), t_desc, fill=(211, 227, 253) if t_sel else TEXT_MUTED, font=font_xs)
-        card_y += 50
+        draw.rounded_rectangle([tx, card_y, tx + fw, card_y + 50], radius=6, fill=c_bg, outline=c_outline, width=1)
+        draw.text((tx + 16, card_y + 8), t_title, fill=TEXT_WHITE, font=font_xs)
+        draw.text((tx + 16, card_y + 28), t_desc, fill=(211, 227, 253) if t_sel else TEXT_MUTED, font=font_xs)
+        card_y += 62
 
-    bx, by = wx + 130, card_y + 8
-    draw.rounded_rectangle([bx, by, bx + fw, by + 28], radius=6, fill=(13, 17, 23), outline=BORDER_DARK, width=1)
-    badges = ["✔ K8s: Connected", "✔ Python 3.10+: Ready", "⚡ MicroVM: Ready", "★ GKE & K8s: Supported"]
-    badge_x = bx + 24
-    for b in badges:
-        draw.text((badge_x, by + 6), b, fill=ACCENT_GREEN if "✔" in b else (ACCENT_GREEN if "★" in b else ACCENT_CYAN), font=font_xs)
-        badge_x += 210
+    bx, by = wx + 180, card_y + 24
+    draw.rounded_rectangle([bx, by, bx + fw, by + 30], radius=6, fill=(13, 17, 23), outline=BORDER_DARK, width=1)
+    draw.text((bx + 180, by + 8), "● K8s Context: gke_enterprise_us-central1_prod    •    ● Preflight: Ready", fill=ACCENT_GREEN, font=font_xs)
 
     # Bottom Persistent TUI Keymap Dock Bar
     draw.rectangle([wx, wy + wh - 30, wx + ww, wy + wh], fill=(9, 13, 22))

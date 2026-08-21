@@ -49,31 +49,24 @@ class WelcomeScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         yield TopHeader(initial_step=OnboardingStep.WELCOME)
         with Vertical(id="welcome-main-container"):
-            # Static 4-Color Gradient Hero Logo for AGENT SUBSTRATE
+            # Crisp Hero Logo for AGENT SUBSTRATE
             yield Static(self._render_hero_logo(), id="welcome-hero-logo")
 
-            # Punchy Tagline (No repetition of 'Agent Substrate')
+            # Clean Tagline
             yield Label(
-                "⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime",
+                "High-Density AI Agent Sandboxing on Kubernetes",
                 id="welcome-hero-subtitle",
             )
 
-            # Animated Typewriter Description
-            yield Static(self._render_typewriter(), id="welcome-typewriter-box")
-
-            # Core Capabilities Feature Card
-            with Vertical(id="welcome-features-card"):
-                yield Static(self._render_features_card(), id="welcome-features-content")
-
             # Mode / Track Selection Title with Keyboard Shortcuts Hint
-            yield Label("Choose your installation path (Press [1] or [2]):", id="welcome-tracks-title")
+            yield Label("Choose installation track (Press [1] or [2]):", id="welcome-tracks-title")
 
             # Track Cards Container (2 Choices)
             with Vertical(id="welcome-tracks-list"):
                 for idx, track in enumerate(self.tracks):
                     yield Static(self._render_track_card(idx), id=f"track-card-{idx}", classes="track-option-card")
 
-            # Diagnostics Summary Badge
+            # Clean Diagnostics Summary Badge
             yield Static(self._render_preflight_badge(), id="welcome-preflight-badge")
 
         yield BottomBar(
@@ -85,22 +78,6 @@ class WelcomeScreen(Screen[None]):
             ],
             step_badge="Welcome",
         )
-
-    def on_mount(self) -> None:
-        self.typewriter_idx = 0
-        self._typewriter_timer = self.set_interval(0.02, self._tick_typewriter)
-
-    def _tick_typewriter(self) -> None:
-        if self.typewriter_idx < len(INTRO_TEXT):
-            self.typewriter_idx += 1
-            try:
-                box = self.query_one("#welcome-typewriter-box", Static)
-                box.update(self._render_typewriter())
-            except Exception:
-                pass
-        else:
-            if self._typewriter_timer:
-                self._typewriter_timer.stop()
 
     def _render_hero_logo(self) -> Text:
         t = Text()
@@ -115,27 +92,6 @@ class WelcomeScreen(Screen[None]):
         for y, line in enumerate(LOGO_LINES):
             style_color = line_styles[y % len(line_styles)]
             t.append(line + "\n", style=style_color)
-        return t
-
-    def _render_typewriter(self) -> Text:
-        t = Text()
-        typed_str = INTRO_TEXT[: self.typewriter_idx]
-        t.append(typed_str, style="#e3e3e3")
-        if self.typewriter_idx < len(INTRO_TEXT):
-            t.append(" ▌", style="bold #8ab4f8")
-        return t
-
-    def _render_features_card(self) -> Text:
-        t = Text()
-        t.append("⚡ CORE SUBSTRATE CAPABILITIES:\n", style="bold #70d6ff")
-        t.append("  🛠️   Platform Fleet   : ", style="bold #8ab4f8")
-        t.append("Warm worker pools on pre-existing K8s with MicroVM & capacity buffers\n", style="#ffffff")
-        t.append("  🤖   Agent Workloads  : ", style="bold #81c995")
-        t.append("No-YAML container templates, turn hooks & request parking\n", style="#ffffff")
-        t.append("  ⚡   Instant Resume   : ", style="bold #fdd663")
-        t.append("Suspend idle actors to 0% CPU; restore state in <200ms\n", style="#ffffff")
-        t.append("  🔒   Security & Isolation: ", style="bold #8ab4f8")
-        t.append("Hardware-level microVM isolation and rootless sandboxing", style="#ffffff")
         return t
 
     def _render_track_card(self, idx: int) -> Text:
@@ -159,14 +115,12 @@ class WelcomeScreen(Screen[None]):
 
     def _render_preflight_badge(self) -> Text:
         t = Text()
-        t.append(" ✔  ", style="bold #81c995")
-        t.append("Pre-configured K8s: Connected    │    ", style="#e3e3e3")
-        t.append("✔  ", style="bold #81c995")
-        t.append("Python 3.10+: Ready    │    ", style="#e3e3e3")
-        t.append("⚡  ", style="bold #81c995")
-        t.append("MicroVM Sandbox: Ready    │    ", style="#e3e3e3")
-        t.append("★  ", style="bold #81c995")
-        t.append("Enterprise Ready: Yes", style="#81c995")
+        t.append("●  ", style="bold #81c995")
+        t.append("K8s Context: ", style="#80868b")
+        t.append("gke_enterprise_us-central1_prod    •    ", style="bold #ffffff")
+        t.append("●  ", style="bold #81c995")
+        t.append("Preflight: ", style="#80868b")
+        t.append("Ready", style="bold #ffffff")
         return t
 
     def action_confirm_selection(self) -> None:

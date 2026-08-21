@@ -1518,9 +1518,9 @@
       </div>
     </div>
 
-    <!-- VIEW 0: WELCOME SCREEN -->
+    <!-- VIEW 0: WELCOME SCREEN (STREAMLINED & CLEAN) -->
     <div class="welcome-screen-view active" id="view-welcome">
-      <!-- Vivid Bright ASCII Art Logo with Clear Word Separation -->
+      <!-- Crisp ASCII Art Logo -->
       <div class="ascii-logo">
 <span class="ascii-line-1">    _    ____ _____ _   _ _____        ____  _   _ ____  ____ _____ ____     _  _____ _____ </span>
 <span class="ascii-line-2">   / \  / ___| ____| \ | |_   _|      / ___|| | | | __ )/ ___|_   _|  _ \   / \|_   _| ____|</span>
@@ -1529,61 +1529,38 @@
 <span class="ascii-line-5">/_/   \_\____|_____|_| \_| |_|        |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|</span>
       </div>
 
-      <div class="welcome-tagline">⚡ High-Density Sandboxing & Sub-100ms Cold-Start Runtime</div>
+      <div class="welcome-tagline" style="margin-bottom: 24px; font-size: 13px;">High-Density AI Agent Sandboxing on Kubernetes</div>
 
-      <div class="welcome-typewriter" id="typewriter-box"></div>
-
-      <div class="welcome-features-card">
-        <div class="welcome-features-badge">⚡ CORE SUBSTRATE CAPABILITIES</div>
-        <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-blue);">🛠️ &nbsp;Platform Fleet :</div>
-          <div class="welcome-feature-desc">Warm worker pools on pre-existing K8s with MicroVM & capacity buffers</div>
-        </div>
-        <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-green);">🤖 &nbsp;Agent Workloads :</div>
-          <div class="welcome-feature-desc">No-YAML container templates, turn hooks & request parking</div>
-        </div>
-        <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-yellow);">⚡ &nbsp;Instant Resume :</div>
-          <div class="welcome-feature-desc">Suspend idle actors to 0% CPU; restore state in &lt;200ms</div>
-        </div>
-        <div class="welcome-feature-row">
-          <div class="welcome-feature-label" style="color: var(--google-red);">🔒 &nbsp;Gated Access :</div>
-          <div class="welcome-feature-desc">Automatic detection & terms acknowledgment on Google Cloud GKE</div>
-        </div>
-      </div>
-
-      <!-- Installation Choices -->
-      <div class="tracks-section">
-        <div class="tracks-header">
-          <span>Choose your installation path:</span>
+      <!-- Streamlined Tracks Selection -->
+      <div class="tracks-section" style="max-width: 680px; width: 100%;">
+        <div class="tracks-header" style="margin-bottom: 10px;">
+          <span style="font-weight: 700; font-size: 12px; color: var(--text-primary);">Choose installation track:</span>
           <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1</kbd> or <kbd>2</kbd></span>
         </div>
-        <div class="tracks-list">
-          <div class="track-card selected" id="track-0" onclick="selectTrack(0); startWizardFromWelcome();" style="cursor: pointer;">
+        <div class="tracks-list" style="gap: 10px;">
+          <div class="track-card selected" id="track-0" onclick="selectTrack(0); startWizardFromWelcome();" style="cursor: pointer; padding: 12px 16px;">
             <span class="track-key-badge">1</span>
             <span class="track-icon">🚀</span>
             <div class="track-info">
-              <div class="track-title">Quickstart — Automatic cluster detection & default configuration (Recommended)</div>
-              <div class="track-desc">Automatically connects to your pre-configured cluster and applies sensible defaults in seconds.</div>
+              <div class="track-title" style="font-size: 13px;">Quickstart — Automated setup with sensible defaults (Recommended)</div>
+              <div class="track-desc" style="font-size: 11px;">Connects to current cluster and configures microVM sandboxes in seconds.</div>
             </div>
           </div>
-          <div class="track-card" id="track-1" onclick="selectTrack(1); startWizardFromWelcome();" style="cursor: pointer;">
+          <div class="track-card" id="track-1" onclick="selectTrack(1); startWizardFromWelcome();" style="cursor: pointer; padding: 12px 16px;">
             <span class="track-key-badge">2</span>
             <span class="track-icon">⚙️</span>
             <div class="track-info">
-              <div class="track-title">Advanced — Custom installation with kubectl</div>
-              <div class="track-desc">Customize YAML manifests, resource quotas, microVM isolation drivers, and eBPF routing rules.</div>
+              <div class="track-title" style="font-size: 13px;">Advanced — Custom installation with declarative YAML manifests</div>
+              <div class="track-desc" style="font-size: 11px;">Customize node pools, resource quotas, autoscaling buffers, and eBPF network rules.</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="preflight-badge">
-        <span><span class="badge-ok">✔</span> Pre-configured K8s: Connected</span>
-        <span><span class="badge-ok">✔</span> Python 3.10+: Ready</span>
-        <span><span class="badge-ok">⚡</span> MicroVM Sandbox: Ready</span>
-        <span><span class="badge-ok">★</span> GKE & Kubernetes: Supported</span>
+      <!-- Clean Status Context -->
+      <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 16px; font-size: 11px; color: var(--text-muted);">
+        <span><span style="color: var(--accent-green);">●</span> K8s Context: <strong style="color: var(--text-white);">gke_enterprise_us-central1_prod</strong></span>
+        <span><span style="color: var(--accent-green);">●</span> Preflight: <strong style="color: var(--text-white);">Ready</strong></span>
       </div>
 
       <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-primary); cursor: pointer;" onclick="startWizardFromWelcome()">
@@ -2061,14 +2038,12 @@ spec:
             </div>
           </div>
 
-          <!-- LIVE TEST TURN PLAYGROUND (Y/N Prompt) -->
+          <!-- LIVE TEST TURN PLAYGROUND (Plain-Text Y/N Prompt) -->
           <div class="test-turn-container" id="test-turn-card">
             <div class="test-turn-header" id="test-turn-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
               <span class="test-turn-badge">⚡ LIVE VERIFICATION PLAYGROUND</span>
-              <div id="test-turn-prompt-row" style="font-size: 11px; display: flex; align-items: center; gap: 8px; color: var(--text-primary);">
-                <span>Run live cold-start verification test turn on warm microVM?</span>
-                <span class="keymap-action primary-action" id="btn-run-test-turn" onclick="runLiveTestTurn()" style="padding: 3px 10px; cursor: pointer;"><kbd style="background: #1976d2; color: #fff; font-weight: bold;">y</kbd> Yes</span>
-                <span class="keymap-action" id="btn-skip-test-turn" onclick="skipLiveTestTurn()" style="padding: 3px 10px; cursor: pointer;"><kbd>n</kbd> No (Skip)</span>
+              <div id="test-turn-prompt-row" style="font-size: 12px; color: var(--text-primary);">
+                Run live cold-start verification test turn on warm microVM? <strong style="color: var(--accent-cyan);">[y/n]</strong> <span style="color: var(--text-muted); font-size: 11px;">("y" = yes, "n" = no)</span>
               </div>
             </div>
             <div class="test-turn-console" id="test-turn-console" style="display: none;">
@@ -2486,9 +2461,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
 
       if (promptRow) {
         promptRow.innerHTML = `
-          <span style="color: var(--accent-green); font-weight: bold;">⚡ Live test turn active...</span>
-          <span class="keymap-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>y</kbd> Re-run</span>
-          <span class="keymap-action" onclick="skipLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>n</kbd> Clear</span>
+          <span style="color: var(--accent-green); font-weight: bold;">⚡ Running live cold-start verification...</span>
         `;
       }
 
@@ -2552,9 +2525,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
             }
             if (promptRow) {
               promptRow.innerHTML = `
-                <span style="color: var(--accent-green); font-weight: bold;">✓ Live cold-start verified (${scenario.total})</span>
-                <span class="keymap-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>y</kbd> Re-run</span>
-                <span class="keymap-action" onclick="skipLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd>n</kbd> Clear</span>
+                <span style="color: var(--accent-green); font-weight: bold;">✓ Live cold-start verified (${scenario.total})</span> • <span style="color: var(--text-muted); font-size: 11px;">("y" = re-run, "n" = clear)</span>
               `;
             }
             isTestTurnRunning = false;
@@ -2569,8 +2540,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       const promptRow = document.getElementById('test-turn-prompt-row');
       if (promptRow) {
         promptRow.innerHTML = `
-          <span style="color: var(--text-muted);">⏭️ Verification skipped • Ready for production workloads</span>
-          <span class="keymap-action primary-action" onclick="runLiveTestTurn()" style="padding: 2px 8px; cursor: pointer;"><kbd style="background: #1976d2; color: #fff; font-weight: bold;">y</kbd> Run Test Turn</span>
+          <span style="color: var(--text-muted);">⏭️ Verification skipped • Ready for production workloads ("y" = run test turn)</span>
         `;
       }
     }
