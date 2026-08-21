@@ -375,15 +375,21 @@ def render_step_frame(step_idx):
 
     elif data.get("custom_box") in ["nodepool_ccc", "autoscaling_hpa", "deploy_wp"]:
         # Option Selection Step (Steps 4, 5, 6)
-        ey = cy + 62
+        ey = cy + 50
+
+        if data.get("yaml_notice"):
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 24], radius=4, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+            draw.text((cx + 10, ey + 5), data["yaml_notice"], fill=ACCENT_YELLOW, font=font_xs)
+            ey += 30
+
         draw.text((cx, ey), "Choose configuration option (Press [1-3]):", fill=TEXT_WHITE, font=font_xs)
-        ey += 18
+        ey += 16
 
         if data["custom_box"] == "nodepool_ccc":
-            draw.rounded_rectangle([cx, ey, cx + cw, ey + 40], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
-            draw.text((cx + 10, ey + 6), "🔍 CLUSTER NODE POOL SCAN: Probed 12 nodes across 2 zones", fill=ACCENT_CYAN, font=font_xs)
-            draw.text((cx + 10, ey + 22), "⚠️ Scan Result: No node pool detected with hardware nested virtualization enabled.", fill=ACCENT_YELLOW, font=font_xs)
-            ey += 48
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 36], radius=6, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
+            draw.text((cx + 10, ey + 4), "🔍 CLUSTER NODE POOL SCAN: Probed 12 nodes across 2 zones", fill=ACCENT_CYAN, font=font_xs)
+            draw.text((cx + 10, ey + 18), "⚠️ Scan Result: No node pool detected with hardware nested virtualization enabled.", fill=ACCENT_YELLOW, font=font_xs)
+            ey += 42
             opts = [
                 ("[1] * Automatically create a compatible node pool using Custom Compute Class (Recommended)", "Applies manifest with n2-standard-48, Spot fallback, and nested virtualization enabled.", True),
                 ("[2] # Create a compatible node pool manually via gcloud", "Generates gcloud container node-pools create command with --enable-nested-virtualization.", False),
@@ -404,15 +410,10 @@ def render_step_frame(step_idx):
         for o_title, o_desc, o_sel in opts:
             o_bg = ACCENT_BLUE if o_sel else BG_CMD
             o_out = ACCENT_CYAN if o_sel else BORDER_SUBTLE
-            draw.rounded_rectangle([cx, ey, cx + cw, ey + 38], radius=6, fill=o_bg, outline=o_out, width=1)
-            draw.text((cx + 10, ey + 5), o_title, fill=TEXT_WHITE, font=font_xs)
-            draw.text((cx + 10, ey + 21), o_desc, fill=(211, 227, 253) if o_sel else TEXT_MUTED, font=font_xs)
-            ey += 44
-
-        if data.get("yaml_notice"):
-            draw.rounded_rectangle([cx, ey, cx + cw, ey + 26], radius=4, fill=(25, 28, 20), outline=ACCENT_YELLOW, width=1)
-            draw.text((cx + 10, ey + 6), data["yaml_notice"], fill=ACCENT_YELLOW, font=font_xs)
-            ey += 32
+            draw.rounded_rectangle([cx, ey, cx + cw, ey + 36], radius=6, fill=o_bg, outline=o_out, width=1)
+            draw.text((cx + 10, ey + 4), o_title, fill=TEXT_WHITE, font=font_xs)
+            draw.text((cx + 10, ey + 19), o_desc, fill=(211, 227, 253) if o_sel else TEXT_MUTED, font=font_xs)
+            ey += 40
 
         card_h = 130
         draw.rounded_rectangle([cx, ey, cx + cw, ey + card_h], radius=6, fill=BG_CARD, outline=BORDER_DARK, width=1)

@@ -1762,6 +1762,10 @@ spec:
 
           <!-- PHASE 2: OPTIONS CONTAINER (Revealed ONLY after scan completes) -->
           <div id="nodepool-options-container" style="display: none; flex-direction: column;">
+            <div class="yaml-alert-box" id="yaml-notice-box-3" style="margin-bottom: 12px; margin-top: 4px;">
+              💡 <strong>Tip:</strong> You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. <code>manifests/workerpool-ccc.yaml</code>).
+            </div>
+
             <div class="column-title">
               <span>Select compatible node pool option:</span>
               <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1-3</kbd></span>
@@ -1792,10 +1796,6 @@ spec:
                   <div class="option-desc">Return to Step 2 to select another cluster context from your kubeconfig.</div>
                 </div>
               </div>
-            </div>
-
-            <div class="yaml-alert-box" id="yaml-notice-box-3">
-              💡 <strong>Tip:</strong> You can modify and re-apply the Custom Compute Class YAML manifest later at any time (e.g. <code>manifests/workerpool-ccc.yaml</code>).
             </div>
           </div>
 
@@ -1849,46 +1849,45 @@ spec:
           <div class="step-heading">Configure WorkerPool Autoscaling (HPA & CapacityBuffer)</div>
           <div class="step-description">Configure horizontal pod autoscaling and standby capacity buffers so your agent fleet can absorb sudden traffic surges with instant (&lt;100ms) cold starts.</div>
 
+          <div class="yaml-alert-box" style="margin-bottom: 10px; margin-top: 8px;">
+            💡 <strong>Tip:</strong> You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. <code>manifests/workerpool-autoscaling.yaml</code>).
+          </div>
+
+          <div class="capacity-telemetry-badge" style="margin-bottom: 12px;">
+            <span style="font-size: 14px;">📈</span>
+            <span><strong>Standby Efficiency:</strong> 3 standby replicas absorb up to 300 bursty agent sessions with 0% CPU idle waste.</span>
+          </div>
+
           <div class="column-title">
             <span>Select autoscaling option:</span>
             <span style="font-size: 11px; color: var(--accent-cyan);">Press <kbd>1-3</kbd></span>
           </div>
 
-            <div class="option-cards-container">
-              <div class="option-card-row" id="hpa-card-0" onclick="selectHpaOpt(0); proceedFromStep5();" style="cursor: pointer;">
-                <span class="track-key-badge">1</span>
-                <span style="font-size: 16px;">⚡</span>
-                <div style="flex: 1;">
-                  <div class="option-title">Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)</div>
-                  <div class="option-desc">Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant &lt;100ms agent session injection.</div>
-                </div>
-              </div>
-              <div class="option-card-row" id="hpa-card-1" onclick="selectHpaOpt(1); proceedFromStep5();" style="cursor: pointer;">
-                <span class="track-key-badge">2</span>
-                <span style="font-size: 16px;">🛠️</span>
-                <div style="flex: 1;">
-                  <div class="option-title">Configure autoscaling manually via kubectl</div>
-                  <div class="option-desc">Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.</div>
-                </div>
-              </div>
-              <div class="option-card-row" id="hpa-card-2" onclick="selectHpaOpt(2); proceedFromStep5();" style="cursor: pointer;">
-                <span class="track-key-badge">3</span>
-                <span style="font-size: 16px;">⏭️</span>
-                <div style="flex: 1;">
-                  <div class="option-title">Skip autoscaling configuration</div>
-                  <div class="option-desc">Keep fixed worker pool replica count without horizontal dynamic scaling.</div>
-                </div>
+          <div class="option-cards-container">
+            <div class="option-card-row" id="hpa-card-0" onclick="selectHpaOpt(0); proceedFromStep5();" style="cursor: pointer;">
+              <span class="track-key-badge">1</span>
+              <span style="font-size: 16px;">⚡</span>
+              <div style="flex: 1;">
+                <div class="option-title">Automatically configure HPA & CapacityBuffer with sensible defaults (Recommended)</div>
+                <div class="option-desc">Applies OneHPA (min=10, max=100) and fixed-replica-buffer (3 standby replicas) for instant &lt;100ms agent session injection.</div>
               </div>
             </div>
-          </div>
-
-          <div class="capacity-telemetry-badge">
-            <span style="font-size: 14px;">📈</span>
-            <span><strong>Standby Efficiency:</strong> 3 standby replicas absorb up to 300 bursty agent sessions with 0% CPU idle waste.</span>
-          </div>
-
-          <div class="yaml-alert-box">
-            💡 <strong>Tip:</strong> You can modify and re-apply the HPA and CapacityBuffer YAML manifests later at any time (e.g. <code>manifests/workerpool-autoscaling.yaml</code>).
+            <div class="option-card-row" id="hpa-card-1" onclick="selectHpaOpt(1); proceedFromStep5();" style="cursor: pointer;">
+              <span class="track-key-badge">2</span>
+              <span style="font-size: 16px;">🛠️</span>
+              <div style="flex: 1;">
+                <div class="option-title">Configure autoscaling manually via kubectl</div>
+                <div class="option-desc">Export template manifests to customize scaling metrics, CPU/memory thresholds, and buffer headroom.</div>
+              </div>
+            </div>
+            <div class="option-card-row" id="hpa-card-2" onclick="selectHpaOpt(2); proceedFromStep5();" style="cursor: pointer;">
+              <span class="track-key-badge">3</span>
+              <span style="font-size: 16px;">⏭️</span>
+              <div style="flex: 1;">
+                <div class="option-title">Skip autoscaling configuration</div>
+                <div class="option-desc">Keep fixed worker pool replica count without horizontal dynamic scaling.</div>
+              </div>
+            </div>
           </div>
 
           <!-- OPTION 1 PROGRESS CHECKLIST -->

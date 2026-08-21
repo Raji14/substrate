@@ -96,6 +96,8 @@ class GenericStepScreen(Screen):
                     elif self.step_key == OnboardingStep.COMPATIBLE_NODEPOOL:
                         # Step 4: Compatible Node Pool (Scan First -> Present Options)
                         yield Static(self._render_nodepool_scan_status(), id="nodepool-scan-box")
+                        if self.meta.yaml_notice:
+                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
                         yield Label("Choose node pool configuration (Press [1-3]):", classes="column-header-label")
                         with Vertical(id="nodepool-options-list"):
                             for idx in range(len(self.nodepool_opts)):
@@ -104,12 +106,13 @@ class GenericStepScreen(Screen):
                                     id=f"nodepool-opt-{idx}",
                                     classes="compact-cluster-card",
                                 )
-                        if self.meta.yaml_notice:
-                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
                     elif self.step_key == OnboardingStep.CONFIG_AUTOSCALING:
                         # Step 5: WorkerPool Autoscaling (HPA & CapacityBuffer)
+                        if self.meta.yaml_notice:
+                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
+                        yield Static(self._render_capacity_telemetry_badge(), id="capacity-telemetry-badge")
                         yield Label("Choose autoscaling configuration (Press [1-3]):", classes="column-header-label")
                         with Vertical(id="autoscaling-options-list"):
                             for idx in range(len(self.autoscaling_opts)):
@@ -118,9 +121,6 @@ class GenericStepScreen(Screen):
                                     id=f"autoscaling-opt-{idx}",
                                     classes="compact-cluster-card",
                                 )
-                        yield Static(self._render_capacity_telemetry_badge(), id="capacity-telemetry-badge")
-                        if self.meta.yaml_notice:
-                            yield Static(self._render_yaml_notice(), id="yaml-notice-box")
                         yield Static(self._render_checklist_box(), id="execution-checklist-card")
 
                     elif self.step_key == OnboardingStep.DEPLOY_WORKERPOOL:
