@@ -38,16 +38,16 @@ class TopHeader(Widget):
             yield Label(self._render_quick_actions(), id="header-stepper")
 
     def _render_brand(self) -> Text:
-        t = Text("⚡ Agent Substrate ", style="bold #8ab4f8")
-        t.append("│ Onboarding UX Prototype", style="bold #ffffff")
+        t = Text("⚡ Agent Substrate ", style="bold #38bdf8")
+        t.append("│ Onboarding UX Prototype", style="bold #f8fafc")
         return t
 
     def _render_quick_actions(self) -> Text:
         t = Text()
-        t.append(" [ 🌐 Prototype Context: ", style="#9aa0a6")
-        t.append(f"{self.cluster_name} ", style="bold #8ab4f8")
-        t.append("] ", style="#9aa0a6")
-        t.append(" [ ⏻ Exit ] ", style="#9aa0a6")
+        t.append(" [ 🌐 Context: ", style="#94a3b8")
+        t.append(f"{self.cluster_name} ", style="bold #38bdf8")
+        t.append("] ", style="#94a3b8")
+        t.append(" [ ⏻ Exit ] ", style="#64748b")
         return t
 
     def watch_current_step(self, step: OnboardingStep) -> None:
@@ -92,20 +92,20 @@ class BottomBar(Widget):
                 if idx > 0:
                     t.append("   ")
                 if is_primary:
-                    t.append(f"[{key}]", style="bold #ffffff on #1565c0")
-                    t.append(f" {label}", style="bold #ffffff")
+                    t.append(f" {key} ", style="bold #ffffff on #2563eb")
+                    t.append(f" {label}", style="bold #f8fafc")
                 else:
-                    t.append(f"[{key}]", style="bold #70d6ff")
-                    t.append(f" {label}", style="#e3e3e3")
+                    t.append(f" {key} ", style="bold #38bdf8 on #1e293b")
+                    t.append(f" {label}", style="#94a3b8")
         else:
             hint = self.hint_text or self.tip_text or "[Enter ↵] Proceed   [b] Back   [?] Help"
-            t.append(hint, style="#e3e3e3")
+            t.append(hint, style="#94a3b8")
         return t
 
     def _render_badge(self) -> Text:
         t = Text()
         if self.step_badge:
-            t.append(f" {self.step_badge} ", style="bold #70d6ff on #161b22")
+            t.append(f" {self.step_badge} ", style="bold #38bdf8 on #131b2e")
         return t
 
     def set_tip(self, text: str) -> None:

@@ -81,13 +81,12 @@ class WelcomeScreen(Screen[None]):
 
     def _render_hero_logo(self) -> Text:
         t = Text()
-        # Bright, vivid saturated colors for the 5 ASCII logo lines
         line_styles = [
-            "bold #00f0ff",  # Vivid Electric Cyan
-            "bold #ff3b69",  # Vivid Crimson Red
-            "bold #ffd000",  # Vivid Bright Gold
-            "bold #00ff88",  # Vivid Emerald Neon Green
-            "bold #38b6ff",  # Vivid Sky Blue
+            "bold #38bdf8",  # Electric Sky
+            "bold #60a5fa",  # Soft Blue
+            "bold #818cf8",  # Hyper Indigo
+            "bold #a78bfa",  # Lavender Purple
+            "bold #38bdf8",  # Electric Sky
         ]
         for y, line in enumerate(LOGO_LINES):
             style_color = line_styles[y % len(line_styles)]
@@ -99,28 +98,28 @@ class WelcomeScreen(Screen[None]):
         is_selected = idx == self.selected_index
         t = Text()
 
-        keycap = f" [{idx + 1}] "
+        keycap = f" {idx + 1} "
         if is_selected:
-            t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
-            t.append(f" {track.icon}   {track.title}\n", style="bold #70d6ff on #1565c0")
-            t.append(f"        {track.description}\n", style="#e3e3e3 on #1565c0")
-            t.append(f"        💡 {track.tip}", style="italic #81c995 on #1565c0")
+            t.append(f" ▎{keycap}", style="bold #ffffff on #2563eb")
+            t.append(f" {track.icon}  {track.title}\n", style="bold #f8fafc on #1e293b")
+            t.append(f"       {track.description}\n", style="#94a3b8 on #1e293b")
+            t.append(f"       💡 {track.tip}", style="italic #38bdf8 on #1e293b")
         else:
-            t.append(f" ○ {keycap}", style="#80868b")
-            t.append(f" {track.icon}   {track.title}\n", style="bold #e3e3e3")
-            t.append(f"        {track.description}\n", style="#80868b")
-            t.append(f"        💡 {track.tip}", style="italic #5f6368")
+            t.append(f"  {keycap}", style="bold #38bdf8 on #0b0f17")
+            t.append(f" {track.icon}  {track.title}\n", style="bold #f8fafc")
+            t.append(f"       {track.description}\n", style="#94a3b8")
+            t.append(f"       💡 {track.tip}", style="italic #64748b")
 
         return t
 
     def _render_preflight_badge(self) -> Text:
         t = Text()
-        t.append("●  ", style="bold #81c995")
-        t.append("K8s Context: ", style="#80868b")
-        t.append("gke_enterprise_us-central1_prod    •    ", style="bold #ffffff")
-        t.append("●  ", style="bold #81c995")
-        t.append("Preflight: ", style="#80868b")
-        t.append("Ready", style="bold #ffffff")
+        t.append("● ", style="bold #34d399")
+        t.append("Target Context: ", style="#94a3b8")
+        t.append("Active Kubeconfig    •    ", style="bold #f8fafc")
+        t.append("● ", style="bold #34d399")
+        t.append("Preflight Engine: ", style="#94a3b8")
+        t.append("Ready", style="bold #34d399")
         return t
 
     def action_confirm_selection(self) -> None:

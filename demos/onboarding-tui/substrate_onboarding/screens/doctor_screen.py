@@ -90,24 +90,24 @@ class DoctorScreen(Screen[None]):
 
     def _render_install_log(self) -> Text:
         t = Text()
-        t.append("╭── 🚀 SUBSTRATE CONTROL PLANE BOOTSTRAP ─────────────────────────────────────────╮\n", style="bold #8ab4f8")
-        t.append("│                                                                                  │\n", style="#8ab4f8")
+        t.append("╭── 🚀 SUBSTRATE CONTROL PLANE BOOTSTRAP (Simulation) ──────────────────────────╮\n", style="bold #38bdf8")
+        t.append("│                                                                                  │\n", style="#38bdf8")
 
         for i, (key, desc) in enumerate(INSTALL_STEPS):
-            t.append("│  ", style="#8ab4f8")
+            t.append("│  ", style="#38bdf8")
             if i < self._step_progress:
-                t.append("✓ ", style="bold #81c995")
-                t.append(f"{desc.ljust(76)}", style="bold #81c995" if i == len(INSTALL_STEPS)-1 else "#e3e3e3")
+                t.append("✓ ", style="bold #34d399")
+                t.append(f"{desc.ljust(76)}", style="bold #34d399" if i == len(INSTALL_STEPS)-1 else "#f8fafc")
             elif i == self._step_progress:
-                t.append("⠋ ", style="bold #8ab4f8")
-                t.append(f"{desc.ljust(76)}", style="bold #8ab4f8")
+                t.append("⠋ ", style="bold #38bdf8")
+                t.append(f"{desc.ljust(76)}", style="bold #38bdf8")
             else:
-                t.append("○ ", style="#9aa0a6")
-                t.append(f"{desc.ljust(76)}", style="#9aa0a6")
-            t.append("│\n", style="#8ab4f8")
+                t.append("○ ", style="#64748b")
+                t.append(f"{desc.ljust(76)}", style="#64748b")
+            t.append("│\n", style="#38bdf8")
 
-        t.append("│                                                                                  │\n", style="#8ab4f8")
-        t.append("╰──────────────────────────────────────────────────────────────────────────────────╯", style="bold #8ab4f8")
+        t.append("│                                                                                  │\n", style="#38bdf8")
+        t.append("╰──────────────────────────────────────────────────────────────────────────────────╯", style="bold #38bdf8")
         return t
 
     def action_proceed_next(self) -> None:

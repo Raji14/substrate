@@ -55,35 +55,35 @@ class SidebarNav(Widget):
         curr_idx = STEP_MAP.get(self.current_step, 1)
 
         # Header Title
-        t.append("Agent Substrate\n", style="bold #70d6ff")
-        t.append("Getting set up\n\n", style="#80868b")
+        t.append("Agent Substrate\n", style="bold #38bdf8")
+        t.append("Onboarding Journey\n\n", style="#94a3b8")
 
         # Thin Progress Bar
         bar_len = 24
         filled = max(1, int((curr_idx / len(STEPS_LIST)) * bar_len))
-        t.append("━" * filled, style="#70d6ff")
-        t.append("─" * (bar_len - filled), style="#3c4043")
+        t.append("━" * filled, style="bold #38bdf8")
+        t.append("─" * (bar_len - filled), style="#1e293b")
         t.append("\n\n")
 
         # Step Count Indicator
         completed_count = max(0, curr_idx - 1)
-        t.append(f"{completed_count} of 7 steps\n\n", style="#80868b")
+        t.append(f"Step {curr_idx} of 7 ({completed_count} done)\n\n", style="#94a3b8")
 
-        # 7 Steps List
+        # 7 Steps List with Timeline Glyphs
         for i, (step_enum, title) in enumerate(STEPS_LIST):
             step_num = i + 1
             if step_num < curr_idx:
                 # Completed
-                t.append("✓ ", style="bold #81c995")
-                t.append(f"{title}\n", style="bold #e3e3e3")
+                t.append("✓ ", style="bold #34d399")
+                t.append(f"{title}\n", style="bold #94a3b8")
             elif step_num == curr_idx:
                 # Active
-                t.append(f"{step_num} ", style="bold #70d6ff")
-                t.append(f"{title}\n", style="bold #70d6ff")
+                t.append("● ", style="bold #38bdf8")
+                t.append(f"{title}\n", style="bold #f8fafc")
             else:
                 # Upcoming
-                t.append(f"{step_num} ", style="#5f6368")
-                t.append(f"{title}\n", style="#5f6368")
+                t.append("○ ", style="#64748b")
+                t.append(f"{title}\n", style="#64748b")
 
         return t
 

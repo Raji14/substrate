@@ -239,51 +239,51 @@ class GenericStepScreen(Screen):
         is_selected = idx == self.selected_option_idx
         t = Text()
 
-        keycap = f" [{idx + 1}] "
+        keycap = f" {idx + 1} "
         if is_selected:
-            t.append(f" ▶ {keycap}", style="bold #ffffff on #1565c0")
-            t.append(f" {opt.icon} {opt.title}\n", style="bold #70d6ff on #1565c0")
-            t.append(f"        {opt.description}\n", style="#e3e3e3 on #1565c0")
-            t.append(f"        💡 {opt.tip}", style="italic #81c995 on #1565c0")
+            t.append(f" ▎{keycap}", style="bold #ffffff on #2563eb")
+            t.append(f" {opt.icon} {opt.title}\n", style="bold #f8fafc on #1e293b")
+            t.append(f"       {opt.description}\n", style="#94a3b8 on #1e293b")
+            t.append(f"       💡 {opt.tip}", style="italic #38bdf8 on #1e293b")
         else:
-            t.append(f" ○ {keycap}", style="#80868b")
-            t.append(f" {opt.icon} {opt.title}\n", style="bold #e3e3e3")
-            t.append(f"        {opt.description}\n", style="#80868b")
-            t.append(f"        💡 {opt.tip}", style="italic #5f6368")
+            t.append(f"  {keycap}", style="bold #38bdf8 on #0b0f17")
+            t.append(f" {opt.icon} {opt.title}\n", style="bold #f8fafc")
+            t.append(f"       {opt.description}\n", style="#94a3b8")
+            t.append(f"       💡 {opt.tip}", style="italic #64748b")
 
         return t
 
     def _render_cluster_verification_box(self) -> Text:
         cluster = self.clusters[self.selected_option_idx if self.selected_option_idx < len(self.clusters) else 0]
         t = Text()
-        t.append("🌐 CLUSTER VERIFICATION:\n", style="bold #70d6ff")
-        t.append(f"  Provider : {cluster.provider}\n", style="bold #ffffff")
-        t.append(f"  Region   : {cluster.region}\n", style="bold #8ab4f8")
-        t.append(f"  Nodes    : {cluster.nodes} ready (KVM / microVM enabled)\n", style="#81c995")
-        t.append(f"  Probe    : [substrate-system] ➔ {cluster.control_plane_status}", style="bold #fdd663")
+        t.append("🌐 CLUSTER VERIFICATION (Prototype Context):\n", style="bold #38bdf8")
+        t.append(f"  Provider : {cluster.provider} ({cluster.version})\n", style="bold #f8fafc")
+        t.append(f"  Region   : {cluster.region}\n", style="bold #818cf8")
+        t.append(f"  Nodes    : {cluster.nodes} ready (KVM / microVM compatible)\n", style="#34d399")
+        t.append(f"  Probe    : [substrate-system] ➔ {cluster.control_plane_status}", style="bold #fbbf24")
         return t
 
     def _render_nodepool_scan_status(self) -> Text:
         t = Text()
-        t.append("🔍 CLUSTER NODE POOL COMPATIBILITY SCAN:\n", style="bold #70d6ff")
-        t.append("  • Probed node pool capacity: 12 nodes across 2 zones\n", style="#e3e3e3")
-        t.append("  ⚠️  Scan Result: No existing node pool detected with /dev/kvm enabled (0/12 nodes compatible).\n", style="bold #fdd663")
-        t.append("  💡  Sandboxed microVM execution requires a compatible node pool.\n", style="italic #80868b")
+        t.append("🔍 CLUSTER NODE POOL COMPATIBILITY SCAN:\n", style="bold #38bdf8")
+        t.append("  • Probed node pool capacity: 12 nodes across 2 zones\n", style="#94a3b8")
+        t.append("  ▲ Scan Result: No existing node pool detected with /dev/kvm enabled (0/12 nodes compatible).\n", style="bold #fbbf24")
+        t.append("  💡 Sandboxed microVM execution requires a compatible node pool.\n", style="italic #64748b")
         return t
 
     def _render_compact_checklist(self) -> Text:
         t = Text()
-        t.append("⚡ PROBE CHECKLIST:\n", style="bold #70d6ff")
+        t.append("⚡ PROBE CHECKLIST:\n", style="bold #38bdf8")
         for i, item in enumerate(self.meta.checklist_items):
             if i < self._checklist_progress:
-                t.append("  ✓ ", style="bold #81c995")
-                t.append(f"{item}\n", style="#ffffff")
+                t.append("  ✓ ", style="bold #34d399")
+                t.append(f"{item}\n", style="#f8fafc")
             elif i == self._checklist_progress:
-                t.append("  ⠋ ", style="bold #70d6ff")
-                t.append(f"{item}\n", style="#70d6ff")
+                t.append("  ⠋ ", style="bold #38bdf8")
+                t.append(f"{item}\n", style="#38bdf8")
             else:
-                t.append("  ○ ", style="#5f6368")
-                t.append(f"{item}\n", style="#5f6368")
+                t.append("  ○ ", style="#64748b")
+                t.append(f"{item}\n", style="#64748b")
         return t
 
     def _render_checklist_box(self) -> Text:

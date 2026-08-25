@@ -1,11 +1,13 @@
 """Theme, color tokens, and styling for Agent Substrate Onboarding TUI.
 
-Matches the clean, high-taste dark aesthetic:
-- Deep dark navy base: #090d16 (Sidebar), #0d1117 (Content/Cards), #161b22 (Commands)
-- Accent Cyan/Blue:    #70d6ff / #8ab4f8 / #1565c0
-- Accent Green:        #81c995 / #00e676
-- Accent Yellow:       #fdd663
-- Borders & Outlines:  #21262d / #30363d / #444746
+Sleek, modern, high-taste dark aesthetic:
+- Deep Obsidian base:    #0B0F17 (Velvety dark canvas)
+- Elevated Surface:      #131B2E (Soft elevated cards)
+- Borders & Outlines:    #1E293B (Subtle slate border)
+- Electric Sky & Indigo: #38BDF8 / #818CF8 (Vibrant modern accents)
+- Mint / Emerald:        #34D399 (Crisp verified status)
+- Warm Amber:            #FBBF24 (Attention warnings)
+- Text Hierarchy:        #F8FAFC (Pure White) & #94A3B8 (Muted Slate)
 """
 
 from __future__ import annotations
@@ -14,20 +16,39 @@ from typing import List, Tuple
 from rich.style import Style
 from rich.text import Text
 
-M3_SURFACE = "#0d1117"
-M3_SURFACE_PANEL = "#090d16"
-M3_SURFACE_CARD = "#161b22"
-M3_SURFACE_HOVER = "#21262d"
-M3_OUTLINE = "#30363d"
-M3_OUTLINE_FOCUS = "#70d6ff"
+# Base Surfaces
+OBSIDIAN_BASE = "#0B0F17"
+ELEVATED_SURFACE = "#131B2E"
+CARD_BORDER = "#1E293B"
+CARD_BORDER_FOCUS = "#38BDF8"
 
-GOOGLE_BLUE = "#70d6ff"
-GOOGLE_RED = "#f28b82"
-GOOGLE_YELLOW = "#fdd663"
-GOOGLE_GREEN = "#81c995"
+# Accents
+ACCENT_ELECTRIC_CYAN = "#38BDF8"
+ACCENT_INDIGO = "#818CF8"
+SUCCESS_MINT = "#34D399"
+WARNING_AMBER = "#FBBF24"
+ERROR_ROSE = "#F43F5E"
 
-M3_TEXT_PRIMARY = "#e3e3e3"
-M3_TEXT_MUTED = "#80868b"
+# Typography
+TEXT_PURE_WHITE = "#F8FAFC"
+TEXT_MUTED_SLATE = "#94A3B8"
+TEXT_DIM = "#64748B"
+
+# Backward compatibility aliases
+M3_SURFACE = ELEVATED_SURFACE
+M3_SURFACE_PANEL = OBSIDIAN_BASE
+M3_SURFACE_CARD = ELEVATED_SURFACE
+M3_SURFACE_HOVER = "#1E293B"
+M3_OUTLINE = CARD_BORDER
+M3_OUTLINE_FOCUS = ACCENT_ELECTRIC_CYAN
+
+GOOGLE_BLUE = ACCENT_ELECTRIC_CYAN
+GOOGLE_RED = ERROR_ROSE
+GOOGLE_YELLOW = WARNING_AMBER
+GOOGLE_GREEN = SUCCESS_MINT
+
+M3_TEXT_PRIMARY = TEXT_PURE_WHITE
+M3_TEXT_MUTED = TEXT_MUTED_SLATE
 M3_TEXT_WHITE = "#ffffff"
 
 
@@ -38,11 +59,10 @@ def hex_to_rgb(hex_code: str) -> Tuple[int, int, int]:
 
 def get_gradient_color(progress: float) -> Tuple[int, int, int]:
     stops = [
-        hex_to_rgb(GOOGLE_BLUE),
-        hex_to_rgb(GOOGLE_RED),
-        hex_to_rgb(GOOGLE_YELLOW),
-        hex_to_rgb(GOOGLE_GREEN),
-        hex_to_rgb(GOOGLE_BLUE),
+        hex_to_rgb(ACCENT_ELECTRIC_CYAN),
+        hex_to_rgb(ACCENT_INDIGO),
+        hex_to_rgb(SUCCESS_MINT),
+        hex_to_rgb(ACCENT_ELECTRIC_CYAN),
     ]
     p = max(0.0, min(1.0, progress))
     num_segments = len(stops) - 1
@@ -60,7 +80,7 @@ def apply_google_gradient(text_lines: List[str]) -> Text:
     """Helper for logo gradient rendering."""
     rich_text = Text()
     for y, line in enumerate(text_lines):
-        rich_text.append(line, style="bold #70d6ff")
+        rich_text.append(line, style="bold #38bdf8")
         if y < len(text_lines) - 1:
             rich_text.append("\n")
     return rich_text
@@ -71,8 +91,8 @@ apply_pastel_gradient = apply_google_gradient
 
 APP_CSS = """
 Screen {
-    background: #090d16;
-    color: #e3e3e3;
+    background: #0B0F17;
+    color: #F8FAFC;
     layers: base modal;
     layout: vertical;
 }
@@ -81,7 +101,7 @@ Screen {
 #welcome-main-container {
     width: 100%;
     height: 1fr;
-    background: #090d16;
+    background: #0B0F17;
     padding: 1 3;
     overflow-y: auto;
     align: center top;
@@ -98,28 +118,13 @@ Screen {
 #welcome-hero-subtitle {
     width: 100%;
     text-align: center;
-    color: #70d6ff;
+    color: #38bdf8;
     text-style: bold;
     margin-bottom: 1;
 }
 
-#welcome-features-row {
-    width: 100%;
-    height: auto;
-    margin-bottom: 1;
-}
-
-.wonder-feature-card {
-    width: 1fr;
-    height: auto;
-    background: #161b22;
-    border: solid #30363d;
-    padding: 1 2;
-    margin: 0 1;
-}
-
 #welcome-tracks-title {
-    color: #ffffff;
+    color: #F8FAFC;
     text-style: bold;
     margin-top: 1;
     margin-bottom: 1;
@@ -133,28 +138,25 @@ Screen {
 .track-option-card {
     width: 100%;
     height: auto;
-    background: #161b22;
-    border: solid #30363d;
+    background: #131B2E;
+    border: round #1E293B;
     padding: 1 2;
     margin-bottom: 1;
+}
+
+.track-option-card:focus {
+    border: round #38bdf8;
+    background: #1E293B;
 }
 
 #welcome-preflight-badge {
     width: 100%;
     height: auto;
-    background: #0d1117;
-    border: solid #21262d;
+    background: #131B2E;
+    border: round #1E293B;
     padding: 1 2;
     margin-top: 1;
     text-align: center;
-}
-
-#welcome-action-row {
-    width: 100%;
-    height: auto;
-    align: right middle;
-    margin-top: 1;
-    margin-bottom: 1;
 }
 
 /* Workspace 2-Column Grid Layout */
@@ -162,14 +164,14 @@ Screen {
     width: 100%;
     height: 1fr;
     layout: horizontal;
-    background: #090d16;
+    background: #0B0F17;
 }
 
 #sidebar-nav {
-    width: 30;
+    width: 32;
     height: 100%;
-    background: #090d16;
-    border-right: solid #21262d;
+    background: #0B0F17;
+    border-right: solid #1E293B;
     padding: 2 2;
 }
 
@@ -186,7 +188,7 @@ Screen {
 #content-area {
     width: 1fr;
     height: 1fr;
-    background: #0d1117;
+    background: #0F172A;
     padding: 2 3;
     overflow-y: auto;
 }
@@ -207,20 +209,20 @@ Static {
 }
 
 .step-indicator-label {
-    color: #80868b;
+    color: #94A3B8;
     margin-bottom: 0;
     width: 100%;
 }
 
 .wizard-step-title {
-    color: #ffffff;
+    color: #F8FAFC;
     text-style: bold;
     margin-bottom: 1;
     width: 100%;
 }
 
 .wizard-step-description {
-    color: #e3e3e3;
+    color: #94A3B8;
     margin-bottom: 1;
     width: 100%;
 }
@@ -229,8 +231,8 @@ Static {
 #command-callout-card {
     width: 100%;
     height: auto;
-    background: #161b22;
-    border: solid #30363d;
+    background: #131B2E;
+    border: round #1E293B;
     padding: 1 2;
     margin: 1 0;
 }
@@ -257,7 +259,7 @@ Static {
 }
 
 .column-header-label {
-    color: #ffffff;
+    color: #F8FAFC;
     text-style: bold;
     margin-bottom: 1;
 }
@@ -265,8 +267,8 @@ Static {
 .compact-cluster-card {
     width: 100%;
     height: auto;
-    background: #161b22;
-    border: solid #30363d;
+    background: #131B2E;
+    border: round #1E293B;
     padding: 0 1;
     margin-bottom: 1;
 }
@@ -274,8 +276,8 @@ Static {
 #cluster-verification-box {
     width: 100%;
     height: auto;
-    background: #11151c;
-    border: solid #70d6ff;
+    background: #131B2E;
+    border: round #38bdf8;
     padding: 1 1;
     margin-bottom: 1;
 }
@@ -283,8 +285,8 @@ Static {
 #cluster-compact-checklist {
     width: 100%;
     height: auto;
-    background: #090d16;
-    border: solid #21262d;
+    background: #0B0F17;
+    border: round #1E293B;
     padding: 1 1;
 }
 
@@ -292,8 +294,8 @@ Static {
 #execution-checklist-card {
     width: 100%;
     height: auto;
-    background: #090d16;
-    border: solid #21262d;
+    background: #131B2E;
+    border: round #1E293B;
     padding: 1 2;
     margin: 1 0;
 }
@@ -308,64 +310,64 @@ Static {
 
 .action-button {
     margin-left: 1;
-    background: #1565c0;
+    background: #2563EB;
     color: #ffffff;
-    border: solid #70d6ff;
+    border: round #38bdf8;
     text-style: bold;
     min-width: 24;
 }
 
 .action-button:hover {
-    background: #1976d2;
+    background: #1D4ED8;
     color: #ffffff;
 }
 
 .action-button:focus {
-    border: heavy #ffffff;
-    background: #1976d2;
+    border: round #ffffff;
+    background: #1D4ED8;
     color: #ffffff;
     text-style: bold;
 }
 
 .secondary-button {
     margin-right: 1;
-    background: #161b22;
-    color: #e3e3e3;
-    border: solid #30363d;
+    background: #131B2E;
+    color: #F8FAFC;
+    border: round #1E293B;
     min-width: 16;
 }
 
 .secondary-button:hover {
-    background: #21262d;
-    color: #70d6ff;
-    border: solid #70d6ff;
+    background: #1E293B;
+    color: #38bdf8;
+    border: round #38bdf8;
 }
 
 .secondary-button:focus {
-    border: heavy #70d6ff;
-    background: #21262d;
-    color: #70d6ff;
+    border: round #38bdf8;
+    background: #1E293B;
+    color: #38bdf8;
     text-style: bold;
 }
 
 Button:focus {
-    border: heavy #ffffff;
-    background: #1976d2;
+    border: round #ffffff;
+    background: #2563EB;
     color: #ffffff;
     text-style: bold;
 }
 
 .compact-cluster-card:focus {
-    border: heavy #70d6ff;
-    background: #1565c0;
+    border: round #38bdf8;
+    background: #1E293B;
 }
 
 /* Bottom TUI Keymap Dock Bar */
 #bottom-bar {
     dock: bottom;
     height: 3;
-    background: #090d16;
-    border-top: solid #21262d;
+    background: #0B0F17;
+    border-top: solid #1E293B;
     padding: 0 1;
 }
 
@@ -377,12 +379,12 @@ Button:focus {
 
 #keyboard-keymaps {
     width: 1fr;
-    color: #e3e3e3;
+    color: #F8FAFC;
 }
 
 #keyboard-step-badge {
     width: auto;
-    color: #70d6ff;
+    color: #38bdf8;
     text-align: right;
 }
 
@@ -390,9 +392,9 @@ Button:focus {
 #top-header {
     dock: top;
     height: 3;
-    background: #090d16;
-    color: #e3e3e3;
-    border-bottom: solid #21262d;
+    background: #0B0F17;
+    color: #F8FAFC;
+    border-bottom: solid #1E293B;
     padding: 0 2;
 }
 
@@ -401,7 +403,7 @@ Button:focus {
 }
 
 #header-stepper {
-    color: #80868b;
+    color: #94A3B8;
     text-align: right;
     width: 1fr;
 }
@@ -410,16 +412,16 @@ Button:focus {
 #help-modal-container {
     width: 80;
     height: auto;
-    background: #161b22;
-    border: round #70d6ff;
+    background: #131B2E;
+    border: round #38bdf8;
     padding: 1 2;
 }
 
 #exit-modal-container {
     width: 60;
     height: auto;
-    background: #161b22;
-    border: round #f28b82;
+    background: #131B2E;
+    border: round #F43F5E;
     padding: 1 2;
     align: center middle;
 }
