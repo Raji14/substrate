@@ -21,11 +21,11 @@ LOGO_LINES = [
     "/_/   \\_\\____|_____|_| \\_| |_|        |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
-INTRO_TEXT = "Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
+INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
 
 
 class WelcomeScreen(Screen[None]):
-    """The iconic splash screen with 'Agent Substrate' title and 2 setup tracks."""
+    """The iconic welcome screen with 'Agent Substrate' splash title and 2 setup tracks."""
 
     selected_index: reactive[int] = reactive(0)
     typewriter_idx: reactive[int] = reactive(0)
@@ -84,7 +84,7 @@ class WelcomeScreen(Screen[None]):
                 ("?", "Help", False),
                 ("Ctrl+C", "Exit", False),
             ],
-            step_badge="Setup Track",
+            step_badge="Welcome",
         )
 
     def _render_hero_logo(self) -> Text:

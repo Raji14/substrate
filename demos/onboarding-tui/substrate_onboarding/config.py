@@ -251,7 +251,7 @@ class StepMetadata:
 STEP_CONFIGS: Dict[OnboardingStep, StepMetadata] = {
     OnboardingStep.WELCOME: StepMetadata(
         step_num=0,
-        title="Setup Track",
+        title="Welcome",
         heading="Agent Substrate Onboarding",
         description="High-density sandboxing and sub-100ms runtime for autonomous AI agents on pre-existing Kubernetes clusters.",
         real_command="atectl onboard",

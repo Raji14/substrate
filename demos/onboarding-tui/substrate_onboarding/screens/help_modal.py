@@ -40,7 +40,7 @@ class HelpModal(ModalScreen[None]):
                 ("[c]", "Copy active YAML manifest to clipboard"),
                 ("[t]", "Run live cold-start test turn (Step 7)"),
                 ("[Tab / Shift+Tab]", "Move focus across interactive controls"),
-                ("[0]", "Return to Track Selection"),
+                ("[0]", "Return to Welcome Screen"),
                 ("[Ctrl+C / Ctrl+D]", "Pause onboarding & prompt exit confirmation"),
                 ("[Esc / ? / F1 / q]", "Close modal dialogs / Toggle Help / Quick Exit"),
             ]
