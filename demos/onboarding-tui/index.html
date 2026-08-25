@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚡ Agent Substrate — Getting set up</title>
+  <title>⚡ Agent Substrate — Onboarding UX Simulator (Prototype)</title>
   <style>
     :root {
       --bg-canvas: #090d16;
@@ -1496,7 +1496,7 @@
   <!-- Top Control Toolbar -->
   <div class="toolbar">
     <div class="toolbar-title">
-      <span>Agent Substrate</span>
+      <span>Agent Substrate <span style="font-size: 11px; opacity: 0.75; font-weight: normal; margin-left: 6px;">[UX Prototype Simulation]</span></span>
     </div>
     <div class="controls-group">
       <button class="btn-tool" onclick="toggleHelpModal()">❓ Shortcuts & Docs <kbd style="font-size: 10px; opacity: 0.8; margin-left: 4px;">?</kbd></button>
@@ -1510,7 +1510,7 @@
       <div class="dot dot-close"></div>
       <div class="dot dot-min"></div>
       <div class="dot dot-max"></div>
-      <div class="window-title">rajithal@rajithal: ~/workspaces/substrate — substrate onboard</div>
+      <div class="window-title">rajithal@rajithal: ~/workspaces/substrate — substrate onboard [prototype]</div>
       <div class="header-cluster-badge" id="header-cluster-badge" style="display: none;">
         <span class="badge-pulse-dot"></span>
         <span id="header-cluster-text">gke_enterprise_us-central1_prod (us-central1)</span>
@@ -1529,7 +1529,7 @@
 <span class="ascii-line-5">/_/   \_\____|_____|_| \_| |_|        |____/ \___/|____/|____/ |_| |_| \_\_/   \_\_| |_____|</span>
       </div>
 
-      <div class="welcome-tagline" style="margin-bottom: 24px; font-size: 13px;">High-Density AI Agent Sandboxing on Kubernetes</div>
+      <div class="welcome-tagline" style="margin-bottom: 24px; font-size: 13px;">High-Density AI Agent Sandboxing — Interactive Prototype Simulator</div>
 
       <!-- Streamlined Tracks Selection -->
       <div class="tracks-section" style="max-width: 680px; width: 100%;">
@@ -1573,7 +1573,7 @@
       
       <!-- Left Sidebar Navigation (7 numbered steps) -->
       <div class="sidebar-nav">
-        <div class="sidebar-brand" onclick="showWelcomeScreen()">Agent Substrate</div>
+        <div class="sidebar-brand" onclick="showWelcomeScreen()">Agent Substrate <span style="font-size: 9px; opacity: 0.7;">[Prototype]</span></div>
         <div class="sidebar-subtitle">Getting set up</div>
         
         <div class="progress-bar-container">
@@ -1666,7 +1666,7 @@
               
               <div class="cluster-info-box" id="cluster-status-box">
                 <div class="cluster-info-header">🌐 CLUSTER VERIFICATION:</div>
-                <div class="cluster-info-line" id="cluster-line-provider"><strong>Provider:</strong> Google Kubernetes Engine (GKE v1.31.1) <span style="color: var(--accent-green);">[Verified ✓]</span></div>
+                <div class="cluster-info-line" id="cluster-line-provider"><strong>Provider:</strong> Google Kubernetes Engine (GKE v1.35.1) <span style="color: var(--accent-green);">[Verified ✓]</span></div>
                 <div class="cluster-info-line" id="cluster-line-region"><strong>Region:</strong> us-central1 (Iowa)</div>
                 <div class="cluster-info-line" id="cluster-line-capacity"><strong>Capacity:</strong> 12 ready nodes (Hardware virtualization ready)</div>
                 <div class="cluster-info-line" id="cluster-line-probe" style="color: var(--accent-yellow);"><strong>Substrate Probe:</strong> [substrate-system] ➔ Not Installed (Clean Ready)</div>
@@ -2198,10 +2198,10 @@ atectl logs workerpool/default-worker-pool --follow</div>
     let gkeAgreementAccepted = true;
 
     const clustersData = [
-      { provider: "Google Kubernetes Engine (GKE v1.31.1)", region: "us-central1 (Iowa)", capacity: "12 ready nodes (Hardware virtualization ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: true },
-      { provider: "Amazon Elastic Kubernetes Service (EKS v1.30.4)", region: "us-east-1 (N. Virginia)", capacity: "8 ready nodes (Nitro Enclaves enabled)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false },
-      { provider: "Azure Kubernetes Service (AKS v1.30.3)", region: "eastus (Virginia)", capacity: "6 ready nodes (Hyper-V isolation ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false },
-      { provider: "Kind Local Sandbox (Kubernetes v1.31.0)", region: "local (localhost)", capacity: "3 ready nodes (Docker container sandbox)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false }
+      { provider: "Google Kubernetes Engine (GKE v1.35.1)", region: "us-central1 (Iowa)", capacity: "12 ready nodes (Hardware virtualization ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: true },
+      { provider: "Amazon Elastic Kubernetes Service (EKS v1.35.0)", region: "us-east-1 (N. Virginia)", capacity: "8 ready nodes (Nitro Enclaves enabled)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false },
+      { provider: "Azure Kubernetes Service (AKS v1.35.0)", region: "eastus (Virginia)", capacity: "6 ready nodes (Hyper-V isolation ready)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false },
+      { provider: "Kind Local Sandbox (Kubernetes v1.35.0)", region: "local (localhost)", capacity: "3 ready nodes (Docker container sandbox)", probe: "[substrate-system] ➔ Not Installed (Clean Ready)", isGke: false }
     ];
 
     const cccProgressItems = [

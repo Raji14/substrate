@@ -18,7 +18,9 @@ __pycache__/
 /benchmarking/automation/scratch/
 
 # Developers can store local stuff in dirs named __something
-__*/
+__*
+!**/__init__.py
+!**/__main__.py
 
 # OS artifacts
 .DS_Store

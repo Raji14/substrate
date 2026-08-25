@@ -4,11 +4,10 @@ import asyncio
 import os
 import sys
 
-# Ensure repository root is on sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+# Ensure directory is on sys.path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from substrate_onboarding.app import SubstrateOnboardingApp
-from substrate_onboarding.screens.auth_screen import AuthScreen
 
 
 class SimulatedOnboardingApp(SubstrateOnboardingApp):

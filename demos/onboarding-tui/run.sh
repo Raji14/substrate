@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PYTHONPATH="${DIR}:${PYTHONPATH:-}"
 
-python3 -m substrate_onboarding "$@"
+python3 "${DIR}/onboard.py" "$@"
