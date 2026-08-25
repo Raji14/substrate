@@ -52,7 +52,9 @@ class GenericStepScreen(Screen):
         ("n", "skip_test_turn", "Skip Test Turn"),
         ("t", "run_test_turn", "Test Turn"),
         ("question_mark", "show_help", "Help"),
+        ("?", "show_help", "Help"),
         ("slash", "show_help", "Help"),
+        ("f1", "show_help", "Help"),
         ("q", "request_exit", "Exit"),
         ("escape", "handle_escape", "Exit / Back"),
     ]
@@ -445,7 +447,18 @@ class GenericStepScreen(Screen):
             ]
         return [("Enter ↵", "Proceed", True), ("b", "Back", False), ("?", "Help", False)]
 
+    def on_key(self, event) -> None:
+        """Handle question mark and shortcuts gracefully."""
+        if event.key in ("question_mark", "?") or getattr(event, "character", "") == "?":
+            self.action_show_help()
+            event.prevent_default()
+            event.stop()
+
     def action_proceed_next(self) -> None:
+        if self.step_key == OnboardingStep.COMPLETE:
+            if hasattr(self.app, "finish_onboarding"):
+                self.app.finish_onboarding()
+            return
         # Default-Forward Enter: Fast-forward preflight checklist if in progress
         if self.step_key == OnboardingStep.CHECK_SETUP:
             self._checklist_progress = len(self.meta.checklist_items)

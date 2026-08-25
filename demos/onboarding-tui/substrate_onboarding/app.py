@@ -28,7 +28,12 @@ class SubstrateOnboardingApp(App[UserSetupState]):
         Binding("ctrl+d", "request_exit", "Exit", show=False, priority=True),
         Binding("f1", "show_help", "Help", show=True),
         Binding("slash", "show_help", "Help", show=False),
+        Binding("question_mark", "show_help", "Help", show=True),
+        Binding("?", "show_help", "Help", show=False),
         Binding("b", "previous_step", "Back", show=False),
+        Binding("left", "previous_step", "Back", show=False),
+        Binding("backspace", "previous_step", "Back", show=False),
+        Binding("0", "return_to_start", "Return to Start", show=False),
     ]
 
     SCREENS = {
@@ -96,6 +101,17 @@ class SubstrateOnboardingApp(App[UserSetupState]):
     def previous_step(self) -> None:
         """Move backward to the previous onboarding state."""
         self.state_machine.previous_step()
+
+    def action_return_to_start(self) -> None:
+        """Return to the initial Welcome / Setup Track screen."""
+        self.state_machine.transition_to(OnboardingStep.WELCOME)
+
+    def on_key(self, event) -> None:
+        """Global fallback key listener for help and navigation shortcuts."""
+        if event.key in ("question_mark", "?") or getattr(event, "character", "") == "?":
+            self.action_show_help()
+            event.prevent_default()
+            event.stop()
 
     def action_show_help(self) -> None:
         """Display the global help modal overlay."""

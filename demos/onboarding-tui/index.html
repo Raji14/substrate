@@ -2981,8 +2981,8 @@ atectl logs workerpool/default-worker-pool --follow</div>
 
     // Keyboard Event Handling
     document.addEventListener('keydown', function(e) {
-      // Global Help Modal keybindings (? / F1 / Esc)
-      if (e.key === 'F1' || (e.key === '?' && !e.ctrlKey && !e.metaKey)) {
+      // Global Help Modal keybindings (? / / / F1 / h)
+      if (!e.ctrlKey && !e.metaKey && (e.key === '?' || e.key === '/' || e.key === 'h' || e.key === 'H' || e.key === 'F1' || (e.code === 'Slash' && e.shiftKey))) {
         e.preventDefault();
         toggleHelpModal();
         return;
@@ -3118,10 +3118,12 @@ atectl logs workerpool/default-worker-pool --follow</div>
             proceedFromStep5();
           } else if (currentStep === 5) {
             proceedFromStep6();
+          } else if (currentStep === 6) {
+            alert('🎉 Agent Substrate on GKE is fully operational! Ready for high-density agent workloads.');
           } else if (currentStep < totalSteps - 1) {
             goToStep(currentStep + 1);
           }
-        } else if (e.key === 'b' || e.key === 'Backspace') {
+        } else if (e.key === 'b' || e.key === 'Backspace' || e.key === 'ArrowLeft') {
           if (currentStep === 0) {
             showWelcomeScreen();
           } else {

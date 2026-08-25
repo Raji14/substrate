@@ -30,7 +30,22 @@ class DoctorScreen(Screen[None]):
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
         ("b", "previous_step", "Back"),
+        ("left", "previous_step", "Back"),
+        ("backspace", "previous_step", "Back"),
+        ("0", "return_to_start", "Return to Start"),
+        ("question_mark", "show_help", "Help"),
+        ("?", "show_help", "Help"),
+        ("slash", "show_help", "Help"),
+        ("f1", "show_help", "Help"),
+        ("q", "request_exit", "Exit"),
     ]
+
+    def on_key(self, event) -> None:
+        """Handle question mark and help keypresses."""
+        if event.key in ("question_mark", "?") or getattr(event, "character", "") == "?":
+            self.action_show_help()
+            event.prevent_default()
+            event.stop()
 
     def __init__(self, name: str = "control_plane"):
         super().__init__(name=name)
@@ -117,6 +132,18 @@ class DoctorScreen(Screen[None]):
     def action_previous_step(self) -> None:
         if hasattr(self.app, "previous_step"):
             self.app.previous_step()
+
+    def action_show_help(self) -> None:
+        if hasattr(self.app, "action_show_help"):
+            self.app.action_show_help()
+
+    def action_return_to_start(self) -> None:
+        if hasattr(self.app, "state_machine"):
+            self.app.state_machine.transition_to(OnboardingStep.WELCOME)
+
+    def action_request_exit(self) -> None:
+        if hasattr(self.app, "action_request_exit"):
+            self.app.action_request_exit()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn-proceed":

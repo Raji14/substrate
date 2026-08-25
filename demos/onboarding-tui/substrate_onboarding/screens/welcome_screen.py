@@ -43,10 +43,19 @@ class WelcomeScreen(Screen[None]):
         ("1", "select_track_1", "Quickstart"),
         ("2", "select_track_2", "Advanced"),
         ("question_mark", "show_help", "Help"),
+        ("?", "show_help", "Help"),
         ("slash", "show_help", "Help"),
+        ("f1", "show_help", "Help"),
         ("q", "request_exit", "Exit"),
         ("escape", "request_exit", "Exit"),
     ]
+
+    def on_key(self, event) -> None:
+        """Handle question mark and help keypresses."""
+        if event.key in ("question_mark", "?") or getattr(event, "character", "") == "?":
+            self.action_show_help()
+            event.prevent_default()
+            event.stop()
 
     def __init__(self, name: Optional[str] = "welcome"):
         super().__init__(name=name)
