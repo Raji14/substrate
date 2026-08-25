@@ -32,7 +32,11 @@ class GenericStepScreen(Screen):
     BINDINGS = [
         ("enter", "proceed_next", "Proceed"),
         ("space", "proceed_next", "Proceed"),
+        ("right", "proceed_next", "Proceed"),
         ("b", "previous_step", "Back"),
+        ("left", "previous_step", "Back"),
+        ("backspace", "previous_step", "Back"),
+        ("0", "return_to_start", "Return to Start"),
         ("1", "select_opt_1", "Select 1"),
         ("2", "select_opt_2", "Select 2"),
         ("3", "select_opt_3", "Select 3"),
@@ -43,9 +47,14 @@ class GenericStepScreen(Screen):
         ("shift+tab", "navigate_up", "Focus Prev"),
         ("k", "navigate_up", "Previous"),
         ("j", "navigate_down", "Next"),
+        ("m", "toggle_manifest", "Toggle Manifest"),
         ("y", "run_test_turn", "Run Test Turn"),
         ("n", "skip_test_turn", "Skip Test Turn"),
         ("t", "run_test_turn", "Test Turn"),
+        ("question_mark", "show_help", "Help"),
+        ("slash", "show_help", "Help"),
+        ("q", "request_exit", "Exit"),
+        ("escape", "handle_escape", "Exit / Back"),
     ]
 
     def __init__(self, step_key: OnboardingStep, name: Optional[str] = None):
@@ -555,12 +564,28 @@ class GenericStepScreen(Screen):
         except Exception:
             pass
 
-    def action_skip_test_turn(self) -> None:
-        """Skip in-TUI test turn on completion step."""
-        self._test_turn_skipped = True
-        self._test_turn_ran = False
+    def action_return_to_start(self) -> None:
+        if hasattr(self.app, "state_machine"):
+            self.app.state_machine.transition_to(OnboardingStep.WELCOME)
+
+    def action_toggle_manifest(self) -> None:
+        self._drawer_open = not self._drawer_open
         try:
-            widget = self.query_one("#test-turn-playground", Static)
-            widget.update(self._render_test_turn_playground())
+            drawer = self.query_one("#declarative-manifest-card", Static)
+            drawer.update(self._render_manifest_drawer())
         except Exception:
             pass
+
+    def action_show_help(self) -> None:
+        if hasattr(self.app, "action_show_help"):
+            self.app.action_show_help()
+
+    def action_request_exit(self) -> None:
+        if hasattr(self.app, "action_request_exit"):
+            self.app.action_request_exit()
+
+    def action_handle_escape(self) -> None:
+        if self.step_key == OnboardingStep.CHECK_SETUP:
+            self.action_request_exit()
+        else:
+            self.action_previous_step()

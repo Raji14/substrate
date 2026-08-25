@@ -40,22 +40,22 @@ class HelpModal(ModalScreen[None]):
                 ("[c]", "Copy active YAML manifest to clipboard"),
                 ("[t]", "Run live cold-start test turn (Step 7)"),
                 ("[Tab / Shift+Tab]", "Move focus across interactive controls"),
-                ("[0]", "Return to Welcome Screen"),
+                ("[0]", "Return to Track Selection"),
                 ("[Ctrl+C / Ctrl+D]", "Pause onboarding & prompt exit confirmation"),
-                ("[Esc / ? / F1]", "Close modal dialogs / Toggle Help"),
+                ("[Esc / ? / F1 / q]", "Close modal dialogs / Toggle Help / Quick Exit"),
             ]
             for key, desc in shortcuts:
                 t = Text()
-                t.append(f"  {key.ljust(22)}", style="bold #c084fc")
-                t.append(f"{desc}", style="#f0f6fc")
+                t.append(f"  {key.ljust(22)}", style="bold #38bdf8")
+                t.append(f"{desc}", style="#f8fafc")
                 yield Static(t)
 
             yield Label("\nDocumentation & Guides:", classes="wizard-step-title")
             docs = [
                 ("GitHub Repo", "https://github.com/agent-substrate/substrate"),
-                ("Architecture Guide", "docs/dev/code-layout.md"),
-                ("Onboarding Runbook", "docs/blog/agent-substrate-onboarding-walkthrough.md"),
-                ("Roadmap & MicroVM", "docs/roadmap.md"),
+                ("Architecture Guide", "docs/architecture.md"),
+                ("Code Layout", "docs/dev/code-layout.md"),
+                ("Roadmap & Sandboxing", "docs/roadmap.md"),
             ]
             for title, path in docs:
                 t = Text()

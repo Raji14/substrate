@@ -21,11 +21,11 @@ LOGO_LINES = [
     "/_/   \\_\\____|_____|_| \\_| |_|        |____/ \\___/|____/|____/ |_| |_| \\_\\_/   \\_\\_| |_____|",
 ]
 
-INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
+INTRO_TEXT = "Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers."
 
 
 class WelcomeScreen(Screen[None]):
-    """The iconic, wonder-filled welcome screen with 'Agent Substrate' splash title and 2 setup tracks."""
+    """The iconic splash screen with 'Agent Substrate' title and 2 setup tracks."""
 
     selected_index: reactive[int] = reactive(0)
     typewriter_idx: reactive[int] = reactive(0)
@@ -33,12 +33,19 @@ class WelcomeScreen(Screen[None]):
     BINDINGS = [
         ("enter", "confirm_selection", "Get Started"),
         ("space", "confirm_selection", "Get Started"),
+        ("right", "confirm_selection", "Get Started"),
         ("up", "navigate_up", "Previous Track"),
         ("k", "navigate_up", "Previous Track"),
+        ("shift+tab", "navigate_up", "Previous Track"),
         ("down", "navigate_down", "Next Track"),
         ("j", "navigate_down", "Next Track"),
+        ("tab", "navigate_down", "Next Track"),
         ("1", "select_track_1", "Quickstart"),
         ("2", "select_track_2", "Advanced"),
+        ("question_mark", "show_help", "Help"),
+        ("slash", "show_help", "Help"),
+        ("q", "request_exit", "Exit"),
+        ("escape", "request_exit", "Exit"),
     ]
 
     def __init__(self, name: Optional[str] = "welcome"):
@@ -75,8 +82,9 @@ class WelcomeScreen(Screen[None]):
                 ("1", "Quickstart", False),
                 ("2", "Advanced", False),
                 ("?", "Help", False),
+                ("Ctrl+C", "Exit", False),
             ],
-            step_badge="Welcome",
+            step_badge="Setup Track",
         )
 
     def _render_hero_logo(self) -> Text:
@@ -145,6 +153,14 @@ class WelcomeScreen(Screen[None]):
         self.selected_index = 1
         self._refresh_tracks()
         self.action_confirm_selection()
+
+    def action_show_help(self) -> None:
+        if hasattr(self.app, "action_show_help"):
+            self.app.action_show_help()
+
+    def action_request_exit(self) -> None:
+        if hasattr(self.app, "action_request_exit"):
+            self.app.action_request_exit()
 
     def _refresh_tracks(self) -> None:
         for idx in range(len(self.tracks)):

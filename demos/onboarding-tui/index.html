@@ -2135,7 +2135,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
           <div class="shortcut-row"><span class="shortcut-key-badge">m</span> <span>Expand / Collapse YAML drawer</span></div>
           <div class="shortcut-row"><span class="shortcut-key-badge">c</span> <span>Copy YAML manifest to clipboard</span></div>
           <div class="shortcut-row"><span class="shortcut-key-badge">t</span> <span>Run live test turn (Step 7)</span></div>
-          <div class="shortcut-row"><span class="shortcut-key-badge">0</span> <span>Return to Welcome Screen</span></div>
+          <div class="shortcut-row"><span class="shortcut-key-badge">0</span> <span>Return to Track Selection</span></div>
           <div class="shortcut-row"><span class="shortcut-key-badge">? / F1</span> <span>Toggle this Help & Docs modal</span></div>
         </div>
       </div>
@@ -2356,7 +2356,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       startItemSpinner(0);
     }
 
-    const INTRO_TEXT = "Welcome to Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers.";
+    const INTRO_TEXT = "Agent Substrate — the high-density execution runtime with a pierceable abstraction for Platform Engineers and AI Application Developers.";
     let typeIdx = 0;
     let typewriterTimeout = null;
 
@@ -2907,7 +2907,7 @@ atectl logs workerpool/default-worker-pool --follow</div>
       const isWelcome = welcomeView && welcomeView.classList.contains('active');
 
       if (isWelcome) {
-        badge.innerText = "Welcome";
+        badge.innerText = "Setup Track";
         legend.innerHTML = `
           <span class="keymap-action primary-action" onclick="startWizardFromWelcome()"><kbd>Enter ↵</kbd> Begin Setup</span>
           <span class="keymap-action" onclick="selectTrack(0); startWizardFromWelcome();"><kbd>1</kbd> Quickstart</span>
